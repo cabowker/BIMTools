@@ -1,9 +1,11 @@
 ﻿<RevitAddIns>
-    <AddIn Type="Command">
+    <AddIn Type="Application">
         <Name>ValorVDC_BIMTools</Name>
         <Assembly>ValorVDC_BIMTools/ValorVDC_BIMTools.dll</Assembly>
-        <AddInId>EFA62EA0-5F07-4D37-91C4-9AB63363E4ED</AddInId>
-        <FullClassName>ValorVDC_BIMTools.Commands.StartupCommand</FullClassName>
+        <AddInId>
+            675F1F1B-CF97-4987-A786-2AC3948EBB76
+        </AddInId>
+        <FullClassName>ValorVDC_BIMTools.AppCommand</FullClassName>
         <Text>ValorVDC_BIMTools</Text>
         <VendorId>Development</VendorId>
         <VendorDescription></VendorDescription>

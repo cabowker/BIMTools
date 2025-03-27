@@ -12,7 +12,7 @@ public class AppCommand : IExternalApplication
         }
         catch (Exception)
         {
-            //ignore
+            TaskDialog.Show("Error", "Could not load Ribbon tab");
         }
 
         var ribbonPanel = application.GetRibbonPanels("BIM Tools").FirstOrDefault(
@@ -20,7 +20,6 @@ public class AppCommand : IExternalApplication
                           application.CreateRibbonPanel("BIM Tools", "MEP Tools");
 
         FixSKewPipe.CreateButton(ribbonPanel);
-        
         
         return Result.Succeeded;
     }
