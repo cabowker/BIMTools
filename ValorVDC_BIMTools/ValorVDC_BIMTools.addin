@@ -1,12 +1,12 @@
 ﻿<RevitAddIns>
-    <AddIn Type="Application">
+    <AddIn Type="Command">
         <Name>ValorVDC_BIMTools</Name>
         <Assembly>ValorVDC_BIMTools/ValorVDC_BIMTools.dll</Assembly>
-        <AddInId>39E2617E-01FB-4E8B-8BF8-C611B9F9D4EA</AddInId>
-        <FullClassName>ValorVDC_BIMTools.AppCommand</FullClassName>
-        <Text>ValorVDC BIM Tools</Text>
-        <VendorId>ValorVDC</VendorId>
-        <VendorDescription>Building Better Families</VendorDescription>
-        <VendorEmail>chris@valorvdc.com</VendorEmail>
+        <AddInId>EFA62EA0-5F07-4D37-91C4-9AB63363E4ED</AddInId>
+        <FullClassName>ValorVDC_BIMTools.Commands.StartupCommand</FullClassName>
+        <Text>ValorVDC_BIMTools</Text>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+        <VendorEmail></VendorEmail>
     </AddIn>
 </RevitAddIns>
