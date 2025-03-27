@@ -7,6 +7,6 @@
         <Text>ValorVDC_BIMTools</Text>
         <VendorId>Development</VendorId>
         <VendorDescription></VendorDescription>
-        <VendorEmail></VendorEmail>
+        <VendorEmail>chris@valorVDC.com</VendorEmail>
     </AddIn>
 </RevitAddIns>
