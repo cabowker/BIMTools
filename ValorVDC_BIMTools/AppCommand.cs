@@ -1,4 +1,5 @@
 ﻿using Autodesk.Revit.UI;
+using ValorVDC_BIMTools.Commands;
 
 namespace ValorVDC_BIMTools;
 
@@ -20,6 +21,7 @@ public class AppCommand : IExternalApplication
                           application.CreateRibbonPanel("BIM Tools", "MEP Tools");
 
         FixSKewPipe.CreateButton(ribbonPanel);
+        DisconnectPipe.CreateButton(ribbonPanel);
         
         return Result.Succeeded;
     }
