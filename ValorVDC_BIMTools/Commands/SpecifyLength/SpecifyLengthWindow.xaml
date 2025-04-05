@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:ValorVDC_BIMTools.Commands.SpecifyLength"
         mc:Ignorable="d"
-        Title="Specify Length" Height="150" Width="300" WindowStartupLocation="CenterScreen">
+        Title="Specify Length" Height="200" Width="300" WindowStartupLocation="CenterScreen">
     <StackPanel Background="Beige">
         <TextBlock Text="Specify the new length of the Element:" 
                    HorizontalAlignment="Center"
@@ -15,7 +15,9 @@
                  Height="25"
                  HorizontalAlignment="Center"
                  Margin="10, 10, 0,0"/>
-        <Button Content="Let's Do This"
+        <Button Name="ActionButton"
+                Click="OKButton_Click"
+                Content="Let's Do This"
                 HorizontalAlignment="Center"
                 Margin="10, 10,10 ,10"
                 Padding="7"
