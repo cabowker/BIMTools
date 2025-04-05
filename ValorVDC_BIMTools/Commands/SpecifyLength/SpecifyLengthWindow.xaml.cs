@@ -6,10 +6,9 @@ namespace ValorVDC_BIMTools.Commands.SpecifyLength;
 public partial class SpecifyLengthWindow : Window
 {
     public double? SpecifiedLength { get; private set; }
-    public SpecifyLengthWindow(double currentLength)
+    public SpecifyLengthWindow()
     {
         InitializeComponent();
-        InputLengthFeet.Text = currentLength.ToString();
     }
     
 
