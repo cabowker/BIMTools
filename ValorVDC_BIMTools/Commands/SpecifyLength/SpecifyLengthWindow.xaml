@@ -5,19 +5,37 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:ValorVDC_BIMTools.Commands.SpecifyLength"
         mc:Ignorable="d"
-        Title="Specify Length" Height="150" Width="300" WindowStartupLocation="CenterScreen">
+        Title="Specify Length" Height="225" Width="300" WindowStartupLocation="CenterScreen">
     <StackPanel Background="Beige">
         <TextBlock Text="Specify the new length of the Element:" 
                    HorizontalAlignment="Center"
                    Margin="10, 25 , 5, 5"/>
-        <TextBox x:Name="InputLength" 
-                 Width="200"
-                 Height="25"
-                 HorizontalAlignment="Center"
-                 Margin="10, 10, 0,0"/>
+        <StackPanel Orientation="Horizontal">
+            <TextBox x:Name="InputLengthFeet"
+                     TextChanged="InputLengthFeet_TextChanged"
+                     Width="200"
+                     Height="25"
+                     HorizontalAlignment="Center"
+                     Margin="30, 10, 0,0"/>
+            <TextBlock Text="Feet"
+                       HorizontalAlignment="Center"
+                       Margin="5, 12, 0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBox x:Name="InputLengthInches"
+                     TextChanged="InputLengthInches_OnTextChanged"
+                     Width="200"
+                     Height="25"
+                     HorizontalAlignment="Center"
+                     Margin="30, 10, 0,0"/>
+            <TextBlock Text="Inches"
+                       HorizontalAlignment="Center"
+                       Margin="5, 12, 0,0"/>
+        </StackPanel>
         <Button Content="Let's Do This"
+                Click="SubmitButton_Click"
                 HorizontalAlignment="Center"
-                Margin="10, 10,10 ,10"
+                Margin="10, 20,10 ,10"
                 Padding="7"
                 Background="LawnGreen"/>
     </StackPanel>
