@@ -54,6 +54,8 @@
       <EmbeddedResource Include="Resources\mando-32.png" />
       <None Remove="Resources\vader-32.png" />
       <EmbeddedResource Include="Resources\vader-32.png" />
+      <None Remove="Resources\lightSaber.png" />
+      <EmbeddedResource Include="Resources\lightSaber.png" />
     </ItemGroup>
 
 </Project>
