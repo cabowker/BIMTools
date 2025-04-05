@@ -95,13 +95,13 @@ public class DisconnectPipe : IExternalCommand
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        var buttonName = "Disconnect Pipe";
+        var buttonName = "Disconnect Element";
         var buttonText = "Disconnect" + Environment.NewLine + "Pipe";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
         panel.AddItem(
             new PushButtonData(buttonName, buttonText, assembly.Location, className)
             {
-                ToolTip = "Disconnect Pipe at Selected End",
+                ToolTip = "Disconnect Pipe, Duct, or Conduit at Selected End",
                 LargeImage = ImagineUtilities.LoadImage(assembly, "vader-32.png")
             });
     }
