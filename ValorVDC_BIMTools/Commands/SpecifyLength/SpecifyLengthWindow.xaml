@@ -3,45 +3,46 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:ValorVDC_BIMTools.Commands.SpecifyLength"
         mc:Ignorable="d"
         Title="Specify Length" Height="225" Width="300" WindowStartupLocation="CenterScreen">
     <StackPanel Background="Beige">
-        <TextBlock Text="Specify the new length of the Element:" 
+        <TextBlock Text="Specify the new length of the Element:"
                    HorizontalAlignment="Center"
-                   Margin="10, 25 , 5, 5"/>
+                   Margin="10, 25 , 5, 5" />
         <StackPanel Orientation="Horizontal">
             <TextBox x:Name="InputLengthFeet"
                      TextChanged="InputLengthFeet_TextChanged"
                      TextAlignment="Center"
+                     VerticalAlignment="Center"
                      Width="200"
                      Height="25"
                      HorizontalAlignment="Center"
-                     Margin="45, 10, 0,0"/>
+                     Margin="45, 10, 0,0" />
             <TextBlock Text="Feet"
                        HorizontalAlignment="Center"
-                       Margin="5, 12, 0,0"/>
+                       Margin="5, 12, 0,0" />
         </StackPanel>
-        <TextBlock Text="OR" 
+        <TextBlock Text="OR"
                    HorizontalAlignment="Center"
-                   Margin="10, 10 , 5, 5"/>
+                   Margin="10, 10 , 5, 5" />
         <StackPanel Orientation="Horizontal">
             <TextBox x:Name="InputLengthInches"
                      TextChanged="InputLengthInches_OnTextChanged"
                      TextAlignment="Center"
+                     VerticalAlignment="Center"
                      Width="200"
                      Height="25"
                      HorizontalAlignment="Center"
-                     Margin="45, 10, 0,0"/>
+                     Margin="45, 10, 0,0" />
             <TextBlock Text="Inches"
                        HorizontalAlignment="Center"
-                       Margin="5, 12, 0,0"/>
+                       Margin="5, 12, 0,0" />
         </StackPanel>
         <Button Content="Let's Do This"
                 Click="SubmitButton_Click"
                 HorizontalAlignment="Center"
                 Margin="10, 20,10 ,10"
                 Padding="7"
-                Background="LawnGreen"/>
+                Background="LawnGreen" />
     </StackPanel>
 </Window>

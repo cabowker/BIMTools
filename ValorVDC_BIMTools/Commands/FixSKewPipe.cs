@@ -12,13 +12,13 @@ public class FixSKewPipe : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        UIDocument uiDocument = commandData.Application.ActiveUIDocument;
-        Document document = uiDocument.Document;
-        
+        var uiDocument = commandData.Application.ActiveUIDocument;
+        var document = uiDocument.Document;
+
         var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, "Please select the end you would to keep");
         if (pickedEnd == null)
             return Result.Cancelled;
-        
+
         var selectedElement = document.GetElement(pickedEnd);
 
         if (!(selectedElement is MEPCurve element))
@@ -26,7 +26,7 @@ public class FixSKewPipe : IExternalCommand
             TaskDialog.Show("Error", "Selected element is not a MEP curve.");
             return Result.Failed;
         }
-        
+
         // Get the connectors of the pipe
         var connectorManager = element.ConnectorManager;
 
@@ -66,7 +66,7 @@ public class FixSKewPipe : IExternalCommand
         // Get the locations of the connected and disconnected ends
         var selectededPoint = connectedConnector.Origin;
         var unSelectedPoint = oppositeConnector.Origin;
-        
+
         var newLocationPoint = new XYZ(
             selectededPoint.X, // Match X with connected end
             selectededPoint.Y, // Match Y with connected end
@@ -86,16 +86,11 @@ public class FixSKewPipe : IExternalCommand
 
                 // Determine whether to adjust start or end point based on the disconnected connector
                 if (startPoint.IsAlmostEqualTo(unSelectedPoint))
-                {
                     // Modify the start point
                     locationCurve.Curve = Line.CreateBound(newLocationPoint, endPoint);
-                }
                 else if (endPoint.IsAlmostEqualTo(unSelectedPoint))
-                {
                     // Modify the end point
                     locationCurve.Curve = Line.CreateBound(startPoint, newLocationPoint);
-                }
-
             }
             else
             {

@@ -90,7 +90,7 @@ public class DisconnectPipe : IExternalCommand
 
         return Result.Succeeded;
     }
-    
+
     public static void CreateButton(RibbonPanel panel)
     {
         var assembly = Assembly.GetExecutingAssembly();
