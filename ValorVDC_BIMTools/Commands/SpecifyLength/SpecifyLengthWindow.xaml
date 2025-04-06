@@ -15,8 +15,8 @@
                      TextAlignment="Center"
                      VerticalAlignment="Center"
                      Width="200"
-                     Height="25"
                      HorizontalAlignment="Center"
+                     Padding="0, 3"
                      Margin="45, 10, 0,0" />
             <TextBlock Text="Feet"
                        HorizontalAlignment="Center"
@@ -31,8 +31,8 @@
                      TextAlignment="Center"
                      VerticalAlignment="Center"
                      Width="200"
-                     Height="25"
                      HorizontalAlignment="Center"
+                     Padding="0, 3"
                      Margin="45, 10, 0,0" />
             <TextBlock Text="Inches"
                        HorizontalAlignment="Center"

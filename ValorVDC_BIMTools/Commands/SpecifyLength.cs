@@ -45,7 +45,7 @@ public static void CreateButton(RibbonPanel panel)
         new PushButtonData(buttonName, buttonText, assembly.Location, className)
         {
             ToolTip = "Specify Length of Pipe, Duct, or Conduit",
-            LargeImage = ImagineUtilities.LoadImage(assembly, "lightSaber.png")
+            LargeImage = ImagineUtilities.LoadImage(assembly, "falcon.png")
         });
 }
 }

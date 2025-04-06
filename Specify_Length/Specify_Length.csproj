@@ -47,17 +47,7 @@
         <PackageReference Include="Nice3point.Revit.Extensions" Version="$(RevitVersion).*"/>
         <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*"/>
         <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="Resources\mando-32.png"/>
-        <EmbeddedResource Include="Resources\mando-32.png"/>
-        <None Remove="Resources\vader-32.png"/>
-        <EmbeddedResource Include="Resources\vader-32.png"/>
-        <None Remove="Resources\lightSaber.png"/>
-        <EmbeddedResource Include="Resources\lightSaber.png"/>
-        <None Remove="Resources\falcon.png" />
-        <EmbeddedResource Include="Resources\falcon.png" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*"/>
     </ItemGroup>
 
 </Project>

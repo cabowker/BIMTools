@@ -1,0 +1,12 @@
+﻿<RevitAddIns>
+    <AddIn Type="Command">
+        <Name>Specify_Length</Name>
+        <Assembly>Specify_Length/Specify_Length.dll</Assembly>
+        <AddInId>6289F080-B90A-4208-B7DE-6DC1E2F0F1EA</AddInId>
+        <FullClassName>Specify_Length.Commands.StartupCommand</FullClassName>
+        <Text>Specify_Length</Text>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+        <VendorEmail></VendorEmail>
+    </AddIn>
+</RevitAddIns>
