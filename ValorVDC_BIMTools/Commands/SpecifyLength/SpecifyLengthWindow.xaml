@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Specify Length" Height="225" Width="300" WindowStartupLocation="CenterScreen">
+        Title="Specify Length" Height="265" Width="300" WindowStartupLocation="CenterScreen">
     <StackPanel Background="Beige">
         <TextBlock Text="Specify the new length of the Element:"
                    HorizontalAlignment="Center"
