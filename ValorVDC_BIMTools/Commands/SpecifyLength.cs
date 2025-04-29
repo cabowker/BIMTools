@@ -12,27 +12,16 @@ public class SpecifyLength : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        var handler = new SpecifyLengthHandler(commandData);
-        var externalEvent = ExternalEvent.Create(handler);
+        // Create the ViewModel and inject the necessary Revit dependencies
+        var viewModel = new SpecifyLengthViewModel(commandData.Application);
 
-        var specifyLengthWindow = new SpecifyLengthWindow();
-        var showDialog = specifyLengthWindow.ShowDialog();
-        if (showDialog != true)
-            return Result.Cancelled;
-
-        if (specifyLengthWindow.SpecifiedLength == null)
-        {
-            TaskDialog.Show("Error", "You must provide a valid length.");
-            return Result.Cancelled;
-        }
-
-        handler.SelectedLength = specifyLengthWindow.SpecifiedLength.Value;
-
-        handler.KeepRunning = true;
-        externalEvent.Raise();
+        // Create and show the SpecifyLengthView as a modeless window
+        var window = new SpecifyLengthView(viewModel);
+        window.Show(); // Modeless display; does not block execution
 
         return Result.Succeeded;
     }
+
 
 public static void CreateButton(RibbonPanel panel)
 {

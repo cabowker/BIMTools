@@ -42,35 +42,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="2.*"/>
         <PackageReference Include="Nice3point.Revit.Toolkit" Version="$(RevitVersion).*"/>
         <PackageReference Include="Nice3point.Revit.Extensions" Version="$(RevitVersion).*"/>
         <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*"/>
         <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="Resources\mando-32.png"/>
-        <EmbeddedResource Include="Resources\mando-32.png"/>
-        <None Remove="Resources\vader-32.png"/>
-        <EmbeddedResource Include="Resources\vader-32.png"/>
-        <None Remove="Resources\lightSaber.png"/>
-        <EmbeddedResource Include="Resources\lightSaber.png"/>
-        <None Remove="Resources\falcon.png" />
-        <EmbeddedResource Include="Resources\falcon.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Commands\SpecifyLengthOld\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Page Update="SpecifyLength\Views\SpecifyLengthWindow.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*"/>
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,12 @@
+﻿<RevitAddIns>
+    <AddIn Type="Command">
+        <Name>RevitAddIn1</Name>
+        <Assembly>RevitAddIn1/RevitAddIn1.dll</Assembly>
+        <AddInId>B7F5E4E4-D20D-4A6B-82DC-CD47F32A2675</AddInId>
+        <FullClassName>RevitAddIn1.Commands.StartupCommand</FullClassName>
+        <Text>RevitAddIn1</Text>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+        <VendorEmail></VendorEmail>
+    </AddIn>
+</RevitAddIns>
