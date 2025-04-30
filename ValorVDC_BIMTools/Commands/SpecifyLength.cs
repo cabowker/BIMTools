@@ -1,10 +1,13 @@
 ﻿using System.Reflection;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
+using ValorVDC_BIMTools.Commands.SpecifyLength;
 using ValorVDC_BIMTools.ImageUtilities;
+using ValorVDC_BIMTools.SpecifyLength.ViewModels;
+using ValorVDC_BIMTools.SpecifyLength.Views;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
-namespace ValorVDC_BIMTools.Commands.SpecifyLength;
+namespace SpecifyLength;
 
 [Transaction(TransactionMode.Manual)]
 [Regeneration(RegenerationOption.Manual)]
@@ -12,15 +15,21 @@ public class SpecifyLength : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        // Create the ViewModel and inject the necessary Revit dependencies
-        var viewModel = new SpecifyLengthViewModel(commandData.Application);
+        // Here we correctly pass an ExternalCommandData instance to the SpecifyLengthHandler constructor
+        var handler = new SpecifyLengthHandler(commandData);
 
-        // Create and show the SpecifyLengthView as a modeless window
-        var window = new SpecifyLengthView(viewModel);
-        window.Show(); // Modeless display; does not block execution
+        // Pass the handler to the ViewModel
+        var viewModel = new SpecifyLengthViewModel(handler);
+
+        // Create and bind the window
+        var window = new SpecifyLengthWindow(viewModel);
+        window.Show(); // Display modelessly
 
         return Result.Succeeded;
     }
+
+
+
 
 
 public static void CreateButton(RibbonPanel panel)

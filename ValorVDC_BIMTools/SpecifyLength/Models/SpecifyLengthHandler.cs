@@ -10,10 +10,13 @@ public class SpecifyLengthHandler : IExternalEventHandler
     public bool KeepRunning { get; set; } = false;
     private int _escapePressCounter = 0;
 
-    public SpecifyLengthHandler(ExternalCommandData commandData)
+    private readonly SpecifyLengthHandler _handler;
+
+    public SpecifyLengthViewModel(SpecifyLengthHandler handler)
     {
-        _commandData = commandData;
+        _handler = handler;
     }
+
 
     public void Execute(UIApplication application)
     {
