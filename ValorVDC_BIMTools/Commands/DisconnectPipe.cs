@@ -12,9 +12,36 @@ public class DisconnectPipe : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        var uiDocument = commandData.Application.ActiveUIDocument;
-        var document = uiDocument.Document;
+        try
+        {
+            while (true)
+            {
+                try
+                {
+                    Run(commandData.Application);
+                }
+                catch (Autodesk.Revit.Exceptions.OperationCanceledException  e)
+                {
+                    //user presses to escape
+                    break;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            TaskDialog.Show("Error", $"Could not execute the command {e.Message}");
+            return Result.Failed;
+        }
 
+        return Result.Succeeded;
+
+    }
+    public Result Run(UIApplication uiApplication)
+    {
+        var uiDocument = uiApplication.ActiveUIDocument;
+        var application = uiApplication.Application;
+        var document = uiDocument.Document;
+        
         var pickedEnd =
             uiDocument.Selection.PickObject(ObjectType.Element, "Select end of Any Curved Element to disconnect");
         if (pickedEnd == null)
@@ -25,7 +52,7 @@ public class DisconnectPipe : IExternalCommand
 
         if (!(selectedElement is MEPCurve element))
         {
-            message = "Selected element is not a MEP curve.";
+            TaskDialog.Show("Error",  "Selected element is not a MEP curve.");
             return Result.Failed;
         }
 
@@ -41,7 +68,7 @@ public class DisconnectPipe : IExternalCommand
             // Ensure Curve has connectors
             if (connectorManager == null)
             {
-                message = "The selected element does not contain connectors.";
+                TaskDialog.Show("Error", "The selected element does not contain connectors.");
                 return Result.Failed;
             }
 
@@ -63,7 +90,7 @@ public class DisconnectPipe : IExternalCommand
             // Ensure both connectors were found
             if (startConnector == null || endConnector == null)
             {
-                message = "Could not find the start or end points of the selected pipe.";
+                TaskDialog.Show("Error", "Could not find the start or end points of the selected pipe.");
                 return Result.Failed;
             }
 
@@ -96,7 +123,7 @@ public class DisconnectPipe : IExternalCommand
         var assembly = Assembly.GetExecutingAssembly();
 
         var buttonName = "Disconnect Element";
-        var buttonText = "Disconnect" + Environment.NewLine + "Pipe";
+        var buttonText = "Disconnect" + Environment.NewLine + "Element";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
         panel.AddItem(
             new PushButtonData(buttonName, buttonText, assembly.Location, className)

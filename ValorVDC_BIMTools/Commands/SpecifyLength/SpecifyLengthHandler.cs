@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.UI;
+﻿using System.Windows.Input;
+using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 
 namespace ValorVDC_BIMTools.Commands.SpecifyLength;
@@ -8,7 +9,6 @@ public class SpecifyLengthHandler : IExternalEventHandler
     private readonly ExternalCommandData _commandData;
     public double SelectedLength { get; set; }
     public bool KeepRunning { get; set; } = false;
-    private int _escapePressCounter = 0;
 
     public SpecifyLengthHandler(ExternalCommandData commandData)
     {
@@ -17,12 +17,19 @@ public class SpecifyLengthHandler : IExternalEventHandler
 
     public void Execute(UIApplication application)
     {
-        _escapePressCounter = 0;
-
         try
         {
+            StopOnEscape();
+            if (!KeepRunning)
+            {
+                Stop();
+                return;
+            }
+
+
             var uiDocument = _commandData.Application.ActiveUIDocument;
             var document = uiDocument.Document;
+
 
             var pickedReference = uiDocument.Selection.PickObject(ObjectType.Element, "Select an MEP Curve");
 
@@ -56,7 +63,7 @@ public class SpecifyLengthHandler : IExternalEventHandler
                 TaskDialog.Show("Info", "The elements current length already matched the specified length.");
                 return;
             }
-            
+
             var connectors = mepCurve.ConnectorManager.Connectors;
             Connector connector0 = null;
             Connector connector1 = null;
@@ -115,12 +122,17 @@ public class SpecifyLengthHandler : IExternalEventHandler
                 transaction.Commit();
             }
         }
-        catch (Exception e)
+        catch (Autodesk.Revit.Exceptions.OperationCanceledException)
         {
-            TaskDialog.Show("Error", $"An error occurred:\n{e.Message}");
+            KeepRunning = false;
+        }
+        catch (Exception ex)
+        {
+            TaskDialog.Show("Error", $"An error occurred:\n{ex.Message}");
         }
 
-        if (KeepRunning) ExternalEvent.Create(this).Raise();
+        if (KeepRunning) 
+            ExternalEvent.Create(this).Raise();
     }
 
 
@@ -177,5 +189,11 @@ public class SpecifyLengthHandler : IExternalEventHandler
     public string GetName()
     {
         return "Specify Length Interaction Handler";
+    }
+
+    private void StopOnEscape()
+    {
+        if (Keyboard.IsKeyDown(Key.Escape))
+            KeepRunning = false;
     }
 }

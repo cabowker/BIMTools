@@ -1,8 +1,10 @@
 ﻿using System.Reflection;
+using System.Windows;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.ImageUtilities;
+using Application = Autodesk.Revit.ApplicationServices.Application;
 
 namespace ValorVDC_BIMTools;
 
@@ -12,7 +14,34 @@ public class FixSKewPipe : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        var uiDocument = commandData.Application.ActiveUIDocument;
+        try
+        {
+            while (true)
+            {
+                try
+                {
+                    Run(commandData.Application);
+                }
+                catch (Autodesk.Revit.Exceptions.OperationCanceledException  e)
+                {
+                    //user presses to escape
+                    break;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            TaskDialog.Show("Error", $"Could not execute the command {e.Message}");
+            return Result.Failed;
+        }
+
+        return Result.Succeeded;
+
+    }
+    private Result Run(UIApplication uiApplication)
+    {
+        var uiDocument = uiApplication.ActiveUIDocument;
+        var application = uiApplication.Application;
         var document = uiDocument.Document;
 
         var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, "Please select the end you would to keep");
