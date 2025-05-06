@@ -103,7 +103,7 @@ public class DisconnectPipe : IExternalCommand
 
             var selectedConnector = distanceToStart < distanceToEnd ? startConnector : endConnector;
 
-            // Diconnect the selected end
+            // Disconnect the selected end
             if (selectedConnector.IsConnected)
                 foreach (Connector connectedConnector in selectedConnector.AllRefs)
                     if (connectedConnector.Owner.Id != element.Id)

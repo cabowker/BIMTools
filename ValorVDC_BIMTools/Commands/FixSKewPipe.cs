@@ -3,6 +3,7 @@ using System.Windows;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using FlowArrows.Commands;
 using ValorVDC_BIMTools.ImageUtilities;
 using Application = Autodesk.Revit.ApplicationServices.Application;
 
@@ -44,7 +45,7 @@ public class FixSKewPipe : IExternalCommand
         var application = uiApplication.Application;
         var document = uiDocument.Document;
 
-        var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, "Please select the end you would to keep");
+        var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, new MEPCurveAndFabFilter(),"Please select the end you would to keep");
         if (pickedEnd == null)
             return Result.Cancelled;
 
