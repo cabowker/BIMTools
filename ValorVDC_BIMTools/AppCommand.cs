@@ -1,5 +1,6 @@
 ﻿using Autodesk.Revit.UI;
 using ValorVDC_BIMTools.Commands;
+using ValorVDC_BIMTools.Commands.FlowArrows;
 using ValorVDC_BIMTools.Commands.SpecifyLength;
 
 namespace ValorVDC_BIMTools;
@@ -25,6 +26,7 @@ public class AppCommand : IExternalApplication
         FixSKewPipe.CreateButton(ribbonPanel);
         DisconnectPipe.CreateButton(ribbonPanel);
         SpecifyLength.CreateButton(ribbonPanel);
+        FlowArrow.CreateButton(ribbonPanel);
 
         return Result.Succeeded;
     }

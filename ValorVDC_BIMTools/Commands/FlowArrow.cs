@@ -1,10 +1,12 @@
-﻿using Autodesk.Revit.Attributes;
+﻿using System.Reflection;
+using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using FlowArrows.Commands;
 using FlowArrows.ViewModels;
 using FlowArrows.Views;
+using ValorVDC_BIMTools.ImageUtilities;
 
 namespace ValorVDC_BIMTools.Commands.FlowArrows;
 
@@ -34,7 +36,7 @@ public class FlowArrow : IExternalCommand
             FamilySymbol selectedArrow = viewModel.SelectedFLowArrow;
             if (selectedArrow == null)
             {
-                TaskDialog.Show("Error", "No Flow arrow tyoe selected.");
+                TaskDialog.Show("Error", "No Flow arrow type selected.");
                 return Result.Failed;
             }
 
@@ -44,7 +46,7 @@ public class FlowArrow : IExternalCommand
                 try
                 {
                     Reference reference = uiDocument.Selection.PickObject(ObjectType.Element,
-                        new MEPCurveFabFilter(), "Please Select a pipe or duct");
+                        new MEPCurveAndFabFilter(), "Please Select a pipe or duct");
 
                     Element element = document.GetElement(reference);
                     LocationCurve locationCurve = element.Location as LocationCurve;
@@ -92,46 +94,6 @@ public class FlowArrow : IExternalCommand
                             XYZ horizontalCompont = new XYZ(originalDirection.X, originalDirection.Y, 0).Normalize();
                             rotationAxis = horizontalCompont.CrossProduct(verticalDirection).Normalize();
                             rotationAngle = Math.PI / 2;
-
-                            // if (element is MEPCurve mepCurve && mepCurve.ConnectorManager != null)
-                            // {
-                            //     ConnectorSet connectors = mepCurve.ConnectorManager.Connectors;
-                            //     if (connectors.Size == 2)
-                            //     {
-                            //         Connector connector1 = null;
-                            //         Connector connector2 = null;
-                            //
-                            //         foreach (Connector  connector in connectors)
-                            //         {
-                            //             if (connector1 == null)
-                            //                 connector1 = connector;
-                            //             else
-                            //                 connector2 = connector;
-                            //         }
-                            //
-                            //         if (connector1 != null && connector2 != null) 
-                            //         {
-                            //             FlowDirectionType flowDirection1 = connector1.Direction;
-                            //             FlowDirectionType flowDirection2 = connector1.Direction;
-                            //             if (flowDirection1 == FlowDirectionType.In &&
-                            //                 flowDirection2 == FlowDirectionType.Out)
-                            //             {
-                            //                 XYZ connectorDirection = (connector2.Origin - connector1.Origin).Normalize();
-                            //                 flowDirectionIsUp = connectorDirection.Z > 0;
-                            //             }
-                            //             else if (flowDirection1 ==
-                            //                      FlowDirectionType.Out && flowDirection2 == FlowDirectionType.In)
-                            //             {
-                            //                 XYZ connectorDirection = (connector1.Origin - connector2.Origin).Normalize();
-                            //                 flowDirectionIsUp = connectorDirection.Z > 0;
-                            //             }
-                            //         }
-                            //     }
-                            // }
-                            //
-                            // if (!flowDirectionIsUp)
-                            //     horizontalVector = horizontalVector.Negate();
-                            // curveDirection = horizontalVector;
                         }
                     }
                     ElementId levelId = element.LevelId;
@@ -194,5 +156,19 @@ public class FlowArrow : IExternalCommand
             message = ex.Message;
             return Result.Failed;
         }
+    }
+    public static void CreateButton(RibbonPanel panel)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+
+        var buttonName = "Flow Arrow";
+        var buttonText = "FLow Arrow";
+        var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
+        panel.AddItem(
+            new PushButtonData(buttonName, buttonText, assembly.Location, className)
+            {
+                ToolTip = "Add Flow Arrows to any Pipe, Duct, or other MEP Curves",
+                LargeImage = ImagineUtilities.LoadImage(assembly, "lightSaber.png")
+            });
     }
 }

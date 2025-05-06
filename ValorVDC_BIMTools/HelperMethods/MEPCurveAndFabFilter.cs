@@ -2,7 +2,7 @@
 
 namespace FlowArrows.Commands;
 
-public class MEPCurveFabFilter : ISelectionFilter
+public class MEPCurveAndFabFilter : ISelectionFilter
 {
     public bool AllowElement(Element element)
     {
