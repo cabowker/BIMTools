@@ -17,41 +17,41 @@
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <TextBlock Grid.Row="0"
                    Text="Select Flow Arrow Family:"
                    FontWeight="SemiBold"
-                   Margin="0,0,0,5"/>
-        
+                   Margin="0,0,0,5" />
+
         <ComboBox Grid.Row="1"
                   ItemsSource="{Binding FlowArrowSymbols}"
                   SelectedItem="{Binding SelectedFLowArrow}"
                   DisplayMemberPath="Name"
                   Margin="0,0,0,15"
-                  HorizontalAlignment="Stretch"/>
-        <TextBlock Grid.Row="2" 
+                  HorizontalAlignment="Stretch" />
+        <TextBlock Grid.Row="2"
                    Text="{Binding StatusMessage}"
                    TextWrapping="Wrap"
                    VerticalAlignment="Center"
-                   HorizontalAlignment="Center"/>
-        
-        <StackPanel Grid.Row="3" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Center" 
+                   HorizontalAlignment="Center" />
+
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
                     Margin="0,15,0,0">
-            <Button Content="Place Flow Arrow" 
-                    Command="{Binding PlaceFlowArrowCommand}" 
-                    Width="120" 
-                    Margin="0,0,10,0"/>
-            <Button Content="Cancel" 
-                    Command="{Binding CancelCommand}" 
-                    Width="120" 
-                    IsCancel="True"/>
+            <Button Content="Place Flow Arrow"
+                    Command="{Binding PlaceFlowArrowCommand}"
+                    Width="120"
+                    Margin="0,0,10,0" />
+            <Button Content="Cancel"
+                    Command="{Binding CancelCommand}"
+                    Width="120"
+                    IsCancel="True" />
         </StackPanel>
 
     </Grid>

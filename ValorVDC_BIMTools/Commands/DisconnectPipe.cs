@@ -3,6 +3,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.ImageUtilities;
+using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools.Commands;
 
@@ -15,17 +16,15 @@ public class DisconnectPipe : IExternalCommand
         try
         {
             while (true)
-            {
                 try
                 {
                     Run(commandData.Application);
                 }
-                catch (Autodesk.Revit.Exceptions.OperationCanceledException  e)
+                catch (OperationCanceledException e)
                 {
                     //user presses to escape
                     break;
                 }
-            }
         }
         catch (Exception e)
         {
@@ -34,14 +33,14 @@ public class DisconnectPipe : IExternalCommand
         }
 
         return Result.Succeeded;
-
     }
+
     public Result Run(UIApplication uiApplication)
     {
         var uiDocument = uiApplication.ActiveUIDocument;
         var application = uiApplication.Application;
         var document = uiDocument.Document;
-        
+
         var pickedEnd =
             uiDocument.Selection.PickObject(ObjectType.Element, "Select end of Any Curved Element to disconnect");
         if (pickedEnd == null)
@@ -52,7 +51,7 @@ public class DisconnectPipe : IExternalCommand
 
         if (!(selectedElement is MEPCurve element))
         {
-            TaskDialog.Show("Error",  "Selected element is not a MEP curve.");
+            TaskDialog.Show("Error", "Selected element is not a MEP curve.");
             return Result.Failed;
         }
 

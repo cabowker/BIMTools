@@ -6,6 +6,7 @@ namespace FlowArrows.Views;
 public sealed partial class FlowArrowsView : Window
 {
     private readonly FlowArrowsViewModel _viewModel;
+
     public FlowArrowsView(FlowArrowsViewModel viewModel)
     {
         InitializeComponent();
@@ -16,24 +17,23 @@ public sealed partial class FlowArrowsView : Window
 
         _viewModel.RequestClose += () =>
         {
-            this.DialogResult = _viewModel.DialogResult;
-            this.Close();
-
+            DialogResult = _viewModel.DialogResult;
+            Close();
         };
     }
 
-    private void OnSelectionComplete( )
+    private void OnSelectionComplete()
     {
-        this.Hide();
-        this.Show();
+        Hide();
+        Show();
     }
+
     protected override void OnClosed(EventArgs e)
     {
         // Clean up event handlers
         _viewModel.SelectionComplete -= OnSelectionComplete;
         _viewModel.RequestClose -= () => Close();
-        
+
         base.OnClosed(e);
     }
-
 }

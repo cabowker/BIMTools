@@ -2,7 +2,6 @@
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using ValorVDC_BIMTools.ImageUtilities;
-using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools.Commands.SpecifyLength;
 
@@ -34,18 +33,18 @@ public class SpecifyLength : IExternalCommand
         return Result.Succeeded;
     }
 
-public static void CreateButton(RibbonPanel panel)
-{
-    var assembly = Assembly.GetExecutingAssembly();
+    public static void CreateButton(RibbonPanel panel)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
 
-    var buttonName = "Specify Length";
-    var buttonText = "Specify" + Environment.NewLine + "Length";
-    var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-    panel.AddItem(
-        new PushButtonData(buttonName, buttonText, assembly.Location, className)
-        {
-            ToolTip = "Specify Length of Pipe, Duct, or Conduit",
-            LargeImage = ImagineUtilities.LoadImage(assembly, "falcon.png")
-        });
-}
+        var buttonName = "Specify Length";
+        var buttonText = "Specify" + Environment.NewLine + "Length";
+        var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
+        panel.AddItem(
+            new PushButtonData(buttonName, buttonText, assembly.Location, className)
+            {
+                ToolTip = "Specify Length of Pipe, Duct, or Conduit",
+                LargeImage = ImagineUtilities.LoadImage(assembly, "falcon.png")
+            });
+    }
 }

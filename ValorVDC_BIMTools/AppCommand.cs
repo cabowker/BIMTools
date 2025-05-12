@@ -19,14 +19,14 @@ public class AppCommand : IExternalApplication
             TaskDialog.Show("Error", "Could not load Ribbon tab");
         }
 
-        var ribbonPanel = application.GetRibbonPanels("BIM Tools").FirstOrDefault(
-                              x => x.Name == "BIM Tools") ??
+        var ribbonPanel = application.GetRibbonPanels("BIM Tools").FirstOrDefault(x => x.Name == "BIM Tools") ??
                           application.CreateRibbonPanel("BIM Tools", "MEP Tools");
 
         FixSKewPipe.CreateButton(ribbonPanel);
         DisconnectPipe.CreateButton(ribbonPanel);
         SpecifyLength.CreateButton(ribbonPanel);
         FlowArrow.CreateButton(ribbonPanel);
+        WallSleeve.CreateButton(ribbonPanel);
 
         return Result.Succeeded;
     }

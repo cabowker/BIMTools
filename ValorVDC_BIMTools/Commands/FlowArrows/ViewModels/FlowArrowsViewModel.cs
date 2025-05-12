@@ -1,25 +1,40 @@
 ﻿using System.Collections.ObjectModel;
-using System.IO.Pipes;
-using System.Windows.Documents;
 using System.Windows.Input;
-using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 
 namespace FlowArrows.ViewModels;
 
 public sealed class FlowArrowsViewModel : ObservableObject
 {
+    private readonly Document _document;
     private readonly UIApplication _uiApplication;
     private readonly UIDocument _uiDocument;
-    private readonly Document _document;
+    private ObservableCollection<FamilySymbol> _flowArrowsSymbols;
+    private FamilySymbol _selectedFlowArrow;
 
     private string _statusMessage = "Ready to place flow arrow";
-    private FamilySymbol _selectedFlowArrow;
-    private ObservableCollection<FamilySymbol> _flowArrowsSymbols;
 
-    public event Action RequestClose;
-    public event Action SelectionComplete;
+    public FlowArrowsViewModel(ExternalCommandData commandData)
+    {
+        _uiApplication = commandData.Application;
+        _uiDocument = _uiApplication.ActiveUIDocument;
+        _document = _uiDocument.Document;
+
+        PlaceFlowArrowCommand = new RelayCommand(() =>
+        {
+            DialogResult = true;
+            RequestClose?.Invoke();
+        }, CanPlaceFlowArrow);
+        CancelCommand = new RelayCommand(() =>
+        {
+            DialogResult = false;
+            RequestClose?.Invoke();
+        });
+
+
+        LoadFlowArrowSymbols();
+    }
+
     public string StatusMessage
     {
         get => _statusMessage;
@@ -37,31 +52,13 @@ public sealed class FlowArrowsViewModel : ObservableObject
         get => _selectedFlowArrow;
         set => SetProperty(ref _selectedFlowArrow, value);
     }
-    
+
     public ICommand PlaceFlowArrowCommand { get; }
     public ICommand CancelCommand { get; }
     public bool DialogResult { get; private set; }
 
-    public FlowArrowsViewModel(ExternalCommandData commandData)
-    {
-        _uiApplication = commandData.Application;
-        _uiDocument = _uiApplication.ActiveUIDocument;
-        _document = _uiDocument.Document;
-        
-        PlaceFlowArrowCommand = new RelayCommand(() => 
-            {
-                DialogResult = true;
-                RequestClose?.Invoke();
-            }, CanPlaceFlowArrow);
-        CancelCommand = new RelayCommand(() => 
-        {
-            DialogResult = false;
-            RequestClose?.Invoke();
-        });
-
-        
-        LoadFlowArrowSymbols();
-    }
+    public event Action RequestClose;
+    public event Action SelectionComplete;
 
     private void LoadFlowArrowSymbols()
     {
@@ -127,7 +124,7 @@ public sealed class FlowArrowsViewModel : ObservableObject
     {
         return SelectedFLowArrow != null;
     }
-    
+
 // private void PlaceFlowArrow()
 //     {
 //         RequestClose?.Invoke();
@@ -224,7 +221,4 @@ public sealed class FlowArrowsViewModel : ObservableObject
 //             StatusMessage = $"Error: {e.Message}";
 //         }
 //     }
-    
-
-    
 }

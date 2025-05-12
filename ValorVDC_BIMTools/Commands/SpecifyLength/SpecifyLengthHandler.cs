@@ -1,19 +1,21 @@
 ﻿using System.Windows.Input;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools.Commands.SpecifyLength;
 
 public class SpecifyLengthHandler : IExternalEventHandler
 {
     private readonly ExternalCommandData _commandData;
-    public double SelectedLength { get; set; }
-    public bool KeepRunning { get; set; } = false;
 
     public SpecifyLengthHandler(ExternalCommandData commandData)
     {
         _commandData = commandData;
     }
+
+    public double SelectedLength { get; set; }
+    public bool KeepRunning { get; set; }
 
     public void Execute(UIApplication application)
     {
@@ -102,7 +104,6 @@ public class SpecifyLengthHandler : IExternalEventHandler
                 locationCurve.Curve = adjustedLine;
 
                 foreach (Connector connector in connectorToExtend.AllRefs)
-                {
                     if (connector.Owner.Id != mepCurve.Id)
                     {
                         var connectedElement = document.GetElement(connector.Owner.Id);
@@ -111,18 +112,16 @@ public class SpecifyLengthHandler : IExternalEventHandler
                             var location = connectedElement.Location as LocationPoint;
                             if (location != null)
                             {
-                                XYZ currentPoint = location.Point;
+                                var currentPoint = location.Point;
                                 location.Point = currentPoint + adjustmentDelta;
                             }
                         }
                     }
 
-                }
-
                 transaction.Commit();
             }
         }
-        catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+        catch (OperationCanceledException)
         {
             KeepRunning = false;
         }
@@ -131,8 +130,13 @@ public class SpecifyLengthHandler : IExternalEventHandler
             TaskDialog.Show("Error", $"An error occurred:\n{ex.Message}");
         }
 
-        if (KeepRunning) 
+        if (KeepRunning)
             ExternalEvent.Create(this).Raise();
+    }
+
+    public string GetName()
+    {
+        return "Specify Length Interaction Handler";
     }
 
 
@@ -141,8 +145,9 @@ public class SpecifyLengthHandler : IExternalEventHandler
         KeepRunning = false;
         TaskDialog.Show("Stopped", "Command has been stopped.");
     }
-    
-    private (Line adjustedLine, XYZ adjustmentDelta) AdjustCurve(LocationCurve? locationCurve, Connector connectorToAdjust, Connector oppsiteConnector,
+
+    private (Line adjustedLine, XYZ adjustmentDelta) AdjustCurve(LocationCurve? locationCurve,
+        Connector connectorToAdjust, Connector oppsiteConnector,
         double adjustmentLength)
     {
         if (locationCurve == null || connectorToAdjust == null || oppsiteConnector == null)
@@ -152,10 +157,10 @@ public class SpecifyLengthHandler : IExternalEventHandler
         if (currentLine == null)
             return (null, null);
 
-        XYZ direction = (currentLine.GetEndPoint(1) - currentLine.GetEndPoint(0)).Normalize();
-        XYZ newStartPoint = currentLine.GetEndPoint(0);
-        XYZ newEndPoint = currentLine.GetEndPoint(1);
-        XYZ adjustmentDelta = XYZ.Zero;
+        var direction = (currentLine.GetEndPoint(1) - currentLine.GetEndPoint(0)).Normalize();
+        var newStartPoint = currentLine.GetEndPoint(0);
+        var newEndPoint = currentLine.GetEndPoint(1);
+        var adjustmentDelta = XYZ.Zero;
 
 
         if (adjustmentLength > 0)
@@ -167,7 +172,8 @@ public class SpecifyLengthHandler : IExternalEventHandler
             }
             else
             {
-                adjustmentDelta = direction * adjustmentLength;;
+                adjustmentDelta = direction * adjustmentLength;
+                ;
                 newEndPoint = newEndPoint + adjustmentDelta;
             }
         }
@@ -184,11 +190,8 @@ public class SpecifyLengthHandler : IExternalEventHandler
                 newEndPoint = newEndPoint - direction * Math.Abs(adjustmentLength);
             }
         }
+
         return (Line.CreateBound(newStartPoint, newEndPoint), adjustmentDelta);
-    }
-    public string GetName()
-    {
-        return "Specify Length Interaction Handler";
     }
 
     private void StopOnEscape()

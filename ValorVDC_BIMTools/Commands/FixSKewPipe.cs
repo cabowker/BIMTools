@@ -1,11 +1,10 @@
 ﻿using System.Reflection;
-using System.Windows;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using FlowArrows.Commands;
+using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
-using Application = Autodesk.Revit.ApplicationServices.Application;
+using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools;
 
@@ -18,17 +17,15 @@ public class FixSKewPipe : IExternalCommand
         try
         {
             while (true)
-            {
                 try
                 {
                     Run(commandData.Application);
                 }
-                catch (Autodesk.Revit.Exceptions.OperationCanceledException  e)
+                catch (OperationCanceledException e)
                 {
                     //user presses to escape
                     break;
                 }
-            }
         }
         catch (Exception e)
         {
@@ -37,15 +34,16 @@ public class FixSKewPipe : IExternalCommand
         }
 
         return Result.Succeeded;
-
     }
+
     private Result Run(UIApplication uiApplication)
     {
         var uiDocument = uiApplication.ActiveUIDocument;
         var application = uiApplication.Application;
         var document = uiDocument.Document;
 
-        var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, new MEPCurveAndFabFilter(),"Please select the end you would to keep");
+        var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, new MepCurveAndFabFilter(),
+            "Please select the end you would to keep");
         if (pickedEnd == null)
             return Result.Cancelled;
 

@@ -1,8 +1,8 @@
 ﻿using Autodesk.Revit.UI.Selection;
 
-namespace FlowArrows.Commands;
+namespace ValorVDC_BIMTools.HelperMethods;
 
-public class MEPCurveAndFabFilter : ISelectionFilter
+public class MepCurveAndFabFilter : ISelectionFilter
 {
     public bool AllowElement(Element element)
     {
