@@ -7,6 +7,8 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
+using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
+
 
 namespace ValorVDC_BIMTools.Commands;
 
@@ -230,7 +232,7 @@ public class WallSleeve : IExternalCommand
                             transaction.Commit();
                         }
                     }
-                    catch (OperationCanceledException e)
+                    catch (OperationCanceledException)
                     {
                         continueSelecting = false;
                     }
@@ -259,7 +261,7 @@ public class WallSleeve : IExternalCommand
             new PushButtonData(buttonName, buttonText, assembly.Location, className)
             {
                 ToolTip = "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "lightSaber.png")
+                LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
             });
     }
 }
