@@ -16,7 +16,15 @@ public class MepCurveAndFabFilter : ISelectionFilter
 
     private bool IsFabricationPart(Element element)
     {
-        return element.Category?.Id.IntegerValue == (int)BuiltInCategory.OST_FabricationPipework ||
-               element.Category?.Id.IntegerValue == (int)BuiltInCategory.OST_FabricationDuctwork;
+        if (element.Category == null)
+            return false;
+        int categoryId;
+        if (int.TryParse(element.Document.Application.VersionNumber, out int versionNumber) && versionNumber >= 2024)
+            categoryId = (int)element.Category.Id.Value;
+        else
+            categoryId = element.Category.Id.IntegerValue;
+        
+        return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
+               categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
     }
 }

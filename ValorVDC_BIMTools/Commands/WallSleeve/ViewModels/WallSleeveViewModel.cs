@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Autodesk.Revit.UI;
 
-namespace ValorVDC_BIMTools.ViewModels;
+namespace ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 
 public sealed class WallSleeveViewModel : ObservableObject
 {
@@ -72,11 +72,11 @@ public sealed class WallSleeveViewModel : ObservableObject
                 .Cast<FamilySymbol>()
                 .Where(fam =>
                 {
-                    var partTypeParam = fam.LookupParameter("Part Type");
-                    var partSubTypeParam = fam.LookupParameter("Part Sub-Type");
+                    var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
+                    var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
                     return partTypeParam != null && partSubTypeParam != null &&
-                           partTypeParam.AsString() == "Sleeve" &&
-                           partSubTypeParam.AsString() == "Wall Sleeve";
+                           string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
+                           string.Equals(partSubTypeParam.AsString(), "Wall Sleeve", StringComparison.OrdinalIgnoreCase);
                 })
                 .ToList();
             wallSleeves.AddRange(pipeAccessories);
@@ -87,11 +87,11 @@ public sealed class WallSleeveViewModel : ObservableObject
                 .Cast<FamilySymbol>()
                 .Where(fam =>
                 {
-                    var partTypeParam = fam.LookupParameter("Part Type");
-                    var partSubTypeParam = fam.LookupParameter("Part Sub-Type");
+                    var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
+                    var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
                     return partTypeParam != null && partSubTypeParam != null &&
-                           partTypeParam.AsString() == "Sleeve" &&
-                           partSubTypeParam.AsString() == "Wall Sleeve";
+                           string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
+                           string.Equals(partSubTypeParam.AsString(), "Wall Sleeve", StringComparison.OrdinalIgnoreCase);
                 })
                 .ToList();
             wallSleeves.AddRange(ductAccessories);
@@ -102,11 +102,11 @@ public sealed class WallSleeveViewModel : ObservableObject
                 .Cast<FamilySymbol>()
                 .Where(fam =>
                 {
-                    var partTypeParam = fam.LookupParameter("Part Type");
-                    var partSubTypeParam = fam.LookupParameter("Part Sub-Type");
+                    var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
+                    var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
                     return partTypeParam != null && partSubTypeParam != null &&
-                           partTypeParam.AsString() == "Sleeve" &&
-                           partSubTypeParam.AsString() == "Wall Sleeve";
+                           string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
+                           string.Equals(partSubTypeParam.AsString(), "Wall Sleeve", StringComparison.OrdinalIgnoreCase);
                 })
                 .ToList();
             wallSleeves.AddRange(genericModels);
@@ -123,7 +123,20 @@ public sealed class WallSleeveViewModel : ObservableObject
             StatusMessage = $"Error Loading Wall Sleeve Family: {e.Message}";
         }
     }
-    
+
+    private Parameter GetParameterCaseInsenitive(Element element, string parameterName)
+    {
+        var parameters = element.Parameters;
+
+        foreach (Parameter parameter in parameters)
+        {
+            if (string.Equals(parameter.Definition.Name, parameterName, StringComparison.OrdinalIgnoreCase))
+                return parameter;
+        }
+
+        return null;
+    }
+
     private bool CanPlaceWallSleeve()
 
     {

@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using ValorVDC_BIMTools.ViewModels;
+using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 
 namespace ValorVDC_BIMTools.Commands.WallSleeve.Views;
 

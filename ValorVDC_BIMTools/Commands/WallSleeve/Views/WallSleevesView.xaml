@@ -9,8 +9,8 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" 
@@ -19,7 +19,7 @@
                    FontWeight="Bold"
                    FontSize="20"
                    Margin="0,0,0, 10"/>
-        <ListView Grid.Row="1" 
+        <ComboBox Grid.Row="1" 
                   ItemsSource="{Binding WallSleeveSymbols}"
                   SelectedItem="{Binding SelectedWallSleeve}"
                   DisplayMemberPath="Name"

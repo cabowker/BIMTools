@@ -5,10 +5,10 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 using ValorVDC_BIMTools.Commands.WallSleeve.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
-using ValorVDC_BIMTools.ViewModels;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 

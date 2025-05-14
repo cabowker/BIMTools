@@ -146,7 +146,7 @@ public class SpecifyLengthHandler : IExternalEventHandler
         TaskDialog.Show("Stopped", "Command has been stopped.");
     }
 
-    private (Line adjustedLine, XYZ adjustmentDelta) AdjustCurve(LocationCurve? locationCurve,
+    private (Line adjustedLine, XYZ adjustmentDelta) AdjustCurve(LocationCurve locationCurve,
         Connector connectorToAdjust, Connector oppsiteConnector,
         double adjustmentLength)
     {
