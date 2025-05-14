@@ -26,7 +26,7 @@ public class AppCommand : IExternalApplication
         DisconnectPipe.CreateButton(ribbonPanel);
         SpecifyLength.CreateButton(ribbonPanel);
         FlowArrow.CreateButton(ribbonPanel);
-        WallSleeve.CreateButton(ribbonPanel);
+        WallSleeves.CreateButton(ribbonPanel);
 
         return Result.Succeeded;
     }

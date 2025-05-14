@@ -5,8 +5,10 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using ValorVDC_BIMTools.Commands.WallSleeve.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
+using ValorVDC_BIMTools.ViewModels;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 
@@ -14,27 +16,35 @@ namespace ValorVDC_BIMTools.Commands;
 
 [Transaction(TransactionMode.Manual)]
 [Regeneration(RegenerationOption.Manual)]
-public class WallSleeve : IExternalCommand
+public class WallSleeves : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
         {
             try
             {
-                var uiDocument = commandData.Application.ActiveUIDocument;
+                var uiApplication = commandData.Application;
+                var uiDocument = uiApplication.ActiveUIDocument;
                 var document = uiDocument.Document;
 
+                var viewModel = new WallSleeveViewModel(commandData);
+                var view = new WallSleevesView(viewModel);
+
+                if (view.ShowDialog() != true)
+                    return Result.Cancelled;
+
+                var selectedSleeve = viewModel.SelectedWallSleeve;
+                if (selectedSleeve == null)
+                {
+                    TaskDialog.Show("Error", "No Wall Sleeve Type Selected!");
+                    return Result.Failed;
+                }
+                
                 var continueSelecting = true;
 
                 while (continueSelecting)
                     try
                     {
-                        var sleeve = new FilteredElementCollector(document)
-                            .OfClass(typeof(FamilySymbol))
-                            .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                            .Cast<FamilySymbol>()
-                            .FirstOrDefault(fam => fam.FamilyName.Contains("Wall Sleeve"));
-
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
                             new MepCurveAndFabFilter(), "Please Select a pipe or duct");
                         var element = document.GetElement(reference);
@@ -144,9 +154,9 @@ public class WallSleeve : IExternalCommand
                         using (var transaction = new Transaction(document, "Place Sleeves"))
                         {
                             transaction.Start();
-                            if (!sleeve.IsActive)
+                            if (!selectedSleeve.IsActive)
                             {
-                                sleeve.Activate();
+                                selectedSleeve.Activate();
                                 document.Regenerate();
                             }
 
@@ -161,7 +171,7 @@ public class WallSleeve : IExternalCommand
                             };
                             foreach (var paramName in possibleParameterNames)
                             {
-                                var diameterParam = sleeve.LookupParameter(paramName);
+                                var diameterParam = selectedSleeve.LookupParameter(paramName);
                                 if (diameterParam != null && !diameterParam.IsReadOnly)
                                 {
                                     if (diameterParam.StorageType == StorageType.Double)
@@ -184,7 +194,7 @@ public class WallSleeve : IExternalCommand
                             {
                                 var placeSleeve = document.Create.NewFamilyInstance(
                                     centerLinePoint,
-                                    sleeve,
+                                    selectedSleeve,
                                     curveDirection,
                                     document.GetElement(levelId) as Level,
                                     StructuralType.NonStructural);
@@ -224,7 +234,7 @@ public class WallSleeve : IExternalCommand
                                 {
                                     // Still using default size
                                     TaskDialog.Show("Warning",
-                                        "Could not set sleeve diameter parameter. Using default sleeve size.");
+                                        "Could Not Set Sleeve Diameter Parameter. Using Default Sleeve Size.");
                                 }
                             }
 
