@@ -5,7 +5,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:ValorVDC_BIMTools.Commands.WallSleeve.Views"
         mc:Ignorable="d"
-        Title="WallSleeves" Height="450" Width="300">
+        Title="WallSleeves" Height="450" Width="300"
+        WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

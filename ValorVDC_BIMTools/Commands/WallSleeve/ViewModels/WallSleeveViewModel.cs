@@ -58,7 +58,7 @@ public sealed class WallSleeveViewModel : ObservableObject
     
     public event Action RequestClose;
 
-    private void LoadWallSleeveSymbols()
+    public void LoadWallSleeveSymbols()
     {
         try
         {
