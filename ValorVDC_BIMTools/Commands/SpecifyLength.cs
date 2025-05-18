@@ -11,26 +11,37 @@ public class SpecifyLength : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        var handler = new SpecifyLengthHandler(commandData);
-        var externalEvent = ExternalEvent.Create(handler);
 
-        var specifyLengthWindow = new SpecifyLengthWindow();
-        var showDialog = specifyLengthWindow.ShowDialog();
-        if (showDialog != true)
-            return Result.Cancelled;
-
-        if (specifyLengthWindow.SpecifiedLength == null)
+        try
         {
-            TaskDialog.Show("Error", "You must provide a valid length.");
-            return Result.Cancelled;
+            var handler = new SpecifyLengthHandler(commandData);
+            var externalEvent = ExternalEvent.Create(handler);
+
+            var specifyLengthWindow = new SpecifyLengthWindow();
+            var showDialog = specifyLengthWindow.ShowDialog();
+            if (showDialog != true)
+                return Result.Cancelled;
+
+            if (specifyLengthWindow.SpecifiedLength == null)
+            {
+                TaskDialog.Show("Error", "You must provide a valid length.");
+                return Result.Cancelled;
+            }
+
+            handler.SelectedLength = specifyLengthWindow.SpecifiedLength.Value;
+
+            handler.KeepRunning = true;
+            externalEvent.Raise();
+
+            return Result.Succeeded;
         }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+            TaskDialog.Show("Error", $"An error occurred: {ex.Message}");
+            return Result.Failed;
 
-        handler.SelectedLength = specifyLengthWindow.SpecifiedLength.Value;
-
-        handler.KeepRunning = true;
-        externalEvent.Raise();
-
-        return Result.Succeeded;
+        }
     }
 
     public static void CreateButton(RibbonPanel panel)

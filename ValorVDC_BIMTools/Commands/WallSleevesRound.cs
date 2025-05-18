@@ -12,10 +12,16 @@ using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledEx
 
 namespace ValorVDC_BIMTools.Commands;
 
+public partial class PipeInsulationMethods
+{
+}
+
 [Transaction(TransactionMode.Manual)]
 [Regeneration(RegenerationOption.Manual)]
-public class WallSleeves : IExternalCommand
+public class WallSleevesRound : IExternalCommand
 {
+    private readonly PipeInsulationMethods _pipeInsulationMethods = new PipeInsulationMethods();
+
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
         {
@@ -77,7 +83,7 @@ public class WallSleeves : IExternalCommand
                                 }
                             }
 
-                            PipeInsulation pipeInsulation = FindPipeInsulation(document, pipe);
+                            PipeInsulation pipeInsulation = _pipeInsulationMethods.FindPipeInsulation(document, pipe);
                             if (pipeInsulation != null)
                             {
                                 Parameter thicknessParameter =
@@ -143,7 +149,7 @@ public class WallSleeves : IExternalCommand
 
                             }
 
-                            DuctInsulation ductInsulation = FindDuctInsulation(document, duct);
+                            DuctInsulation ductInsulation = _pipeInsulationMethods.FindDuctInsulation(document, duct);
                             if (ductInsulation != null )
                             {
                                 Parameter thicknessParameter = ductInsulation.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM);
@@ -386,28 +392,13 @@ public class WallSleeves : IExternalCommand
             }
         }
     }
-        private PipeInsulation FindPipeInsulation(Document document, MEPCurve mepCurve)
-        {
-            FilteredElementCollector collector = new FilteredElementCollector(document)
-                .OfClass(typeof(PipeInsulation));
-            return collector
-                .Cast<PipeInsulation>()
-                .FirstOrDefault(pi => pi.HostElementId == mepCurve.Id);
-        }
-        private DuctInsulation FindDuctInsulation(Document document, MEPCurve mepCurve)
-        {
-            FilteredElementCollector collector = new FilteredElementCollector(document)
-                .OfClass(typeof(DuctInsulation));
-            return collector
-                .Cast<DuctInsulation>()
-                .FirstOrDefault(di => di.HostElementId == mepCurve.Id);
-        }
+
     public static void CreateButton(RibbonPanel panel)
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        var buttonName = "Wall Sleeves";
-        var buttonText = "Walls Sleeves";
+        var buttonName = "Round Wall Sleeves";
+        var buttonText = "Round"  + Environment.NewLine + "Wall Sleeves";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
         panel.AddItem(
             new PushButtonData(buttonName, buttonText, assembly.Location, className)

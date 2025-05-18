@@ -4,11 +4,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="Specify Length" Height="260" Width="300" WindowStartupLocation="CenterScreen">
-    <StackPanel Background="Beige">
-        <TextBlock Text="Specify the new length of the Element:"
+        Title="Specify Length" Height="400" Width="300" WindowStartupLocation="CenterScreen">
+    <StackPanel Background="WhiteSmoke">
+        <TextBlock Text="Specify the New Length of the MEP Element:"
+                   Width="260"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   FontFamily="Comic Sans MS"
+                   Foreground="Blue"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"
                    HorizontalAlignment="Center"
-                   Margin="10, 25 , 5, 5" />
+                   Margin="0, 25 , 0, 10" />
+        
+        <!-- Common preset lengths -->
+        <GroupBox Header="Typical Lengths Include:" Width="230"
+                  Padding="10"
+                  BorderBrush="Black">
+            <StackPanel>
+                
+            <RadioButton x:Name="Length5Feet" Content="5' Length"
+                         Tag="5" GroupName="Lengths"
+                         Checked="PresetLength_Checked"/>
+            <RadioButton x:Name="Length10Feet" Content="10' Length"
+                         Tag="10" GroupName="Lengths"
+                         Checked="PresetLength_Checked"/>
+            <RadioButton x:Name="Length20Feet" Content="20' Length"
+                         Tag="20" GroupName="Lengths"
+                         Checked="PresetLength_Checked"/>
+            <RadioButton x:Name="Length21Feet" Content="21' Length"
+                         Tag="21" GroupName="Lengths"
+                         Checked="PresetLength_Checked"/>
+            </StackPanel>
+        </GroupBox>
         <StackPanel Orientation="Horizontal">
             <TextBox x:Name="InputLengthFeet"
                      TextChanged="InputLengthFeet_TextChanged"
@@ -17,7 +45,7 @@
                      Width="200"
                      HorizontalAlignment="Center"
                      Padding="0, 3"
-                     Margin="45, 10, 0,0" />
+                     Margin="45, 10, 0,0"/>
             <TextBlock Text="Feet"
                        HorizontalAlignment="Center"
                        Margin="5, 12, 0,0" />
