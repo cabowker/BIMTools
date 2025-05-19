@@ -78,7 +78,7 @@ public class WallSleevesRound : IExternalCommand
                                     diameterParameter = pipe.LookupParameter("Diameter");
                                     if (diameterParameter != null && diameterParameter.HasValue)
                                         nominalDiameter = diameterParameter.AsDouble();
-                                    debugInfo += $"Pipe diameter from parameter: {nominalDiameter * 12:F2} inches\n";
+                                     // debugInfo += $"Pipe diameter from parameter: {nominalDiameter * 12:F2} inches\n";
 
                                 }
                             }
@@ -105,13 +105,13 @@ public class WallSleevesRound : IExternalCommand
                                 {
                                     insulationThickness = thicknessParameter.AsDouble();
                                     hasInsulation = true;
-                                    debugInfo += $"Pipe insulation found. Thickness: {insulationThickness * 12:F2} inches\n";
-                                    debugInfo += $"Parameter name: {thicknessParameter.Definition.Name}\n";
+                                    // debugInfo += $"Pipe insulation found. Thickness: {insulationThickness * 12:F2} inches\n";
+                                    // debugInfo += $"Parameter name: {thicknessParameter.Definition.Name}\n";
                                 }
                                 else
                                 {
-                                    debugInfo += "Pipe insulation found but couldn't get thickness parameter.\n";
-                                    debugInfo += "Available parameters on insulation:\n";
+                                    // debugInfo += "Pipe insulation found but couldn't get thickness parameter.\n";
+                                    // debugInfo += "Available parameters on insulation:\n";
                                     foreach (Parameter param in pipeInsulation.Parameters)
                                     {
                                         if (param.HasValue && param.StorageType == StorageType.Double)
@@ -123,7 +123,7 @@ public class WallSleevesRound : IExternalCommand
                             }
                             else
                             {
-                                debugInfo += "No pipe insulation found for this element.\n";
+                                // debugInfo += "No pipe insulation found for this element.\n";
                             }
                         }
 
@@ -145,7 +145,7 @@ public class WallSleevesRound : IExternalCommand
                                     debugInfo += $"Duct diameter: {nominalDiameter * 12:F2} inches\n";
 
                                 }
-                                debugInfo += "This appears to be a rectangular duct, which is not supported.\n";
+                                // debugInfo += "This appears to be a rectangular duct, which is not supported.\n";
 
                             }
 
@@ -171,13 +171,13 @@ public class WallSleevesRound : IExternalCommand
                                 {
                                     insulationThickness = thicknessParameter.AsDouble();
                                     hasInsulation = true;
-                                    debugInfo += $"Duct insulation found. Thickness: {insulationThickness * 12:F2} inches\n";
-                                    debugInfo += $"Parameter name: {thicknessParameter.Definition.Name}\n";
+                                    // debugInfo += $"Duct insulation found. Thickness: {insulationThickness * 12:F2} inches\n";
+                                    // debugInfo += $"Parameter name: {thicknessParameter.Definition.Name}\n";
                                 }
                                 else
                                 {
-                                    debugInfo += "Duct insulation found but couldn't get thickness parameter.\n";
-                                    debugInfo += "Available parameters on insulation:\n";
+                                    // debugInfo += "Duct insulation found but couldn't get thickness parameter.\n";
+                                    // debugInfo += "Available parameters on insulation:\n";
                                     foreach (Parameter param in ductInsulation.Parameters)
                                     {
                                         if (param.HasValue && param.StorageType == StorageType.Double)
@@ -203,11 +203,11 @@ public class WallSleevesRound : IExternalCommand
                         if (hasInsulation)
                         {
                             totalDiameter += (insulationThickness * 2);
-                            debugInfo += $"Total diameter with insulation: {totalDiameter:F2} inches\n";
+                            // debugInfo += $"Total diameter with insulation: {totalDiameter:F2} inches\n";
                         }
                         else
                         {
-                            debugInfo += $"Total diameter (no insulation): {totalDiameter:F2} inches\n";
+                            // debugInfo += $"Total diameter (no insulation): {totalDiameter:F2} inches\n";
 
                         }
                         
@@ -225,7 +225,7 @@ public class WallSleevesRound : IExternalCommand
                                     break;
                                 }
                             }
-                            debugInfo += $"For insulated element, initial sleeve size: {sleeveSize[finalSizeIndex]} inches\n";
+                            // debugInfo += $"For insulated element, initial sleeve size: {sleeveSize[finalSizeIndex]} inches\n";
                         }
                         else
                         {
@@ -243,8 +243,8 @@ public class WallSleevesRound : IExternalCommand
     
                             // 2. Go up one size
                             finalSizeIndex = Math.Min(baseSizeIndex + 1, sleeveSize.Length - 1);
-                            debugInfo += $"Base sleeve size: {sleeveSize[baseSizeIndex]} inches\n";
-                            debugInfo += $"After going up one size: {sleeveSize[finalSizeIndex]} inches\n";
+                            // debugInfo += $"Base sleeve size: {sleeveSize[baseSizeIndex]} inches\n";
+                            // debugInfo += $"After going up one size: {sleeveSize[finalSizeIndex]} inches\n";
 
 
                         }

@@ -3,7 +3,7 @@ using Autodesk.Revit.UI;
 
 namespace ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 
-public sealed class WallSleeveViewModel : ObservableObject
+public sealed partial class WallSleeveViewModel : ObservableObject
 {
     private readonly Document _document;
     private readonly UIApplication _uiApplication;
@@ -30,7 +30,7 @@ public sealed class WallSleeveViewModel : ObservableObject
             RequestClose?.Invoke();
         });
         
-        LoadWallSleeveSymbols();
+        GetElementsByPartTypeAndSubType();
     }
 
     public string StatusMessage
@@ -57,72 +57,6 @@ public sealed class WallSleeveViewModel : ObservableObject
     public bool DialogResult { get; private set; }
     
     public event Action RequestClose;
-
-    public void LoadWallSleeveSymbols()
-    {
-        try
-        {
-            StatusMessage = "Loading Wall Sleeve Families...maybe";
-
-            var wallSleeves = new List<FamilySymbol>();
-
-            var pipeAccessories = new FilteredElementCollector(_document)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                .Cast<FamilySymbol>()
-                .Where(fam =>
-                {
-                    var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
-                    var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
-                    return partTypeParam != null && partSubTypeParam != null &&
-                           string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
-                           string.Equals(partSubTypeParam.AsString(), "Wall Sleeve", StringComparison.OrdinalIgnoreCase);
-                })
-                .ToList();
-            wallSleeves.AddRange(pipeAccessories);
-            
-            var ductAccessories = new FilteredElementCollector(_document)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_DuctAccessory)
-                .Cast<FamilySymbol>()
-                .Where(fam =>
-                {
-                    var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
-                    var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
-                    return partTypeParam != null && partSubTypeParam != null &&
-                           string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
-                           string.Equals(partSubTypeParam.AsString(), "Wall Sleeve", StringComparison.OrdinalIgnoreCase);
-                })
-                .ToList();
-            wallSleeves.AddRange(ductAccessories);
-            
-            var genericModels = new FilteredElementCollector(_document)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_GenericModel)
-                .Cast<FamilySymbol>()
-                .Where(fam =>
-                {
-                    var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
-                    var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
-                    return partTypeParam != null && partSubTypeParam != null &&
-                           string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
-                           string.Equals(partSubTypeParam.AsString(), "Wall Sleeve", StringComparison.OrdinalIgnoreCase);
-                })
-                .ToList();
-            wallSleeves.AddRange(genericModels);
-
-            WallSleeveSymbols = new ObservableCollection<FamilySymbol>(wallSleeves);
-
-            if (WallSleeveSymbols.Count > 0)
-                SelectedWallSleeve = WallSleeveSymbols[0];
-            else
-                StatusMessage = "No wall Sleeve families found. Please load a wall sleeve family first.";
-        }
-        catch (Exception e)
-        {
-            StatusMessage = $"Error Loading Wall Sleeve Family: {e.Message}";
-        }
-    }
 
     private Parameter GetParameterCaseInsenitive(Element element, string parameterName)
     {
