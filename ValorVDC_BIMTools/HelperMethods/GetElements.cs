@@ -4,10 +4,59 @@ namespace ValorVDC_BIMTools.HelperMethods
 {
     public class GetElements
     {
+       public static List<FamilySymbol> GetElementByPartTypeAndPartSubType(Document document, 
+            string partType, string partSubType)
+        {
+            var elementList = new List<FamilySymbol>();
+            
+            // Categories where wall sleeves are commonly found
+            var categories = new List<BuiltInCategory>
+            {
+                BuiltInCategory.OST_PipeAccessory,
+                BuiltInCategory.OST_DuctAccessory,
+                BuiltInCategory.OST_GenericModel
+            };
+            
+            foreach (var category in categories)
+            {
+                var categoryElements = new FilteredElementCollector(document)
+                    .OfClass(typeof(FamilySymbol))
+                    .OfCategory(category)
+                    .Cast<FamilySymbol>()
+                    .Where(fam =>
+                    {
+                        var partTypeParam = GetParameterCaseInsensitive(fam, "Part Type");
+                        var partSubTypeParam = GetParameterCaseInsensitive(fam, "Part Sub-type");
+                        return partTypeParam != null && partSubTypeParam != null &&
+                               string.Equals(partTypeParam.AsString(), partType, StringComparison.OrdinalIgnoreCase) &&
+                               string.Equals(partSubTypeParam.AsString(), partSubType, StringComparison.OrdinalIgnoreCase);
+                    })
+                    .ToList();
+                
+                elementList.AddRange(categoryElements);
+            }
+            
+            return elementList;
+        }
+       
+        private static Parameter GetParameterCaseInsensitive(Element element, string parameterName)
+        {
+            var parameters = element.Parameters;
 
+            foreach (Parameter parameter in parameters)
+            {
+                if (string.Equals(parameter.Definition.Name, parameterName, StringComparison.OrdinalIgnoreCase))
+                    return parameter;
+            }
+
+            return null;
+        }
     }
+
+    
 }
 
+/*
 namespace ValorVDC_BIMTools.Commands.WallSleeve.ViewModels
 {
     public sealed partial class WallSleeveViewModel
@@ -82,4 +131,4 @@ namespace ValorVDC_BIMTools.Commands.WallSleeve.ViewModels
         }
     }
 
-}
+}*/

@@ -43,7 +43,7 @@ public class FlowArrow : IExternalCommand
                 try
                 {
                     var reference = uiDocument.Selection.PickObject(ObjectType.Element,
-                        new MepCurveAndFabFilter(), "Please Select a pipe or duct");
+                        new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
 
                     var element = document.GetElement(reference);
                     var locationCurve = element.Location as LocationCurve;

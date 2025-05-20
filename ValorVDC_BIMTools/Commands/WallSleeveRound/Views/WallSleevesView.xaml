@@ -6,8 +6,10 @@
         xmlns:local="clr-namespace:ValorVDC_BIMTools.Commands.WallSleeve.Views"
         mc:Ignorable="d"
         Title="WallSleeves" Height="450" Width="300"
-        WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
+        WindowStartupLocation="CenterScreen"
+        Background="LightGray">
+    <Grid Margin="10"
+          Background="WhiteSmoke">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -24,7 +26,7 @@
                   ItemsSource="{Binding WallSleeveSymbols}"
                   SelectedItem="{Binding SelectedWallSleeve}"
                   DisplayMemberPath="Name"
-                  Margin="0,0,0, 15"/>
+                  Margin="5,0,5, 15"/>
         <TextBlock Grid.Row="2"
                    Text="{Binding StatusMessage}"
                    Margin="0,0,0, 10"/>
@@ -35,11 +37,12 @@
                     Command="{Binding PlaceWallSleeveCommand}"
                     Background="LightGreen"
                     Padding="10, 5"
-                    Margin="0,0,20,0"/>
+                    Margin="0,0,30,10"/>
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Background="IndianRed"
-                    Padding="10, 5"/>
+                    Background="#c60c30"
+                    Padding="10, 5"
+                    Margin="0,0,10,10"/>
         </StackPanel>
         
     </Grid>
