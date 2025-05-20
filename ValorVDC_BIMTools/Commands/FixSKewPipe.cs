@@ -42,7 +42,7 @@ public class FixSKewPipe : IExternalCommand
         var application = uiApplication.Application;
         var document = uiDocument.Document;
 
-        var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, new MepCurveAndFabFilter(),
+        var pickedEnd = uiDocument.Selection.PickObject(ObjectType.Element, new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(),
             "Please select the end you would to keep");
         if (pickedEnd == null)
             return Result.Cancelled;

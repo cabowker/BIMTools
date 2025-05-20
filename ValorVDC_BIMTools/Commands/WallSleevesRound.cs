@@ -5,6 +5,8 @@ using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
+using ValorVDC_BIMTools.Commands.WallSleeve.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
@@ -30,19 +32,30 @@ public class WallSleevesRound : IExternalCommand
                 var uiDocument = commandData.Application.ActiveUIDocument;
                 var document = uiDocument.Document;
 
+                var viewModel = new WallSleeveViewModel(commandData);
+                var view = new WallSleevesView(viewModel);
+
+                if (view.ShowDialog() != true)
+                    return Result.Succeeded;
+
+                var selectedSleeve = viewModel.SelectedWallSleeve;
+                if (selectedSleeve == null)
+                {
+                    TaskDialog.Show("Error", "No Wall Sleeve Type Selected");
+                    return Result.Failed;
+                }
+
                 var continueSelecting = true;
 
                 while (continueSelecting)
                     try
                     {
-                        var sleeve = new FilteredElementCollector(document)
-                            .OfClass(typeof(FamilySymbol))
-                            .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                            .Cast<FamilySymbol>()
-                            .FirstOrDefault(fam => fam.FamilyName.Contains("Wall Sleeve"));
+                        var wallSleeves =
+                            GetElements.GetElementByPartTypeAndPartSubType(document, "Sleeve", "Wall Sleeve");
+                        var sleeve = wallSleeves.FirstOrDefault();
 
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
-                            new MepCurveAndFabFilter(), "Please Select a pipe or duct");
+                            new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
                         var element = document.GetElement(reference);
                         var locationCurve = element.Location as LocationCurve;
                         if (locationCurve == null)
@@ -61,7 +74,7 @@ public class WallSleevesRound : IExternalCommand
                             if (diameterParameter != null && diameterParameter.HasValue)
                             {
                                 nominalDiameter = diameterParameter.AsDouble();
-                                debugInfo += $"Pipe outer diameter: {nominalDiameter * 12:F2} inches\n";
+                                // debugInfo += $"Pipe outer diameter: {nominalDiameter * 12:F2} inches\n";
 
                             }
                             else
@@ -70,7 +83,7 @@ public class WallSleevesRound : IExternalCommand
                                 if (diameterParameter != null && diameterParameter.HasValue)
                                 {
                                     nominalDiameter = diameterParameter.AsDouble();
-                                    debugInfo += $"Pipe parameter 'Diameter': {nominalDiameter * 12:F2} inches\n";
+                                    // debugInfo += $"Pipe parameter 'Diameter': {nominalDiameter * 12:F2} inches\n";
 
                                 }
                                 else
@@ -116,7 +129,7 @@ public class WallSleevesRound : IExternalCommand
                                     {
                                         if (param.HasValue && param.StorageType == StorageType.Double)
                                         {
-                                            debugInfo += $"- {param.Definition.Name}: {param.AsDouble() * 12:F2} inches\n";
+                                            // debugInfo += $"- {param.Definition.Name}: {param.AsDouble() * 12:F2} inches\n";
                                         }
                                     }
                                 }
@@ -142,7 +155,7 @@ public class WallSleevesRound : IExternalCommand
                                 if (diameterParameter != null && diameterParameter.HasValue)
                                 {
                                     nominalDiameter = diameterParameter.AsDouble();
-                                    debugInfo += $"Duct diameter: {nominalDiameter * 12:F2} inches\n";
+                                    // debugInfo += $"Duct diameter: {nominalDiameter * 12:F2} inches\n";
 
                                 }
                                 // debugInfo += "This appears to be a rectangular duct, which is not supported.\n";
@@ -248,7 +261,7 @@ public class WallSleevesRound : IExternalCommand
 
 
                         }
-                        TaskDialog.Show("Sleeve Size Calculation", debugInfo);
+                        // TaskDialog.Show("Sleeve Size Calculation", debugInfo);
 
                         
                         var sleeveDiameterInches = sleeveSize[finalSizeIndex];
