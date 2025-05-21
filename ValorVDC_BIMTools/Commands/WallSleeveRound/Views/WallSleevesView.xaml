@@ -22,11 +22,12 @@
                    FontWeight="Bold"
                    FontSize="20"
                    Margin="0,0,0, 10"/>
+        
         <ComboBox Grid.Row="1" 
                   ItemsSource="{Binding WallSleeveSymbols}"
                   SelectedItem="{Binding SelectedWallSleeve}"
                   DisplayMemberPath="Name"
-                  Margin="5,0,5, 15"/>
+                  Margin="25,0,25, 15"/>
         <TextBlock Grid.Row="2"
                    Text="{Binding StatusMessage}"
                    Margin="0,0,0, 10"/>
