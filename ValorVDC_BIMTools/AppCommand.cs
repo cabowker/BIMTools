@@ -27,6 +27,7 @@ public class AppCommand : IExternalApplication
         SpecifyLength.CreateButton(ribbonPanel);
         FlowArrow.CreateButton(ribbonPanel);
         WallSleevesRound.CreateButton(ribbonPanel);
+        WallSleevesRectangular.CreateButton(ribbonPanel);
 
         return Result.Succeeded;
     }
