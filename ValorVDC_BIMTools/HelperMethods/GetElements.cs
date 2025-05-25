@@ -4,6 +4,40 @@ namespace ValorVDC_BIMTools.HelperMethods
 {
     public class GetElements
     {
+        public static ElementId GetClosestLevel(Document document, double elevation)
+        {
+            ElementId levelId = document.ActiveView?.GenLevel?.Id;
+            if (levelId != null && levelId != ElementId.InvalidElementId)
+                return levelId;
+
+            var levelCollector = new FilteredElementCollector(document)
+                .OfClass(typeof(Level));
+            double closestdistance = double.MaxValue;
+            Level closestLevel = null;
+
+            foreach (Level  level in levelCollector)
+            {
+                try
+                {
+                    if (level.Elevation > elevation)
+                    {
+                        double distance = elevation - level.Elevation;
+                        if (level.Elevation < closestdistance)
+                        {
+                            closestdistance = level.Elevation;
+                            closestLevel = level;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+            closestLevel ??= levelCollector.Cast<Level>().FirstOrDefault();
+            return closestLevel?.Id;
+        }
+        
        public static List<FamilySymbol> GetElementByPartTypeAndPartSubType(Document document, 
             string partType, string partSubType)
         {

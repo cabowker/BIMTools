@@ -52,7 +52,7 @@ public class WallSleevesRound : IExternalCommand
                     {
                         var wallSleeves =
                             GetElements.GetElementByPartTypeAndPartSubType(document, "Sleeve", "Wall Sleeve");
-                        var sleeve = wallSleeves.FirstOrDefault();
+                        var sleeve = selectedSleeve;
 
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
                             new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
@@ -286,16 +286,31 @@ public class WallSleevesRound : IExternalCommand
                         var endPoint = curve.GetEndPoint(1);
                         var geometricDirection = (endPoint - startPoint).Normalize();
 
-                        var levelId = element.LevelId;
-                        if (levelId == ElementId.InvalidElementId)
-                            levelId = document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
-
-                        if (levelId == ElementId.InvalidElementId)
-                        {
-                            TaskDialog.Show("Error", "Could not determine level for placement.");
-                            continue; // Try again
-                        }
-
+                        // var levelId = element.LevelId;
+                        // if (levelId == ElementId.InvalidElementId)
+                        //     levelId = document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
+                        
+                        // if (levelId == ElementId.InvalidElementId)
+                        // {
+                        //     TaskDialog.Show("Error", "Could not determine level for placement.");
+                        //     continue; // Try again
+                        // }
+                        
+                        // var activeViewLevel = document.ActiveView.GenLevel;
+                        // if (activeViewLevel == null)
+                        // {
+                        //     TaskDialog.Show("Error", "Could not determine the host level object.");
+                        //     continue; // Skip if Level is invalid
+                        // }
+                        //
+                        // double levelElevation = activeViewLevel.Elevation;
+                        // XYZ adjustedPoint = new XYZ(
+                        //     centerLinePoint.X,
+                        //     centerLinePoint.Y,
+                        //     levelElevation);
+                        ElementId closestLevelId = GetElements.GetClosestLevel(document, centerLinePoint.Z);
+                        Level closestLevel = document.GetElement(closestLevelId) as Level;
+                        
                         using (var transaction = new Transaction(document, "Place Sleeves"))
                         {
                             transaction.Start();
@@ -314,38 +329,39 @@ public class WallSleevesRound : IExternalCommand
                                 "Sleeve Diameter",
                                 "Nominal Size"
                             };
-                            foreach (var paramName in possibleParameterNames)
+                            foreach (var parameterame in possibleParameterNames)
                             {
-                                var diameterParam = sleeve.LookupParameter(paramName);
-                                if (diameterParam != null && !diameterParam.IsReadOnly)
+                                var diameterParameter = sleeve.LookupParameter(parameterame);
+                                if (diameterParameter != null && !diameterParameter.IsReadOnly)
                                 {
-                                    if (diameterParam.StorageType == StorageType.Double)
+                                    if (diameterParameter.StorageType == StorageType.Double)
                                     {
-                                        diameterParam.Set(sleeveDiameterFeet);
+                                        diameterParameter.Set(sleeveDiameterFeet);
                                         parameterNameSet = true;
                                         break;
                                     }
 
-                                    if (diameterParam.StorageType == StorageType.String)
+                                    if (diameterParameter.StorageType == StorageType.String)
                                     {
-                                        diameterParam.Set(sleeveDiameterInches + "\"");
+                                        diameterParameter.Set(sleeveDiameterInches + "\"");
                                         parameterNameSet = true;
                                         break;
                                     }
                                 }
                             }
 
-                            if (!parameterNameSet)
-                            {
-                                var placeSleeve = document.Create.NewFamilyInstance(
+                            var placeSleeve = document.Create.NewFamilyInstance(
                                     centerLinePoint,
                                     sleeve,
                                     curveDirection,
-                                    document.GetElement(levelId) as Level,
+                                    closestLevel,
                                     StructuralType.NonStructural);
-                                var rotationLine = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
-                                ElementTransformUtils.RotateElement(
-                                    document, placeSleeve.Id, rotationLine, Math.PI / 2);
+
+                            var rotationLine = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
+                            ElementTransformUtils.RotateElement(
+                                document, placeSleeve.Id, rotationLine, Math.PI / 2);
+                            if (!parameterNameSet)
+                            {
 
 
                                 foreach (var paramName in possibleParameterNames)
