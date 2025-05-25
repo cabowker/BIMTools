@@ -182,14 +182,14 @@ public class WallSleevesRectangular : IExternalCommand
                                 }
                             }
                         }
-                        Parameter insulationParameter = fabPart.LookupParameter("InsulationThickness");
+                        Parameter insulationParameter = fabPart.LookupParameter("Insulation Thickness");
                         if (insulationParameter != null && insulationParameter.HasValue && insulationParameter.AsDouble() > 0)
                         {
                             insulationThickness = insulationParameter.AsDouble();
                             hasInsulation = true;
                         }
                     }
-
+                    
                     if (height == 0 || width == 0)
                     {
                         TaskDialog.Show("Error", "Could not retrieve height and width of the selected element.");
@@ -212,13 +212,13 @@ public class WallSleevesRectangular : IExternalCommand
                     double finalHeight = totalHeight + (viewmodel.AddToHeight);
                     double finalWidth = totalWidth + (viewmodel.AddToWidth);
                     
-                    //Debugging output for sizes
-                    TaskDialog.Show("Size Debug", 
-                        $"Original size: {width}\" × {height}\"\n" +
-                        $"With insulation: {totalWidth}\" × {totalHeight}\"\n" +
-                        $"After adding to size: {finalWidth}\" × {finalHeight}\"\n" +
-                        $"AddToWidth: {viewmodel.AddToWidth}\"\n" +
-                        $"AddToHeight: {viewmodel.AddToHeight}\"");
+                    // //Debugging output for sizes
+                    // TaskDialog.Show("Size Debug", 
+                    //     $"Original size: {width}\" × {height}\"\n" +
+                    //     $"With insulation: {totalWidth}\" × {totalHeight}\"\n" +
+                    //     $"After adding to size: {finalWidth}\" × {finalHeight}\"\n" +
+                    //     $"AddToWidth: {viewmodel.AddToWidth}\"\n" +
+                    //     $"AddToHeight: {viewmodel.AddToHeight}\"");
 
                     
                     double roundUpValue = viewmodel.RoundUpValue;

@@ -37,7 +37,7 @@ public class RectangularWallSleeveViewModel : ObservableObject
         GetElementsByPartTypeAndSubType();
     }
 
-    public void GetElementsByPartTypeAndSubType(string partType = "Sleeve", string partSubType = "Wall Sleeve")
+    public void GetElementsByPartTypeAndSubType(string partType = "Sleeve", string partSubType = "Wall Sleeve-Rectangular")
     {
         try
         {
