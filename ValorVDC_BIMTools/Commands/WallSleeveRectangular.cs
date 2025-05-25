@@ -270,6 +270,7 @@ public class WallSleevesRectangular : IExternalCommand
                             document.GetElement(levelId) as Level,
                             StructuralType.NonStructural);
 
+
                         string[] heightParameterNames = { "Height", "Sleeve Height", "Nominal Height" };
                         bool heightSet = false;
                         foreach (var heightParameterName in heightParameterNames)
@@ -317,6 +318,9 @@ public class WallSleevesRectangular : IExternalCommand
 
                         var rotationDirection = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
                         ElementTransformUtils.RotateElement(document, placeSleeve.Id, rotationDirection, Math.PI / 2);
+                        
+                        SystemInformation.SetSystemInformation(element, placeSleeve);
+                        
                         if (!heightSet || !widthSet)
                         {
                             TaskDialog.Show("Warning",
