@@ -15,18 +15,15 @@ namespace ValorVDC_BIMTools.HelperMethods
             double closestdistance = double.MaxValue;
             Level closestLevel = null;
 
-            foreach (Level  level in levelCollector)
+            foreach (Level level in levelCollector)
             {
                 try
                 {
-                    if (level.Elevation > elevation)
+                    double distance = Math.Abs(level.Elevation - elevation);
+                    if (distance < closestdistance)
                     {
-                        double distance = elevation - level.Elevation;
-                        if (level.Elevation < closestdistance)
-                        {
-                            closestdistance = level.Elevation;
-                            closestLevel = level;
-                        }
+                        closestdistance = distance;
+                        closestLevel = level;
                     }
                 }
                 catch (Exception e)

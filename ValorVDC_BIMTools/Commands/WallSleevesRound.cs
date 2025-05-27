@@ -9,6 +9,7 @@ using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 using ValorVDC_BIMTools.Commands.WallSleeve.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
+using ValorVDC_BIMTools.Utilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 
@@ -284,33 +285,28 @@ public class WallSleevesRound : IExternalCommand
 
                         var startPoint = curve.GetEndPoint(0);
                         var endPoint = curve.GetEndPoint(1);
-                        var geometricDirection = (endPoint - startPoint).Normalize();
+                        //var geometricDirection = (endPoint - startPoint).Normalize();
+                        
+                        var levelId = element.LevelId;
+                        if (levelId == ElementId.InvalidElementId)
+                            levelId = document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
 
-                        // var levelId = element.LevelId;
-                        // if (levelId == ElementId.InvalidElementId)
-                        //     levelId = document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
-                        
-                        // if (levelId == ElementId.InvalidElementId)
-                        // {
-                        //     TaskDialog.Show("Error", "Could not determine level for placement.");
-                        //     continue; // Try again
-                        // }
-                        
-                        // var activeViewLevel = document.ActiveView.GenLevel;
-                        // if (activeViewLevel == null)
-                        // {
-                        //     TaskDialog.Show("Error", "Could not determine the host level object.");
-                        //     continue; // Skip if Level is invalid
-                        // }
-                        //
-                        // double levelElevation = activeViewLevel.Elevation;
-                        // XYZ adjustedPoint = new XYZ(
-                        //     centerLinePoint.X,
-                        //     centerLinePoint.Y,
-                        //     levelElevation);
-                        ElementId closestLevelId = GetElements.GetClosestLevel(document, centerLinePoint.Z);
-                        Level closestLevel = document.GetElement(closestLevelId) as Level;
-                        
+                        if (levelId == ElementId.InvalidElementId)
+                        {
+                            TaskDialog.Show("Error", "Could not determine level for placement.");
+                            continue; // Try again
+                        }
+
+                        Level hostLevel = document.GetElement(levelId) as Level;
+                        double levelElevation = hostLevel.Elevation;
+                        double zOffset = centerLinePoint.Z - levelElevation;
+                        TaskDialog.Show("Debug Level Info", 
+                            $"Using level: {hostLevel.Name}\n" +
+                            $"Level elevation: {hostLevel.Elevation * 12.0} inches\n" +
+                            $"Original point Z: {centerLinePoint.Z * 12.0} inches");
+
+
+
                         using (var transaction = new Transaction(document, "Place Sleeves"))
                         {
                             transaction.Start();
@@ -354,15 +350,33 @@ public class WallSleevesRound : IExternalCommand
                                     centerLinePoint,
                                     sleeve,
                                     curveDirection,
-                                    closestLevel,
+                                    hostLevel,
                                     StructuralType.NonStructural);
+                            
+                            var offsetParams = new[] {
+                                "Elevation from Level", "Height Offset from Level", "Elevation", "Z Offset", "Level Offset"
+                            };
+    
+                            bool offsetSet = false;
+                            foreach (var paramName in offsetParams)
+                            {
+                                var offsetParam = placeSleeve.LookupParameter(paramName);
+                                if (offsetParam != null && !offsetParam.IsReadOnly && offsetParam.StorageType == StorageType.Double)
+                                {
+                                    // Try to set the offset parameter explicitly
+                                    offsetParam.Set(zOffset);
+                                    offsetSet = true;
+                                    TaskDialog.Show("Offset Parameter Set", $"Set parameter '{paramName}' to {zOffset * 12.0:F2} inches");
+                                    break;
+                                }
+                            }
 
+                            
                             var rotationLine = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
                             ElementTransformUtils.RotateElement(
                                 document, placeSleeve.Id, rotationLine, Math.PI / 2);
                             if (!parameterNameSet)
                             {
-
 
                                 foreach (var paramName in possibleParameterNames)
                                 {
@@ -424,16 +438,13 @@ public class WallSleevesRound : IExternalCommand
 
     public static void CreateButton(RibbonPanel panel)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        var buttonName = "Round Wall Sleeves";
-        var buttonText = "Round"  + Environment.NewLine + "Wall Sleeves";
-        var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-        panel.AddItem(
-            new PushButtonData(buttonName, buttonText, assembly.Location, className)
-            {
-                ToolTip = "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
-            });
+        PushButtonUtility.CreatePushButton(
+            panel,
+            "Round Wall Sleeves",
+            "Round" + Environment.NewLine + "Wall Sleeves",
+            "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
+            "deathStar-32.png",
+            MethodBase.GetCurrentMethod().DeclaringType
+        );
     }
 }
