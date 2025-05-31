@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:ValorVDC_BIMTools.Commands.WallSleeve.Views"
         mc:Ignorable="d"
-        Title="WallSleeves" Height="450" Width="300"
+        Title="WallSleeves" Height="300" Width="300"
         WindowStartupLocation="CenterScreen"
         Background="LightGray">
     <Grid Margin="10"
@@ -20,8 +20,8 @@
                    Text="Select A Wall Sleeve Type"
                    HorizontalAlignment="Center"
                    FontWeight="Bold"
-                   FontSize="20"
-                   Margin="0,0,0, 10"/>
+                   FontSize="18"
+                   Margin="0,10,0, 10"/>
         
         <ComboBox Grid.Row="1" 
                   ItemsSource="{Binding WallSleeveSymbols}"

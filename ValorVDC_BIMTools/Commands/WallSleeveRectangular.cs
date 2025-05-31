@@ -16,7 +16,7 @@ namespace ValorVDC_BIMTools.Commands;
 [Regeneration(RegenerationOption.Manual)]
 public class WallSleevesRectangular : IExternalCommand
 {
-    private readonly PipeInsulationMethods _pipeInsulationMethods = new PipeInsulationMethods();
+    private readonly InsulationMethods _insulationMethods = new InsulationMethods();
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
         try
@@ -89,7 +89,7 @@ public class WallSleevesRectangular : IExternalCommand
 
                         try
                         {
-                            DuctInsulation ductInsulation = _pipeInsulationMethods.FindDuctInsulation(document, duct);
+                            DuctInsulation ductInsulation = _insulationMethods.FindDuctInsulation(document, duct);
                             if (ductInsulation != null)
                             {
                                 Parameter thicknessParameter =

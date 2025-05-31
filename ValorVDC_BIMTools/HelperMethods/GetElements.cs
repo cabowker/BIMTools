@@ -1,9 +1,124 @@
 ﻿using System.Collections.ObjectModel;
+using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.DB.Plumbing;
 
 namespace ValorVDC_BIMTools.HelperMethods
 {
-    public class GetElements
+    /// <summary>
+    ///  Gets the Nominal Diameter of round Curves with or without Insulation [Ducts, Pipes, Fab Parts]
+    /// </summary>
+    public static class GetElements
     {
+
+        public static (double nominalDiameter, double insulationThickness, bool hasInsulation)
+            GetElementDiameterAndInsulation(
+                Document document, Element element)
+        {
+            double nominalDiameter = 0;
+            double insulationThickness = 0;
+            var hasInsulation = false;
+
+            switch (element)
+            {
+                case Pipe pipe:
+                    var pipeDiameterParameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
+                    if (pipeDiameterParameter != null && pipeDiameterParameter.HasValue)
+                    {
+                        nominalDiameter = pipeDiameterParameter.AsDouble();
+                        
+                        var pipeInsulation = new FilteredElementCollector(document)
+                            .OfClass(typeof(PipeInsulation))
+                            .Cast<PipeInsulation>()
+                            .FirstOrDefault(pi => pi.HostElementId == pipe.Id);
+
+                        if (pipeInsulation != null)
+                        {
+                            var pipeInsulationThicknessParameter =
+                                pipeInsulation.LookupParameter("Insulation Thickness");
+                            if (pipeInsulationThicknessParameter != null &&
+                                pipeInsulationThicknessParameter.HasValue &&
+                                pipeInsulationThicknessParameter.AsDouble() > 0)
+                            {
+                                insulationThickness = pipeInsulationThicknessParameter.AsDouble();
+                                hasInsulation = true;
+                            }
+                        }
+                    }
+
+                    break;
+
+                case Duct duct:
+                    var ductDiameterParameter = duct.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM);
+                    if (ductDiameterParameter != null && ductDiameterParameter.HasValue)
+                        nominalDiameter = ductDiameterParameter.AsDouble();
+                    
+                    var ductInsulation = new FilteredElementCollector(document)
+                        .OfClass(typeof(DuctInsulation))
+                        .Cast<DuctInsulation>()
+                        .FirstOrDefault(di => di.HostElementId == duct.Id);
+
+                    if (ductInsulation != null)
+                    {
+                        var ductInsulationThicknessParameter = ductInsulation.LookupParameter("Insulation Thickness");
+                        if (ductInsulationThicknessParameter != null &&
+                            ductInsulationThicknessParameter.HasValue &&
+                            ductInsulationThicknessParameter.AsDouble() > 0)
+                        {
+                            insulationThickness = ductInsulationThicknessParameter.AsDouble();
+                            hasInsulation = true;
+                        }
+                    }
+
+                    break;
+
+                case FabricationPart fabricationPart:
+                    var fabDiameterParameter =
+                        fabricationPart.get_Parameter(BuiltInParameter.FABRICATION_PART_DIAMETER_IN);
+                    if (fabDiameterParameter != null && fabDiameterParameter.HasValue)
+                        nominalDiameter = fabDiameterParameter.AsDouble();
+
+                    var insulationParameter =
+                        fabricationPart.get_Parameter(BuiltInParameter.RBS_REFERENCE_INSULATION_THICKNESS);
+                    if (insulationParameter != null && insulationParameter.HasValue &&
+                        insulationParameter.AsDouble() > 0)
+                    {
+                        insulationThickness = insulationParameter.AsDouble();
+                        hasInsulation = true;
+                    }
+
+                    break;
+                
+                default:
+                    break;
+            }
+
+            return (nominalDiameter, insulationThickness, hasInsulation);
+        }
+
+
+        public static List<double> GetAvailableSleevesSizes(FamilySymbol familySymbol)
+        {
+            List<double> availableSizes = new List<double>();
+
+            try
+            {
+                Family family = familySymbol.Family;
+                if (family == null)
+                    return availableSizes;
+
+                Document familyDocument = family.Document;
+                
+
+            }
+            catch (System.Exception)
+            {
+                
+            }
+            
+            return availableSizes;
+        }
+        
+        
         public static ElementId GetClosestLevel(Document document, double elevation)
         {
             ElementId levelId = document.ActiveView?.GenLevel?.Id;
@@ -83,83 +198,5 @@ namespace ValorVDC_BIMTools.HelperMethods
             return null;
         }
     }
-
-    
 }
 
-/*
-namespace ValorVDC_BIMTools.Commands.WallSleeve.ViewModels
-{
-    public sealed partial class WallSleeveViewModel
-    {
-        public void GetElementsByPartTypeAndSubType()
-        {
-            try
-            {
-                StatusMessage = "Loading Wall Sleeve Families...maybe";
-
-                var wallSleeves = new List<FamilySymbol>();
-
-                var pipeAccessories = new FilteredElementCollector(_document)
-                    .OfClass(typeof(FamilySymbol))
-                    .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                    .Cast<FamilySymbol>()
-                    .Where(fam =>
-                    {
-                        var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
-                        var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
-                        return partTypeParam != null && partSubTypeParam != null &&
-                               string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
-                               string.Equals(partSubTypeParam.AsString(), "Wall Sleeve",
-                                   StringComparison.OrdinalIgnoreCase);
-                    })
-                    .ToList();
-                wallSleeves.AddRange(pipeAccessories);
-
-                var ductAccessories = new FilteredElementCollector(_document)
-                    .OfClass(typeof(FamilySymbol))
-                    .OfCategory(BuiltInCategory.OST_DuctAccessory)
-                    .Cast<FamilySymbol>()
-                    .Where(fam =>
-                    {
-                        var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
-                        var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
-                        return partTypeParam != null && partSubTypeParam != null &&
-                               string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
-                               string.Equals(partSubTypeParam.AsString(), "Wall Sleeve",
-                                   StringComparison.OrdinalIgnoreCase);
-                    })
-                    .ToList();
-                wallSleeves.AddRange(ductAccessories);
-
-                var genericModels = new FilteredElementCollector(_document)
-                    .OfClass(typeof(FamilySymbol))
-                    .OfCategory(BuiltInCategory.OST_GenericModel)
-                    .Cast<FamilySymbol>()
-                    .Where(fam =>
-                    {
-                        var partTypeParam = GetParameterCaseInsenitive(fam, "Part Type");
-                        var partSubTypeParam = GetParameterCaseInsenitive(fam, "Part Sub-type");
-                        return partTypeParam != null && partSubTypeParam != null &&
-                               string.Equals(partTypeParam.AsString(), "Sleeve", StringComparison.OrdinalIgnoreCase) &&
-                               string.Equals(partSubTypeParam.AsString(), "Wall Sleeve",
-                                   StringComparison.OrdinalIgnoreCase);
-                    })
-                    .ToList();
-                wallSleeves.AddRange(genericModels);
-
-                WallSleeveSymbols = new ObservableCollection<FamilySymbol>(wallSleeves);
-
-                if (WallSleeveSymbols.Count > 0)
-                    SelectedWallSleeve = WallSleeveSymbols[0];
-                else
-                    StatusMessage = "No wall Sleeve families found. Please load a wall sleeve family first.";
-            }
-            catch (Exception e)
-            {
-                StatusMessage = $"Error Loading Wall Sleeve Family: {e.Message}";
-            }
-        }
-    }
-
-}*/

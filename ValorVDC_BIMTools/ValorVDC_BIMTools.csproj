@@ -69,6 +69,13 @@
         <EmbeddedResource Include="Resources\deathStar.png" />
         <None Remove="Resources\deathStar-32.png" />
         <EmbeddedResource Include="Resources\deathStar-32.png" />
+        <None Update="RevitFamilies\Wall Sleeves_R24.rfa">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="RevitFamilies\Wall Sleeves.rfa" />
     </ItemGroup>
 
 </Project>

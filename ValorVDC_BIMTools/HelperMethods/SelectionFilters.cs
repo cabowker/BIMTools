@@ -22,15 +22,12 @@ public class SelectionFilters
         {
             if (element.Category == null)
                 return false;
-            int categoryId;
-            if (int.TryParse(element.Document.Application.VersionNumber, out int versionNumber) && versionNumber >= 2024)
-                categoryId = (int)element.Category.Id.Value;
-            else
-                categoryId = element.Category.Id.IntegerValue;
+            int categoryId = element.Category.Id.IntegerValue;
         
             return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
                    categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
         }
+
     }
     
     public class MepCurveAndFabFilterWithOutInsulation : ISelectionFilter
@@ -51,14 +48,11 @@ public class SelectionFilters
         {
             if (element.Category == null)
                 return false;
-            int categoryId;
-            if (int.TryParse(element.Document.Application.VersionNumber, out int versionNumber) && versionNumber >= 2024)
-                categoryId = (int)element.Category.Id.Value;
-            else
-                categoryId = element.Category.Id.IntegerValue;
+            int categoryId = element.Category.Id.IntegerValue;
         
             return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
                    categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
         }
+
     }
 }
