@@ -48,7 +48,21 @@ public class WallSleevesRound : IExternalCommand
                     TaskDialog.Show("Error", "No Wall Sleeve Type Selected");
                     return Result.Failed;
                 }
+                
+                // Get available sleeve sizes from CSV file using the helper method
+                double[] availableSleeveSize = GetElements.GetAvailableSleeveSizes(selectedSleeve);
+                if (availableSleeveSize == null || availableSleeveSize.Length == 0)
+                {
+                    TaskDialog.Show("Fallback", "No sizes found in CSV, using default sizes");
+                    availableSleeveSize = new double[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
+                }
+                else
+                {
+                    TaskDialog.Show("Success", $"Using {availableSleeveSize.Length} sizes from CSV");
+                }
 
+
+                
                 var continueSelecting = true;
 
                 while (continueSelecting)
@@ -82,10 +96,8 @@ public class WallSleevesRound : IExternalCommand
                         double? totalDiameter = nominalDiameter;
                         if (hasInsulation)
                             totalDiameter += (insulationThickness * 2);
-
-
                         
-                        double[] sleeveSize = { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
+                        double[] sleeveSize = availableSleeveSize;
                         
                         int finalSizeIndex;
                         if (hasInsulation)

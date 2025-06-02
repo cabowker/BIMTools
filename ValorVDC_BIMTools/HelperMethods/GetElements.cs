@@ -1,6 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
+using System.Text;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.UI;
 
 namespace ValorVDC_BIMTools.HelperMethods
 {
@@ -25,7 +28,7 @@ namespace ValorVDC_BIMTools.HelperMethods
                     if (pipeDiameterParameter != null && pipeDiameterParameter.HasValue)
                     {
                         nominalDiameter = pipeDiameterParameter.AsDouble();
-                        
+
                         var pipeInsulation = new FilteredElementCollector(document)
                             .OfClass(typeof(PipeInsulation))
                             .Cast<PipeInsulation>()
@@ -51,7 +54,7 @@ namespace ValorVDC_BIMTools.HelperMethods
                     var ductDiameterParameter = duct.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM);
                     if (ductDiameterParameter != null && ductDiameterParameter.HasValue)
                         nominalDiameter = ductDiameterParameter.AsDouble();
-                    
+
                     var ductInsulation = new FilteredElementCollector(document)
                         .OfClass(typeof(DuctInsulation))
                         .Cast<DuctInsulation>()
@@ -87,7 +90,7 @@ namespace ValorVDC_BIMTools.HelperMethods
                     }
 
                     break;
-                
+
                 default:
                     break;
             }
@@ -96,30 +99,107 @@ namespace ValorVDC_BIMTools.HelperMethods
         }
 
 
-        public static List<double> GetAvailableSleevesSizes(FamilySymbol familySymbol)
+      public static double[] GetAvailableSleeveSizes(FamilySymbol familySymbol)
+    {
+        Document doc = familySymbol.Document;
+        Family family = familySymbol.Family;
+
+        // Open the family for editing
+        Document familyDoc = doc.EditFamily(family);
+        if (familyDoc == null)
         {
-            List<double> availableSizes = new List<double>();
-
-            try
-            {
-                Family family = familySymbol.Family;
-                if (family == null)
-                    return availableSizes;
-
-                Document familyDocument = family.Document;
-                
-
-            }
-            catch (System.Exception)
-            {
-                
-            }
-            
-            return availableSizes;
+            return null;
         }
-        
-        
-        public static ElementId GetClosestLevel(Document document, double elevation)
+
+        try
+        {
+            // Get the FamilySizeTableManager
+            FamilySizeTableManager sizeTableManager = FamilySizeTableManager.GetFamilySizeTableManager(familyDoc, family.Id);
+            if (sizeTableManager == null)
+            {
+                familyDoc.Close(false);
+                return null;
+            }
+
+            // Try to get the "Lookup Table Name" parameter
+            string lookupTableName = null;
+            Parameter lookupTableParam = familySymbol.LookupParameter("Lookup Table Name");
+            if (lookupTableParam != null && lookupTableParam.HasValue)
+            {
+                lookupTableName = lookupTableParam.AsString();
+            }
+
+            // If no "Lookup Table Name" parameter, get the first available lookup table
+            if (string.IsNullOrEmpty(lookupTableName))
+            {
+                var tableNames = sizeTableManager.GetAllSizeTableNames();
+                if (tableNames == null || tableNames.Count == 0)
+                {
+                    familyDoc.Close(false);
+                    return null;
+                }
+                lookupTableName = tableNames.First(); // Get the first table name
+            }
+
+            // Export the lookup table to a temporary CSV file
+            string tempPath = Path.Combine(Path.GetTempPath(), $"{lookupTableName}.csv");
+            bool exportSuccess = sizeTableManager.ExportSizeTable(lookupTableName, tempPath);
+            if (!exportSuccess)
+            {
+                familyDoc.Close(false);
+                return null;
+            }
+
+            // Read the CSV content
+            string[] csvLines = File.ReadAllLines(tempPath);
+            if (csvLines.Length < 2)
+            {
+                File.Delete(tempPath);
+                familyDoc.Close(false);
+                return null;
+            }
+
+            // Get the second row (index 1, assuming first row is headers)
+            string secondRow = csvLines[1];
+
+            // Parse the second row into an array, handling commas and quotes
+            string[] secondRowValues = secondRow.Split(',')
+                .Select(value => value.Trim('"')) // Remove quotes if present
+                .ToArray();
+
+            // Ensure there are enough columns
+            if (secondRowValues.Length < 2)
+            {
+                File.Delete(tempPath);
+                familyDoc.Close(false);
+                return null;
+            }
+
+            // Convert second column (index 1) and any additional columns to doubles, ignoring invalid values
+            var availableSleeveSizes = secondRowValues.Skip(1) // Start from second column
+                .Select(value =>
+                {
+                    double result;
+                    return double.TryParse(value, out result) ? result : (double?)null;
+                })
+                .Where(value => value.HasValue) // Keep only valid doubles
+                .Select(value => value.Value)
+                .ToArray();
+
+            // Clean up the temporary file
+            File.Delete(tempPath);
+            return availableSleeveSizes;
+        }
+        finally
+        {
+            // Close the family document without saving
+            familyDoc.Close(false);
+        }
+    }
+
+
+
+    public static ElementId GetClosestLevel(Document document, double elevation)
         {
             ElementId levelId = document.ActiveView?.GenLevel?.Id;
             if (levelId != null && levelId != ElementId.InvalidElementId)
@@ -199,4 +279,3 @@ namespace ValorVDC_BIMTools.HelperMethods
         }
     }
 }
-
