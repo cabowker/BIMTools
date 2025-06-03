@@ -49,6 +49,51 @@ public class WallSleevesRound : IExternalCommand
                     return Result.Failed;
                 }
                 
+                // DEBUG: Show selected sleeve info with lookup table details
+                string lookupTableInfo = "No lookup table found";
+
+                // Try to get lookup table info
+                Parameter lookupTableParam = selectedSleeve.LookupParameter("Lookup Table Name");
+                if (lookupTableParam != null && lookupTableParam.HasValue)
+                {
+                    lookupTableInfo = $"Lookup Table Name: {lookupTableParam.AsString()}";
+                }
+                else
+                {
+                    // Open the family temporarily to check available tables
+                    Document doc = selectedSleeve.Document;
+                    Family family = selectedSleeve.Family;
+                    
+                    try
+                    {
+                        Document familyDoc = doc.EditFamily(family);
+                        if (familyDoc != null)
+                        {
+                            FamilySizeTableManager sizeTableManager = FamilySizeTableManager.GetFamilySizeTableManager(familyDoc, family.Id);
+                            if (sizeTableManager != null)
+                            {
+                                var tableNames = sizeTableManager.GetAllSizeTableNames();
+                                if (tableNames != null && tableNames.Count > 0)
+                                {
+                                    lookupTableInfo = $"Available Lookup Tables: {string.Join(", ", tableNames)}";
+                                }
+                            }
+                            familyDoc.Close(false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        lookupTableInfo = $"Error checking lookup tables: {ex.Message}";
+                    }
+                }
+
+                TaskDialog.Show("Debug - Selected Sleeve", 
+                    $"Selected Sleeve: {selectedSleeve.Name}\n" +
+                    $"Family: {selectedSleeve.Family.Name}\n" +
+                    $"Category: {selectedSleeve.Category.Name}\n" +
+                    $"Lookup Table: {lookupTableInfo}");
+
+                
                 // Get available sleeve sizes from CSV file using the helper method
                 double[] availableSleeveSize = GetElements.GetAvailableSleeveSizes(selectedSleeve);
                 if (availableSleeveSize == null || availableSleeveSize.Length == 0)
@@ -58,7 +103,10 @@ public class WallSleevesRound : IExternalCommand
                 }
                 else
                 {
-                    TaskDialog.Show("Success", $"Using {availableSleeveSize.Length} sizes from CSV");
+                    TaskDialog.Show("Debug - Sleeve Sizes", 
+                        $"Found {availableSleeveSize.Length} sizes from lookup table:\n" +
+                        $"{string.Join(", ", availableSleeveSize)}");
+
                 }
 
 
@@ -75,6 +123,14 @@ public class WallSleevesRound : IExternalCommand
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
                             new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
                         var element = document.GetElement(reference);
+                        
+                        // DEBUG: Show selected element info
+                        TaskDialog.Show("Debug - Selected Element", 
+                            $"Selected Element: {element.Name}\n" +
+                            $"Category: {element.Category.Name}\n" +
+                            $"ID: {element.Id.IntegerValue}");
+
+                        
                         var locationCurve = element.Location as LocationCurve;
                         if (locationCurve == null)
                         {
