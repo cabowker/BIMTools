@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq.Expressions;
 using System.Text;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
@@ -97,107 +98,51 @@ namespace ValorVDC_BIMTools.HelperMethods
 
             return (nominalDiameter, insulationThickness, hasInsulation);
         }
-
-
-      public static double[] GetAvailableSleeveSizes(FamilySymbol familySymbol)
-    {
-        Document doc = familySymbol.Document;
-        Family family = familySymbol.Family;
-
-        // Open the family for editing
-        Document familyDoc = doc.EditFamily(family);
-        if (familyDoc == null)
+        
+        public static double[] GetAvailableSizes(FamilySymbol sleeveInstance)
         {
-            return null;
+            if (sleeveInstance == null)
+                throw new ArgumentNullException(nameof(sleeveInstance), "Sleeve Instance cannot be null.");
+
+            Parameter availableSizeParameter = sleeveInstance.LookupParameter("Available Sizes");
+
+            if (availableSizeParameter == null)
+            {
+                throw new ArgumentException("Parameter 'Available Sizes' not found.");
+            }
+
+            if (!availableSizeParameter.HasValue)
+            {
+                throw new ArgumentException("Parameter 'Available Sizes' has no value.");
+            }
+           
+            string sizeString = availableSizeParameter.AsString();
+            
+            if (string.IsNullOrEmpty(sizeString))
+            {
+                throw new ArgumentException("Parameter 'Available Sizes' is empty");
+            }
+
+           
+           string stringString = availableSizeParameter.AsString();
+           if (string.IsNullOrEmpty(stringString))
+                throw new ArgumentException("Parameter 'Available Sizes' is empty");
+           
+           double[] availableSizes = stringString
+               .Split(',')
+               .Select(s =>s.Trim())
+               .Select(s =>
+               {
+                   if (double.TryParse(s, out double size))
+                   {
+                       return size;
+                   }
+
+                   throw new FormatException($"Invalid number in size: {s}");
+               })
+               .ToArray();
+           return availableSizes;
         }
-
-        try
-        {
-            // Get the FamilySizeTableManager
-            FamilySizeTableManager sizeTableManager = FamilySizeTableManager.GetFamilySizeTableManager(familyDoc, family.Id);
-            if (sizeTableManager == null)
-            {
-                familyDoc.Close(false);
-                return null;
-            }
-
-            // Try to get the "Lookup Table Name" parameter
-            string lookupTableName = null;
-            Parameter lookupTableParam = familySymbol.LookupParameter("Lookup Table Name");
-            if (lookupTableParam != null && lookupTableParam.HasValue)
-            {
-                lookupTableName = lookupTableParam.AsString();
-            }
-
-            // If no "Lookup Table Name" parameter, get the first available lookup table
-            if (string.IsNullOrEmpty(lookupTableName))
-            {
-                var tableNames = sizeTableManager.GetAllSizeTableNames();
-                if (tableNames == null || tableNames.Count == 0)
-                {
-                    familyDoc.Close(false);
-                    return null;
-                }
-                lookupTableName = tableNames.First(); // Get the first table name
-            }
-
-            // Export the lookup table to a temporary CSV file
-            string tempPath = Path.Combine(Path.GetTempPath(), $"{lookupTableName}.csv");
-            bool exportSuccess = sizeTableManager.ExportSizeTable(lookupTableName, tempPath);
-            if (!exportSuccess)
-            {
-                familyDoc.Close(false);
-                return null;
-            }
-
-            // Read the CSV content
-            string[] csvLines = File.ReadAllLines(tempPath);
-            if (csvLines.Length < 2)
-            {
-                File.Delete(tempPath);
-                familyDoc.Close(false);
-                return null;
-            }
-
-            // Get the second row (index 1, assuming first row is headers)
-            string secondRow = csvLines[1];
-
-            // Parse the second row into an array, handling commas and quotes
-            string[] secondRowValues = secondRow.Split(',')
-                .Select(value => value.Trim('"')) // Remove quotes if present
-                .ToArray();
-
-            // Ensure there are enough columns
-            if (secondRowValues.Length < 2)
-            {
-                File.Delete(tempPath);
-                familyDoc.Close(false);
-                return null;
-            }
-
-            // Convert second column (index 1) and any additional columns to doubles, ignoring invalid values
-            var availableSleeveSizes = secondRowValues.Skip(1) // Start from second column
-                .Select(value =>
-                {
-                    double result;
-                    return double.TryParse(value, out result) ? result : (double?)null;
-                })
-                .Where(value => value.HasValue) // Keep only valid doubles
-                .Select(value => value.Value)
-                .ToArray();
-
-            // Clean up the temporary file
-            File.Delete(tempPath);
-            return availableSleeveSizes;
-        }
-        finally
-        {
-            // Close the family document without saving
-            familyDoc.Close(false);
-        }
-    }
-
-
 
     public static ElementId GetClosestLevel(Document document, double elevation)
         {

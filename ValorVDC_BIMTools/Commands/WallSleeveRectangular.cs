@@ -212,15 +212,6 @@ public class WallSleevesRectangular : IExternalCommand
                     double finalHeight = totalHeight + (viewmodel.AddToHeight);
                     double finalWidth = totalWidth + (viewmodel.AddToWidth);
                     
-                    // //Debugging output for sizes
-                    // TaskDialog.Show("Size Debug", 
-                    //     $"Original size: {width}\" × {height}\"\n" +
-                    //     $"With insulation: {totalWidth}\" × {totalHeight}\"\n" +
-                    //     $"After adding to size: {finalWidth}\" × {finalHeight}\"\n" +
-                    //     $"AddToWidth: {viewmodel.AddToWidth}\"\n" +
-                    //     $"AddToHeight: {viewmodel.AddToHeight}\"");
-
-                    
                     double roundUpValue = viewmodel.RoundUpValue;
                     if (roundUpValue > 0)
                     {

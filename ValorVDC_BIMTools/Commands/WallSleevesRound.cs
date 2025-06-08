@@ -49,68 +49,25 @@ public class WallSleevesRound : IExternalCommand
                     return Result.Failed;
                 }
                 
-                // DEBUG: Show selected sleeve info with lookup table details
-                string lookupTableInfo = "No lookup table found";
-
-                // Try to get lookup table info
-                Parameter lookupTableParam = selectedSleeve.LookupParameter("Lookup Table Name");
-                if (lookupTableParam != null && lookupTableParam.HasValue)
+                double[] sleeveSize;
+                try
                 {
-                    lookupTableInfo = $"Lookup Table Name: {lookupTableParam.AsString()}";
+                    sleeveSize = GetElements.GetAvailableSizes(selectedSleeve);
                 }
-                else
+                catch (ArgumentException ex)
                 {
-                    // Open the family temporarily to check available tables
-                    Document doc = selectedSleeve.Document;
-                    Family family = selectedSleeve.Family;
-                    
-                    try
-                    {
-                        Document familyDoc = doc.EditFamily(family);
-                        if (familyDoc != null)
-                        {
-                            FamilySizeTableManager sizeTableManager = FamilySizeTableManager.GetFamilySizeTableManager(familyDoc, family.Id);
-                            if (sizeTableManager != null)
-                            {
-                                var tableNames = sizeTableManager.GetAllSizeTableNames();
-                                if (tableNames != null && tableNames.Count > 0)
-                                {
-                                    lookupTableInfo = $"Available Lookup Tables: {string.Join(", ", tableNames)}";
-                                }
-                            }
-                            familyDoc.Close(false);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        lookupTableInfo = $"Error checking lookup tables: {ex.Message}";
-                    }
-                }
+                    TaskDialog.Show("Error", $"Could not get available sleeve size: ex.Message /newline" +
+                                             $"Using these sizes: 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48)");
+                    sleeveSize = new double[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
 
-                TaskDialog.Show("Debug - Selected Sleeve", 
-                    $"Selected Sleeve: {selectedSleeve.Name}\n" +
-                    $"Family: {selectedSleeve.Family.Name}\n" +
-                    $"Category: {selectedSleeve.Category.Name}\n" +
-                    $"Lookup Table: {lookupTableInfo}");
-
-                
-                // Get available sleeve sizes from CSV file using the helper method
-                double[] availableSleeveSize = GetElements.GetAvailableSleeveSizes(selectedSleeve);
-                if (availableSleeveSize == null || availableSleeveSize.Length == 0)
-                {
-                    TaskDialog.Show("Fallback", "No sizes found in CSV, using default sizes");
-                    availableSleeveSize = new double[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
                 }
-                else
+                catch (FormatException ex)
                 {
-                    TaskDialog.Show("Debug - Sleeve Sizes", 
-                        $"Found {availableSleeveSize.Length} sizes from lookup table:\n" +
-                        $"{string.Join(", ", availableSleeveSize)}");
+                    TaskDialog.Show("Error", $"Could not get available sleeve size: {ex.Message}");
+                    sleeveSize = new double[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
 
                 }
 
-
-                
                 var continueSelecting = true;
 
                 while (continueSelecting)
@@ -123,14 +80,6 @@ public class WallSleevesRound : IExternalCommand
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
                             new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
                         var element = document.GetElement(reference);
-                        
-                        // DEBUG: Show selected element info
-                        TaskDialog.Show("Debug - Selected Element", 
-                            $"Selected Element: {element.Name}\n" +
-                            $"Category: {element.Category.Name}\n" +
-                            $"ID: {element.Id.IntegerValue}");
-
-                        
                         var locationCurve = element.Location as LocationCurve;
                         if (locationCurve == null)
                         {
@@ -153,9 +102,9 @@ public class WallSleevesRound : IExternalCommand
                         if (hasInsulation)
                             totalDiameter += (insulationThickness * 2);
                         
-                        double[] sleeveSize = availableSleeveSize;
-                        
                         int finalSizeIndex;
+                        bool requiresLargerSize = false;
+                        
                         if (hasInsulation)
                         {
                             finalSizeIndex = sleeveSize.Length - 1;
@@ -167,7 +116,8 @@ public class WallSleevesRound : IExternalCommand
                                     break;
                                 }
                             }
-
+                            if (finalSizeIndex == sleeveSize.Length - 1 && sleeveSize[finalSizeIndex] <= totalDiameter)
+                                requiresLargerSize = true;
                         }
                         else
                         {
@@ -182,6 +132,32 @@ public class WallSleevesRound : IExternalCommand
                             }
                             
                             finalSizeIndex = Math.Min(baseSizeIndex + 1, sleeveSize.Length - 1);
+                            
+                            double requiredSize = nominalDiameter;
+                            if (finalSizeIndex == sleeveSize.Length - 1 && baseSizeIndex == sleeveSize.Length - 1)
+                            {
+                                requiresLargerSize = true;
+                            }
+                        }
+                        
+                        if (requiresLargerSize)
+                        {
+                            double largestAvailableSize = sleeveSize[sleeveSize.Length - 1];
+                            TaskDialogResult userChoice = TaskDialog.Show(
+                                "Sleeve Size Warning",
+                                $"The sleeve required is larger than what the family has available!\n\n" +
+                                $"Required diameter: {(hasInsulation ? totalDiameter : nominalDiameter):F2}\"\n" +
+                                $"Largest size available: {largestAvailableSize}\"\n\n" +
+                                $"Would you like to use the largest available size ({largestAvailableSize}\") instead?",
+                                TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No);
+                            
+                            if (userChoice == TaskDialogResult.No)
+                            {
+                                continueSelecting = false;
+                                continue;
+                            }
+                            
+                            finalSizeIndex = sleeveSize.Length - 1;
                         }
                         
                         var sleeveDiameterInches = sleeveSize[finalSizeIndex];
@@ -217,9 +193,7 @@ public class WallSleevesRound : IExternalCommand
                             {
                                 "Nominal Diameter",
                                 "Diameter",
-                                "Size",
-                                "Sleeve Diameter",
-                                "Nominal Size"
+                                "NominalDiameter",
                             };
                             foreach (var parameterame in possibleParameterNames)
                             {
