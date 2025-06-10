@@ -224,6 +224,11 @@ public class WallSleevesRound : IExternalCommand
                                     StructuralType.NonStructural);
                             
                             _curveMethods.AlignElementWithCurve(document, placeSleeve, line, placemnentPoint);
+                            
+                            // Set system information and pipe/duct size
+                            SystemInformation.SetSystemInformation(element, placeSleeve);
+                            SystemInformation.SetPipeSizeDuctDiameter(element, placeSleeve);
+                            
                             if (!parameterNameSet)
                             {
 

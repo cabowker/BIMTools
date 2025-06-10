@@ -1,6 +1,10 @@
 ﻿using System.Text;
 using System.Windows.Controls;
+using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.DB.Mechanical;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
+using Nice3point.Revit.Toolkit.Options;
 
 namespace ValorVDC_BIMTools.HelperMethods;
 
@@ -43,14 +47,12 @@ public class SystemInformation
                 }
                 else
                 {
-                    // If no system, try to get from system classification
                     Parameter systemClassParam = mepCurve.get_Parameter(BuiltInParameter.RBS_SYSTEM_CLASSIFICATION_PARAM);
                     if (systemClassParam != null && systemClassParam.HasValue)
                     {
                         systemName = systemClassParam.AsString();
                     }
                 }
-
             }
             
             else if (mepElement is FabricationPart fabPart)
@@ -159,6 +161,76 @@ public class SystemInformation
         catch (Exception e)
         {
             TaskDialog.Show("Warning", $"Could not set system information: {e.Message}");
+
+        }
+    }
+
+
+    public static void SetPipeSizeDuctDiameter(Element mepElement, FamilyInstance familyInstance)
+    {
+        try
+        {
+            Document document = mepElement.Document;
+
+            string parameterName = "";
+            double sizeValue = 0;
+
+            if (mepElement is Pipe pipe)
+            {
+                parameterName = "Host Size";
+                
+                Parameter pipeDiameterParameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
+                if (pipeDiameterParameter!= null && pipeDiameterParameter.HasValue)
+                    sizeValue = pipeDiameterParameter.AsDouble();
+            }
+            else if (mepElement is Duct duct)
+            {
+                parameterName = "Host Size";
+                
+                Parameter ductDiameterParam = duct.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM);
+                if (ductDiameterParam != null && ductDiameterParam.HasValue)
+                {
+                    sizeValue = ductDiameterParam.AsDouble();
+                }
+            }
+            else if (mepElement is FabricationPart fabPart)
+            {
+                Parameter fabDiameterParameter = fabPart.get_Parameter(BuiltInParameter.FABRICATION_PART_DIAMETER_IN);
+                if (fabDiameterParameter != null && fabDiameterParameter.HasValue)
+                {
+                    sizeValue = fabDiameterParameter.AsDouble();
+
+                    if (fabPart.Category.Id.IntegerValue == (double)BuiltInCategory.OST_PipeFitting ||
+                        fabPart.Category.Id.IntegerValue == (double)BuiltInCategory.OST_PipeAccessory)
+                    {
+                        parameterName = "Host Size";
+                    }
+                    else if (fabPart.Category.Id.IntegerValue == (double)BuiltInCategory.OST_DuctFitting ||
+                             fabPart.Category.Id.IntegerValue == (double)BuiltInCategory.OST_DuctAccessory)
+                    {
+                        parameterName = "Host Size";
+
+                    }
+                    else
+                    {
+                        parameterName = "Host Size";
+                    }
+                }
+            }
+
+            if (sizeValue > 0 && !string.IsNullOrEmpty(parameterName))
+            {
+                Parameter sizeParameter = familyInstance.LookupParameter(parameterName);
+                if (sizeParameter != null && !sizeParameter.IsReadOnly)
+                    sizeParameter.Set(sizeValue);
+                else 
+                    TaskDialog.Show("Info", $"Parameter '{parameterName}' not found or is read-only on the sleeve family. " +
+                                            $"Please ensure the family has this parameter defined as an instance parameter.");
+            }
+        }
+        catch (Exception e)
+        {
+            TaskDialog.Show("Warning", $"Could not set pipe size or duct diameter: {e.Message}");
 
         }
     }
