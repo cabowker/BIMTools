@@ -39,7 +39,7 @@ public sealed partial class WallSleeveViewModel : ObservableObject
     {
         try
         {
-            StatusMessage = "Loading Wall Sleeve Families...";
+            StatusMessage = "Please select a Wall Sleeve Part Type";
         
             // Use the helper method
             var wallSleeves = GetElements.GetElementByPartTypeAndPartSubType(_document, partType, partSubType);
@@ -49,7 +49,7 @@ public sealed partial class WallSleeveViewModel : ObservableObject
             if (WallSleeveSymbols.Count > 0)
                 SelectedWallSleeve = WallSleeveSymbols[0];
             else
-                StatusMessage = "No wall Sleeve families found. Please load a wall sleeve family first.";
+                StatusMessage = "No wall Sleeve types found. Please load a wall sleeve family first.";
         }
         catch (Exception e)
         {

@@ -75,4 +75,10 @@ public partial class SpecifyLengthWindow : Window
     {
         InputLengthFeet.Focus();
     }
+
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = false;
+        Close();
+    }
 }

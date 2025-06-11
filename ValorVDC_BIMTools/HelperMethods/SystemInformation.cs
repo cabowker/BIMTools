@@ -60,47 +60,11 @@ public class SystemInformation
                 Parameter serviceNameParameter = fabPart.LookupParameter("Fabrication Service Name");
                 if (serviceNameParameter != null && serviceNameParameter.HasValue)
                     systemName = serviceNameParameter.AsString();
-                else
-                {
-                    string[] serviceNameParams = { 
-                        "Service", 
-                        "Fabrication Service Name", 
-                        "System Name", 
-                        "SystemName", 
-                        "System Type",
-                        "ServiceName"
-                    };
-                    foreach (string paramName in serviceNameParams)
-                    {
-                        serviceNameParameter = fabPart.LookupParameter(paramName);
-                        if (serviceNameParameter != null && serviceNameParameter.HasValue)
-                        {
-                            systemName = serviceNameParameter.AsString();
-                            break;
-                        }
-                    }
-                }
+
                 Parameter serviceAbbrevParameter = fabPart.LookupParameter("ServiceAbbreviation");
                 if (serviceAbbrevParameter != null && serviceAbbrevParameter.HasValue)
                 {
                     systemAbbreviation = serviceAbbrevParameter.AsString();
-                }
-                else
-                {
-                    string[] serviceAbbrevParameters = { 
-                        "ServiceAbbreviation", 
-                        "System Abbreviation", 
-                        "Abbreviation" 
-                    };
-                    foreach (string paramName in serviceAbbrevParameters)
-                    {
-                        serviceAbbrevParameter = fabPart.LookupParameter(paramName);
-                        if (serviceAbbrevParameter != null && serviceAbbrevParameter.HasValue)
-                        {
-                            systemAbbreviation = serviceAbbrevParameter.AsString();
-                            break;
-                        }
-                    }
                 }
 
                 if (!string.IsNullOrEmpty(systemName) && string.IsNullOrEmpty(systemAbbreviation))

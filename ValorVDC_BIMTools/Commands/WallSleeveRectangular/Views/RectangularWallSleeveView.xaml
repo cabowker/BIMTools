@@ -9,6 +9,15 @@
         Height="450" Width="350"
         WindowStartupLocation="CenterScreen"
         Background="LightGray">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    
     <Grid Margin="10"
           Background="WhiteSmoke">
         <Grid.RowDefinitions>
@@ -86,18 +95,16 @@
                   Margin="25,0,25, 15"/>
         <TextBlock Grid.Row="6"
                    Text="{Binding StatusMessage}"
-                   Margin="0,0,0, 10"/>
+                   Margin="25,0,25, 10"/>
         <StackPanel Grid.Row="7"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button Content="Place Wall Sleeve"
                     Command="{Binding PlaceWallSleeveCommand}"
-                    Background="LightGreen"
                     Padding="10, 5"
                     Margin="0,0,30,10"/>
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Background="#c60c30"
                     Padding="10, 5"
                     Margin="0,0,10,10"/>
         </StackPanel>

@@ -12,8 +12,15 @@
     Topmost="True"
     Title="FlowArrows"
     Height="200"
-    Width="400">
+    Width="300">
 
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -46,11 +53,11 @@
                     Margin="0,15,0,0">
             <Button Content="Place Flow Arrow"
                     Command="{Binding PlaceFlowArrowCommand}"
-                    Width="120"
-                    Margin="0,0,10,0" />
+                    Padding="10, 5"
+                    Margin="0,0,20,0" />
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Width="120"
+                    Padding="10, 5"
                     IsCancel="True" />
         </StackPanel>
 
