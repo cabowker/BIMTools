@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.Utilities;
@@ -29,13 +28,9 @@ public class SpecifyLengthHandler : IExternalEventHandler
                 Stop();
                 return;
             }
-            
+
             var uiDocument = _commandData.Application.ActiveUIDocument;
             var document = uiDocument.Document;
-            
-            // Show the length specification window
-            var specifyLengthWindow = new SpecifyLengthWindow();
-            var result = specifyLengthWindow.ShowDialog();
 
             var pickedReference = uiDocument.Selection.PickObject(ObjectType.Element, "Select an MEP Curve");
 
@@ -46,17 +41,14 @@ public class SpecifyLengthHandler : IExternalEventHandler
             }
 
             var element = document.GetElement(pickedReference.ElementId);
-            bool success = false;
+            var success = false;
             // Handle MEP Curves
             if (element is MEPCurve mepCurve)
             {
                 success = MepCurveAdjustmentUtility.AdjustMepCurveLength(mepCurve, SelectedLength,
                     pickedReference.GlobalPoint, document);
 
-                if (!success)
-                {
-                    TaskDialog.Show("Error", "Failed to adjust MEP Curve length.");
-                }
+                if (!success) TaskDialog.Show("Error", "Failed to adjust MEP Curve length.");
             }
 
             // Handle Fabrication Parts
@@ -65,15 +57,11 @@ public class SpecifyLengthHandler : IExternalEventHandler
                 success = FabricationPartAdjustmentUtility.AdjustFabricationPartLength(fabricationPart, SelectedLength,
                     pickedReference.GlobalPoint, document);
 
-                if (!success)
-                {
-                    TaskDialog.Show("Error", "Failed to adjust Fabrication Part length.");
-                }
+                if (!success) TaskDialog.Show("Error", "Failed to adjust Fabrication Part length.");
             }
             else
             {
                 TaskDialog.Show("Error", "Selected element is not an MEP Curve or Fabrication Part.");
-                return;
             }
         }
         catch (OperationCanceledException)

@@ -13,16 +13,6 @@ public class SpecifyLength : IExternalCommand
     {
         try
         {
-            var uiDocument = commandData.Application.ActiveUIDocument;
-            try
-            {
-                uiDocument.Selection.SetElementIds(new ElementId[0]);
-            }
-            catch
-            {
-            }
-
-            
             var specifyLengthWindow = new SpecifyLengthWindow();
             var result = specifyLengthWindow.ShowDialog();
 

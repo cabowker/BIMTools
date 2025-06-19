@@ -15,32 +15,78 @@ public partial class SpecifyLengthWindow : Window
 
     private void SubmitButton_Click(object sender, RoutedEventArgs e)
     {
-        var selectedRadioButton = FindSelectedRadioButton();
-        if (string.IsNullOrWhiteSpace(InputLengthFeet.Text) && selectedRadioButton != null)
-            InputLengthFeet.Text = selectedRadioButton.Tag.ToString();
+        try
+        {
+            var selectedRadioButton = FindSelectedRadioButton();
+            // If a radio button is selected and no manual input, use radio button value
+            if (selectedRadioButton != null &&
+                string.IsNullOrWhiteSpace(InputLengthFeet.Text) &&
+                string.IsNullOrWhiteSpace(InputLengthInches.Text))
+                if (double.TryParse(selectedRadioButton.Tag?.ToString(), out var presetValue) && presetValue > 0)
+                {
+                    SpecifiedLength = presetValue;
+                    DialogResult = true;
+                    Close();
+                    return;
+                }
+
+            double feet = 0;
+            if (!string.IsNullOrWhiteSpace(InputLengthFeet.Text))
+                if (!double.TryParse(InputLengthFeet.Text.Trim(), out feet) || feet < 0)
+                {
+                    MessageBox.Show("Please enter a valid non-negative number for feet.", "Invalid Input",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    InputLengthFeet.Focus();
+                    return;
+                }
 
 
-        double feet = 0;
-        if (!string.IsNullOrWhiteSpace(InputLengthFeet.Text))
-            if (!double.TryParse(InputLengthFeet.Text, out feet) || feet < 0)
+            double inches = 0;
+            if (!string.IsNullOrWhiteSpace(InputLengthInches.Text))
+                if (!double.TryParse(InputLengthInches.Text.Trim(), out inches) || inches < 0 || inches >= 12)
+                {
+                    MessageBox.Show("Please enter a valid number for inches (0-11.99).", "Invalid Input",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    InputLengthInches.Focus();
+                    return;
+                }
+
+            if (feet == 0 && inches == 0 && selectedRadioButton == null)
             {
-                MessageBox.Show("Please enter a valid non-negative number for feet.");
+                MessageBox.Show("Please enter a length or select a preset value.", "No Input",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-        double inches = 0;
-        if (!string.IsNullOrWhiteSpace(InputLengthInches.Text))
-            if (!double.TryParse(InputLengthInches.Text, out inches) || inches < 0)
+            // Calculate total length in feet
+            var totalLengthInFeet = feet + inches / 12.0;
+
+            // Validate the total length is reasonable
+            if (totalLengthInFeet <= 0)
             {
-                MessageBox.Show("Please enter a valid non-negative number for inches.");
+                MessageBox.Show("The total length must be greater than 0.", "Invalid Length",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-        var totalLengthInFeet = feet + inches / 12;
-        SpecifiedLength = totalLengthInFeet;
+            if (totalLengthInFeet > 1000) // Reasonable upper limit
+            {
+                var result = MessageBox.Show(
+                    $"The specified length ({totalLengthInFeet:F2} feet) seems very large. Continue?",
+                    "Large Length Warning", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result != MessageBoxResult.Yes)
+                    return;
+            }
 
-        DialogResult = true;
-        Close();
+            SpecifiedLength = totalLengthInFeet;
+            DialogResult = true;
+            Close();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"An error occurred while processing the input: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private RadioButton FindSelectedRadioButton()
