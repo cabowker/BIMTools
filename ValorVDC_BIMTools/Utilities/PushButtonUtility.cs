@@ -19,9 +19,8 @@ public class PushButtonUtility
             new PushButtonData(buttonName, buttontext, assembly.Location, className)
             {
                 ToolTip = toolTip,
-                LargeImage = ImagineUtilities.LoadImage(assembly, imageName),
+                LargeImage = ImagineUtilities.LoadImage(assembly, imageName)
             }) as PushButton;
         return pushButton;
     }
-    
 }

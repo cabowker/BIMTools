@@ -16,13 +16,14 @@ namespace ValorVDC_BIMTools.Commands;
 [Regeneration(RegenerationOption.Manual)]
 public class WallSleevesRectangular : IExternalCommand
 {
-    private readonly InsulationMethods _insulationMethods = new InsulationMethods();
+    private readonly InsulationMethods _insulationMethods = new();
+
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
         try
         {
-            UIDocument uiDocument = commandData.Application.ActiveUIDocument;
-            Document document = uiDocument.Document;
+            var uiDocument = commandData.Application.ActiveUIDocument;
+            var document = uiDocument.Document;
 
             var viewmodel = new RectangularWallSleeveViewModel(commandData);
             var view = new RectangularWallSleeveView(viewmodel);
@@ -40,7 +41,6 @@ public class WallSleevesRectangular : IExternalCommand
             var continuesSelecting = true;
 
             while (continuesSelecting)
-            {
                 try
                 {
                     var reference = uiDocument.Selection.PickObject(ObjectType.Element,
@@ -56,10 +56,10 @@ public class WallSleevesRectangular : IExternalCommand
                         continue;
                     }
 
-                    double height = 0.0;
-                    double width = 0.0;
-                    double insulationThickness = 0.0;
-                    bool hasInsulation = false;
+                    var height = 0.0;
+                    var width = 0.0;
+                    var insulationThickness = 0.0;
+                    var hasInsulation = false;
 
 
                     if (element is Duct duct)
@@ -84,29 +84,26 @@ public class WallSleevesRectangular : IExternalCommand
                                 height = heightParameter.AsDouble();
                                 width = widthParameter.AsDouble();
                             }
-
                         }
 
                         try
                         {
-                            DuctInsulation ductInsulation = _insulationMethods.FindDuctInsulation(document, duct);
+                            var ductInsulation = _insulationMethods.FindDuctInsulation(document, duct);
                             if (ductInsulation != null)
                             {
-                                Parameter thicknessParameter =
+                                var thicknessParameter =
                                     ductInsulation.get_Parameter(BuiltInParameter.RBS_INSULATION_THICKNESS);
 
                                 if (thicknessParameter == null || !thicknessParameter.HasValue)
                                 {
                                     string[] possibleParameterNames =
                                         { "Thickness", "Insulation Thickness", "Duct Insulation Thickness" };
-                                    foreach (string possibleParameterName in possibleParameterNames)
+                                    foreach (var possibleParameterName in possibleParameterNames)
                                     {
                                         thicknessParameter = ductInsulation.LookupParameter(possibleParameterName);
                                         if (thicknessParameter != null && thicknessParameter.HasValue &&
                                             thicknessParameter.AsDouble() > 0)
-                                        {
                                             break;
-                                        }
                                     }
                                 }
 
@@ -120,7 +117,6 @@ public class WallSleevesRectangular : IExternalCommand
                         }
                         catch (Exception e)
                         {
-
                         }
                     }
                     else if (element is CableTray cableTray)
@@ -162,8 +158,8 @@ public class WallSleevesRectangular : IExternalCommand
                         {
                             string[] heightNames = { "Duct Depth", "Section Depth", "Main Primary Depth" };
                             string[] widthNames = { "Duct Width", "Section Width", "Main Primary Width" };
-                            
-                            foreach (string paramName in heightNames)
+
+                            foreach (var paramName in heightNames)
                             {
                                 depthParameter = fabPart.LookupParameter(paramName);
                                 if (depthParameter != null && depthParameter.HasValue)
@@ -172,7 +168,8 @@ public class WallSleevesRectangular : IExternalCommand
                                     break;
                                 }
                             }
-                            foreach (string paramName in widthNames)
+
+                            foreach (var paramName in widthNames)
                             {
                                 widthParameter = fabPart.LookupParameter(paramName);
                                 if (widthParameter != null && widthParameter.HasValue)
@@ -182,14 +179,16 @@ public class WallSleevesRectangular : IExternalCommand
                                 }
                             }
                         }
-                        Parameter insulationParameter = fabPart.LookupParameter("Insulation Thickness");
-                        if (insulationParameter != null && insulationParameter.HasValue && insulationParameter.AsDouble() > 0)
+
+                        var insulationParameter = fabPart.LookupParameter("Insulation Thickness");
+                        if (insulationParameter != null && insulationParameter.HasValue &&
+                            insulationParameter.AsDouble() > 0)
                         {
                             insulationThickness = insulationParameter.AsDouble();
                             hasInsulation = true;
                         }
                     }
-                    
+
                     if (height == 0 || width == 0)
                     {
                         TaskDialog.Show("Error", "Could not retrieve height and width of the selected element.");
@@ -200,27 +199,27 @@ public class WallSleevesRectangular : IExternalCommand
                     width *= 12.0;
                     insulationThickness *= 12.0;
 
-                    double totalHeight = height;
-                    double totalWidth = width;
+                    var totalHeight = height;
+                    var totalWidth = width;
 
                     if (hasInsulation)
                     {
-                        totalHeight += (insulationThickness * 2);
-                        totalWidth += (insulationThickness * 2);
+                        totalHeight += insulationThickness * 2;
+                        totalWidth += insulationThickness * 2;
                     }
 
-                    double finalHeight = totalHeight + (viewmodel.AddToHeight);
-                    double finalWidth = totalWidth + (viewmodel.AddToWidth);
-                    
-                    double roundUpValue = viewmodel.RoundUpValue;
+                    var finalHeight = totalHeight + viewmodel.AddToHeight;
+                    var finalWidth = totalWidth + viewmodel.AddToWidth;
+
+                    var roundUpValue = viewmodel.RoundUpValue;
                     if (roundUpValue > 0)
                     {
                         finalHeight = Math.Ceiling(finalHeight / roundUpValue) * roundUpValue;
                         finalWidth = Math.Ceiling(finalWidth / roundUpValue) * roundUpValue;
                     }
 
-                    double finalHeightFeet = finalHeight / 12.0;
-                    double finalWidthFeet = finalWidth / 12.0;
+                    var finalHeightFeet = finalHeight / 12.0;
+                    var finalWidthFeet = finalWidth / 12.0;
 
                     var curve = locationCurve.Curve;
                     var clickPoint = reference.GlobalPoint;
@@ -228,7 +227,9 @@ public class WallSleevesRectangular : IExternalCommand
                     XYZ curveDirection;
 
                     if (curve is Line line)
+                    {
                         curveDirection = line.Direction;
+                    }
                     else
                     {
                         var parameter = curve.Project(clickPoint).Parameter;
@@ -245,7 +246,7 @@ public class WallSleevesRectangular : IExternalCommand
                         continue; // Try again
                     }
 
-                    using (Transaction transaction = new Transaction(document, "Place Rectangular Wall Sleeve"))
+                    using (var transaction = new Transaction(document, "Place Rectangular Wall Sleeve"))
                     {
                         transaction.Start();
                         if (!selectedSleeve.IsActive)
@@ -263,7 +264,7 @@ public class WallSleevesRectangular : IExternalCommand
 
 
                         string[] heightParameterNames = { "Height", "Sleeve Height", "Nominal Height" };
-                        bool heightSet = false;
+                        var heightSet = false;
                         foreach (var heightParameterName in heightParameterNames)
                         {
                             var heightParameter = placeSleeve.LookupParameter(heightParameterName);
@@ -275,18 +276,18 @@ public class WallSleevesRectangular : IExternalCommand
                                     heightSet = true;
                                     break;
                                 }
-                                else if (heightParameter.StorageType == StorageType.String)
+
+                                if (heightParameter.StorageType == StorageType.String)
                                 {
                                     heightParameter.Set(finalHeight + "\"");
                                     heightSet = true;
                                     break;
-
                                 }
                             }
                         }
 
                         string[] widthParameterNames = { "Width", "Sleeve Width", "Nominal Width" };
-                        bool widthSet = false;
+                        var widthSet = false;
                         foreach (var paramName in widthParameterNames)
                         {
                             var widthParameter = placeSleeve.LookupParameter(paramName);
@@ -298,7 +299,8 @@ public class WallSleevesRectangular : IExternalCommand
                                     widthSet = true;
                                     break;
                                 }
-                                else if (widthParameter.StorageType == StorageType.String)
+
+                                if (widthParameter.StorageType == StorageType.String)
                                 {
                                     widthParameter.Set(finalWidth + "\"");
                                     widthSet = true;
@@ -309,14 +311,12 @@ public class WallSleevesRectangular : IExternalCommand
 
                         var rotationDirection = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
                         ElementTransformUtils.RotateElement(document, placeSleeve.Id, rotationDirection, Math.PI / 2);
-                        
+
                         SystemInformation.SetSystemInformation(element, placeSleeve);
-                        
+
                         if (!heightSet || !widthSet)
-                        {
                             TaskDialog.Show("Warning",
                                 "Could not set all sleeve dimensions. Check the family parameters.");
-                        }
 
                         transaction.Commit();
                     }
@@ -335,7 +335,7 @@ public class WallSleevesRectangular : IExternalCommand
                 {
                     TaskDialog.Show("Error", ex.Message);
                     // If we hit a non-cancellation error, ask if the user wants to continue
-                    TaskDialogResult result = TaskDialog.Show("Continue?",
+                    var result = TaskDialog.Show("Continue?",
                         "An error occurred. Do you want to continue placing sleeves?",
                         TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No);
 
@@ -346,8 +346,6 @@ public class WallSleevesRectangular : IExternalCommand
                     }
                 }
 
-            }
-
             return Result.Succeeded;
         }
         catch (Exception exception)
@@ -356,6 +354,7 @@ public class WallSleevesRectangular : IExternalCommand
             return Result.Failed;
         }
     }
+
     public static void CreateButton(RibbonPanel panel)
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -370,5 +369,4 @@ public class WallSleevesRectangular : IExternalCommand
                 LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
             });
     }
-
 }

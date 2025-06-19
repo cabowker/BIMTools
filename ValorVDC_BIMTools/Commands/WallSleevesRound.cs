@@ -1,14 +1,11 @@
 ﻿using System.Reflection;
 using Autodesk.Revit.Attributes;
-using Autodesk.Revit.DB.Mechanical;
-using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 using ValorVDC_BIMTools.Commands.WallSleeve.Views;
 using ValorVDC_BIMTools.HelperMethods;
-using ValorVDC_BIMTools.ImageUtilities;
 using ValorVDC_BIMTools.Utilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
@@ -19,14 +16,12 @@ public partial class InsulationMethods
 {
 }
 
-
-
 [Transaction(TransactionMode.Manual)]
 [Regeneration(RegenerationOption.Manual)]
 public class WallSleevesRound : IExternalCommand
 {
-    private readonly InsulationMethods _insulationMethods = new InsulationMethods();
-    private readonly CurveMethods _curveMethods = new CurveMethods();
+    private readonly CurveMethods _curveMethods = new();
+    private readonly InsulationMethods _insulationMethods = new();
 
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
@@ -48,7 +43,7 @@ public class WallSleevesRound : IExternalCommand
                     TaskDialog.Show("Error", "No Wall Sleeve Type Selected");
                     return Result.Failed;
                 }
-                
+
                 double[] sleeveSize;
                 try
                 {
@@ -58,14 +53,12 @@ public class WallSleevesRound : IExternalCommand
                 {
                     TaskDialog.Show("Error", $"Could not get available sleeve size: ex.Message /newline" +
                                              $"Using these sizes: 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48)");
-                    sleeveSize = new double[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
-
+                    sleeveSize = new[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
                 }
                 catch (FormatException ex)
                 {
                     TaskDialog.Show("Error", $"Could not get available sleeve size: {ex.Message}");
-                    sleeveSize = new double[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
-
+                    sleeveSize = new[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
                 }
 
                 var continueSelecting = true;
@@ -78,7 +71,8 @@ public class WallSleevesRound : IExternalCommand
                         var sleeve = selectedSleeve;
 
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
-                            new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
+                            new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(),
+                            "Please Select a pipe or duct");
                         var element = document.GetElement(reference);
                         var locationCurve = element.Location as LocationCurve;
                         if (locationCurve == null)
@@ -87,7 +81,8 @@ public class WallSleevesRound : IExternalCommand
                             continue;
                         }
 
-                        var (nominalDiameter, insulationThickness, hasInsulation) = GetElements.GetElementDiameterAndInsulation(document, element);
+                        var (nominalDiameter, insulationThickness, hasInsulation) =
+                            GetElements.GetElementDiameterAndInsulation(document, element);
 
                         if (nominalDiameter == 0)
                         {
@@ -100,66 +95,61 @@ public class WallSleevesRound : IExternalCommand
 
                         double? totalDiameter = nominalDiameter;
                         if (hasInsulation)
-                            totalDiameter += (insulationThickness * 2);
-                        
+                            totalDiameter += insulationThickness * 2;
+
                         int finalSizeIndex;
-                        bool requiresLargerSize = false;
-                        
+                        var requiresLargerSize = false;
+
                         if (hasInsulation)
                         {
                             finalSizeIndex = sleeveSize.Length - 1;
-                            for (int i = 0; i < sleeveSize.Length; i++)
-                            {
+                            for (var i = 0; i < sleeveSize.Length; i++)
                                 if (sleeveSize[i] > totalDiameter)
                                 {
                                     finalSizeIndex = i;
                                     break;
                                 }
-                            }
+
                             if (finalSizeIndex == sleeveSize.Length - 1 && sleeveSize[finalSizeIndex] <= totalDiameter)
                                 requiresLargerSize = true;
                         }
                         else
                         {
-                            int baseSizeIndex = sleeveSize.Length - 1;
-                            for (int i = 0; i < sleeveSize.Length; i++)
-                            {
+                            var baseSizeIndex = sleeveSize.Length - 1;
+                            for (var i = 0; i < sleeveSize.Length; i++)
                                 if (sleeveSize[i] > nominalDiameter)
                                 {
                                     baseSizeIndex = i;
                                     break;
                                 }
-                            }
-                            
+
                             finalSizeIndex = Math.Min(baseSizeIndex + 1, sleeveSize.Length - 1);
-                            
-                            double requiredSize = nominalDiameter;
+
+                            var requiredSize = nominalDiameter;
                             if (finalSizeIndex == sleeveSize.Length - 1 && baseSizeIndex == sleeveSize.Length - 1)
-                            {
                                 requiresLargerSize = true;
-                            }
                         }
-                        
+
                         if (requiresLargerSize)
                         {
-                            double largestAvailableSize = sleeveSize[sleeveSize.Length - 1];
-                            TaskDialogResult userChoice = TaskDialog.Show(
+                            var largestAvailableSize = sleeveSize[sleeveSize.Length - 1];
+                            var userChoice = TaskDialog.Show(
                                 "Sleeve Size Warning",
                                 $"The sleeve required is larger than what the family has available!\n\n" +
                                 $"Required diameter: {(hasInsulation ? totalDiameter : nominalDiameter):F2}\"\n" +
                                 $"Largest size available: {largestAvailableSize}\"\n\n" +
                                 $"Would you like to use the largest available size ({largestAvailableSize}\") instead?",
                                 TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No);
-                            
+
                             if (userChoice == TaskDialogResult.No)
                             {
                                 continueSelecting = false;
                                 continue;
                             }
-                            
+
                             finalSizeIndex = sleeveSize.Length - 1;
                         }
-                        
+
                         var sleeveDiameterInches = sleeveSize[finalSizeIndex];
                         var sleeveDiameterFeet = sleeveDiameterInches / 12.0;
 
@@ -167,7 +157,9 @@ public class WallSleevesRound : IExternalCommand
                         var clickPoint = reference.GlobalPoint;
                         Line line = null;
                         if (curve is Line existingLine)
+                        {
                             line = existingLine;
+                        }
                         else
                         {
                             var parameter = curve.Project(clickPoint).Parameter;
@@ -178,7 +170,7 @@ public class WallSleevesRound : IExternalCommand
 
                         var (hostLevel, placemnentPoint) = _curveMethods.GetLevelAndPlacementPoint(
                             document, element, line, reference);
-                        
+
                         using (var transaction = new Transaction(document, "Place Sleeves"))
                         {
                             transaction.Start();
@@ -193,7 +185,7 @@ public class WallSleevesRound : IExternalCommand
                             {
                                 "Nominal Diameter",
                                 "Diameter",
-                                "NominalDiameter",
+                                "NominalDiameter"
                             };
                             foreach (var parameterame in possibleParameterNames)
                             {
@@ -217,21 +209,20 @@ public class WallSleevesRound : IExternalCommand
                             }
 
                             var placeSleeve = document.Create.NewFamilyInstance(
-                                    placemnentPoint,
-                                    sleeve,
-                                    hostLevel,
-                                    hostLevel,
-                                    StructuralType.NonStructural);
-                            
+                                placemnentPoint,
+                                sleeve,
+                                hostLevel,
+                                hostLevel,
+                                StructuralType.NonStructural);
+
                             _curveMethods.AlignElementWithCurve(document, placeSleeve, line, placemnentPoint);
-                            
+
                             // Set system information and pipe/duct size
                             SystemInformation.SetSystemInformation(element, placeSleeve);
                             SystemInformation.SetPipeSizeDuctDiameter(element, placeSleeve);
-                            
+
                             if (!parameterNameSet)
                             {
-
                                 foreach (var paramName in possibleParameterNames)
                                 {
                                     var instanceDiamParam = placeSleeve.LookupParameter(paramName);
@@ -255,7 +246,6 @@ public class WallSleevesRound : IExternalCommand
 
                                 if (parameterNameSet)
                                 {
-
                                 }
                                 else
                                 {

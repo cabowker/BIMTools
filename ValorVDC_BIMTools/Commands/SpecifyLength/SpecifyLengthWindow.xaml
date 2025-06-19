@@ -9,11 +9,11 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    
+
     <StackPanel Background="WhiteSmoke">
         <TextBlock Text="Specify the New Length of the MEP Element:"
                    Width="260"
@@ -25,25 +25,25 @@
                    TextWrapping="Wrap"
                    HorizontalAlignment="Center"
                    Margin="0, 25 , 0, 10" />
-        
+
         <!-- Common preset lengths -->
         <GroupBox Header="Typical Lengths Include:" Width="230"
                   Padding="10"
                   BorderBrush="Black">
             <StackPanel>
-                
-            <RadioButton x:Name="Length5Feet" Content="5' Length"
-                         Tag="5" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
-            <RadioButton x:Name="Length10Feet" Content="10' Length"
-                         Tag="10" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
-            <RadioButton x:Name="Length20Feet" Content="20' Length"
-                         Tag="20" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
-            <RadioButton x:Name="Length21Feet" Content="21' Length"
-                         Tag="21" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
+
+                <RadioButton x:Name="Length5Feet" Content="5' Length"
+                             Tag="5" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length10Feet" Content="10' Length"
+                             Tag="10" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length20Feet" Content="20' Length"
+                             Tag="20" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length21Feet" Content="21' Length"
+                             Tag="21" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
             </StackPanel>
         </GroupBox>
         <StackPanel Orientation="Horizontal">
@@ -54,7 +54,7 @@
                      Width="190"
                      HorizontalAlignment="Center"
                      Padding="0, 3"
-                     Margin="45, 10, 0,0"/>
+                     Margin="45, 10, 0,0" />
             <TextBlock Text="Feet"
                        HorizontalAlignment="Center"
                        Margin="5, 12, 0,0" />
@@ -76,16 +76,16 @@
                        Margin="5, 12, 0,0" />
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-        <Button Content="Let's Do This"
-                Click="SubmitButton_Click"
-                HorizontalAlignment="Center"
-                Margin="100, 20,10 ,10"
-                Padding="7" />
-        <Button Content="Cancel"
-                Click="CancelButton_Click"
-                HorizontalAlignment="Center"
-                Padding="7"
-                Margin="10,20,10,10"/>
+            <Button Content="Let's Do This"
+                    Click="SubmitButton_Click"
+                    HorizontalAlignment="Center"
+                    Margin="100, 20,10 ,10"
+                    Padding="7" />
+            <Button Content="Cancel"
+                    Click="CancelButton_Click"
+                    HorizontalAlignment="Center"
+                    Padding="7"
+                    Margin="10,20,10,10" />
         </StackPanel>
     </StackPanel>
 </Window>

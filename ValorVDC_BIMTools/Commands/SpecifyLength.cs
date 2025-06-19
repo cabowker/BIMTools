@@ -11,26 +11,31 @@ public class SpecifyLength : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-
         try
         {
-            var handler = new SpecifyLengthHandler(commandData);
-            var externalEvent = ExternalEvent.Create(handler);
-
-            var specifyLengthWindow = new SpecifyLengthWindow();
-            var showDialog = specifyLengthWindow.ShowDialog();
-            if (showDialog != true)
-                return Result.Cancelled;
-
-            if (specifyLengthWindow.SpecifiedLength == null)
+            var uiDocument = commandData.Application.ActiveUIDocument;
+            try
             {
-                TaskDialog.Show("Error", "You must provide a valid length.");
-                return Result.Cancelled;
+                uiDocument.Selection.SetElementIds(new ElementId[0]);
+            }
+            catch
+            {
             }
 
-            handler.SelectedLength = specifyLengthWindow.SpecifiedLength.Value;
+            
+            var specifyLengthWindow = new SpecifyLengthWindow();
+            var result = specifyLengthWindow.ShowDialog();
 
-            handler.KeepRunning = true;
+            if (result != true || !specifyLengthWindow.SpecifiedLength.HasValue)
+                return Result.Cancelled;
+
+            var specifyLengthHandler = new SpecifyLengthHandler(commandData)
+            {
+                SelectedLength = specifyLengthWindow.SpecifiedLength.Value,
+                keepRunning = true
+            };
+
+            var externalEvent = ExternalEvent.Create(specifyLengthHandler);
             externalEvent.Raise();
 
             return Result.Succeeded;
@@ -40,7 +45,6 @@ public class SpecifyLength : IExternalCommand
             message = ex.Message;
             TaskDialog.Show("Error", $"An error occurred: {ex.Message}");
             return Result.Failed;
-
         }
     }
 

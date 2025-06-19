@@ -22,14 +22,13 @@ public class SelectionFilters
         {
             if (element.Category == null)
                 return false;
-            int categoryId = element.Category.Id.IntegerValue;
-        
+            var categoryId = element.Category.Id.IntegerValue;
+
             return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
                    categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
         }
-
     }
-    
+
     public class MepCurveAndFabFilterWithOutInsulation : ISelectionFilter
     {
         public bool AllowElement(Element element)
@@ -48,11 +47,10 @@ public class SelectionFilters
         {
             if (element.Category == null)
                 return false;
-            int categoryId = element.Category.Id.IntegerValue;
-        
+            var categoryId = element.Category.Id.IntegerValue;
+
             return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
                    categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
         }
-
     }
 }

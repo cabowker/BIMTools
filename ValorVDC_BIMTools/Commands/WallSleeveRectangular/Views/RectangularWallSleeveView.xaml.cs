@@ -14,26 +14,24 @@ public partial class RectangularWallSleeveView : Window
         AddToWidth.Text = viewModel.AddToWidth.ToString();
 
         RoundQuaterInch.IsChecked = true;
-        
+
         RoundQuaterInch.Checked += (s, e) => viewModel.RoundUpValue = 0.25;
         RoundHalfInch.Checked += (s, e) => viewModel.RoundUpValue = 0.5;
         RoundOneInch.Checked += (s, e) => viewModel.RoundUpValue = 1.0;
 
-        AddToHeight.TextChanged += (s, e ) =>
+        AddToHeight.TextChanged += (s, e) =>
         {
-            if (double.TryParse(AddToHeight.Text, out double value))
+            if (double.TryParse(AddToHeight.Text, out var value))
                 viewModel.AddToHeight = value;
         };
-        
-        AddToWidth.TextChanged += (s, e ) =>
+
+        AddToWidth.TextChanged += (s, e) =>
         {
-            if (double.TryParse(AddToWidth.Text, out double value))
+            if (double.TryParse(AddToWidth.Text, out var value))
                 viewModel.AddToWidth = value;
         };
-        
+
 
         viewModel.RequestClose += () => DialogResult = viewModel.DialogResult;
     }
-
-
 }

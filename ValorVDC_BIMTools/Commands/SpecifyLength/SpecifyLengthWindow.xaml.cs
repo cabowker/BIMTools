@@ -9,17 +9,17 @@ public partial class SpecifyLengthWindow : Window
     {
         InitializeComponent();
     }
-    
+
     public double? SpecifiedLength { get; private set; }
 
-    
+
     private void SubmitButton_Click(object sender, RoutedEventArgs e)
     {
         var selectedRadioButton = FindSelectedRadioButton();
         if (string.IsNullOrWhiteSpace(InputLengthFeet.Text) && selectedRadioButton != null)
             InputLengthFeet.Text = selectedRadioButton.Tag.ToString();
 
-        
+
         double feet = 0;
         if (!string.IsNullOrWhiteSpace(InputLengthFeet.Text))
             if (!double.TryParse(InputLengthFeet.Text, out feet) || feet < 0)
@@ -45,12 +45,11 @@ public partial class SpecifyLengthWindow : Window
 
     private RadioButton FindSelectedRadioButton()
     {
-        if (Length5Feet.IsChecked  == true) return Length5Feet;
+        if (Length5Feet.IsChecked == true) return Length5Feet;
         if (Length10Feet.IsChecked == true) return Length10Feet;
         if (Length20Feet.IsChecked == true) return Length20Feet;
         if (Length21Feet.IsChecked == true) return Length21Feet;
         return null;
-
     }
 
     private void InputLengthFeet_TextChanged(object sender, TextChangedEventArgs e)

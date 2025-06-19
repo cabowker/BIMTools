@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\cbowk\\source\\repos\\BimTools\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{ACDA391E-98EE-47CB-AC67-4854F116E71B}|ValorVDC_BIMTools\\ValorVDC_BIMTools.csproj|c:\\users\\cbowk\\source\\repos\\bimtools\\valorvdc_bimtools\\commands\\wallsleeverectangular.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{ACDA391E-98EE-47CB-AC67-4854F116E71B}|ValorVDC_BIMTools\\ValorVDC_BIMTools.csproj|solutionrelative:valorvdc_bimtools\\commands\\wallsleeverectangular.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{ACDA391E-98EE-47CB-AC67-4854F116E71B}|ValorVDC_BIMTools\\ValorVDC_BIMTools.csproj|c:\\users\\cbowk\\source\\repos\\bimtools\\valorvdc_bimtools\\commands\\fabricationspecifylength.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ACDA391E-98EE-47CB-AC67-4854F116E71B}|ValorVDC_BIMTools\\ValorVDC_BIMTools.csproj|solutionrelative:valorvdc_bimtools\\commands\\fabricationspecifylength.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ACDA391E-98EE-47CB-AC67-4854F116E71B}|ValorVDC_BIMTools\\ValorVDC_BIMTools.csproj|c:\\users\\cbowk\\source\\repos\\bimtools\\valorvdc_bimtools\\commands\\fabricationspecifylength\\fabricationspecifylengthhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{ACDA391E-98EE-47CB-AC67-4854F116E71B}|ValorVDC_BIMTools\\ValorVDC_BIMTools.csproj|solutionrelative:valorvdc_bimtools\\commands\\fabricationspecifylength\\fabricationspecifylengthhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,19 +18,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "WallSleeveRectangular.cs",
-              "DocumentMoniker": "C:\\Users\\cbowk\\source\\repos\\BimTools\\ValorVDC_BIMTools\\Commands\\WallSleeveRectangular.cs",
-              "RelativeDocumentMoniker": "ValorVDC_BIMTools\\Commands\\WallSleeveRectangular.cs",
-              "ToolTip": "C:\\Users\\cbowk\\source\\repos\\BimTools\\ValorVDC_BIMTools\\Commands\\WallSleeveRectangular.cs",
-              "RelativeToolTip": "ValorVDC_BIMTools\\Commands\\WallSleeveRectangular.cs",
-              "ViewState": "AgIAAOgAAAAAAAAAAAAgwO0AAAAAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "FabricationSpecifyLengthHandler.cs",
+              "DocumentMoniker": "C:\\Users\\cbowk\\source\\repos\\BimTools\\ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength\\FabricationSpecifyLengthHandler.cs",
+              "RelativeDocumentMoniker": "ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength\\FabricationSpecifyLengthHandler.cs",
+              "ToolTip": "C:\\Users\\cbowk\\source\\repos\\BimTools\\ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength\\FabricationSpecifyLengthHandler.cs",
+              "RelativeToolTip": "ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength\\FabricationSpecifyLengthHandler.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAIwCAAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T01:47:13.564Z",
+              "WhenOpened": "2025-06-14T12:50:16.937Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FabricationSpecifyLength.cs",
+              "DocumentMoniker": "C:\\Users\\cbowk\\source\\repos\\BimTools\\ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength.cs",
+              "RelativeDocumentMoniker": "ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength.cs",
+              "ToolTip": "C:\\Users\\cbowk\\source\\repos\\BimTools\\ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength.cs",
+              "RelativeToolTip": "ValorVDC_BIMTools\\Commands\\FabricationSpecifyLength.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-14T12:49:57.283Z",
               "EditorCaption": ""
             }
           ]

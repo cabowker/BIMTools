@@ -14,7 +14,7 @@ namespace ValorVDC_BIMTools.Commands
     {
         public PipeInsulation FindPipeInsulation(Document document, MEPCurve mepCurve)
         {
-            FilteredElementCollector collector = new FilteredElementCollector(document)
+            var collector = new FilteredElementCollector(document)
                 .OfClass(typeof(PipeInsulation));
             return collector
                 .Cast<PipeInsulation>()
@@ -23,7 +23,7 @@ namespace ValorVDC_BIMTools.Commands
 
         public DuctInsulation FindDuctInsulation(Document document, MEPCurve mepCurve)
         {
-            FilteredElementCollector collector = new FilteredElementCollector(document)
+            var collector = new FilteredElementCollector(document)
                 .OfClass(typeof(DuctInsulation));
             return collector
                 .Cast<DuctInsulation>()
