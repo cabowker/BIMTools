@@ -1,0 +1,78 @@
+﻿<Window
+    x:Class="ValorVDC_BIMTools.Commands.CopyScopeBoxes.Views.CopyScopeBoxesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.CopyScopeBoxes.ViewModels"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance viewModels:ScopeBoxManagerViewModel}"
+    ResizeMode="NoResize"
+    WindowStartupLocation="CenterScreen"
+    Title="CopyScopeBoxes"
+    Height="400"
+    Width="600">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" 
+                   Text="Select a linked model:" 
+                   FontSize="15"
+                   FontWeight="Bold" 
+                   Margin="0,0,0,5"/>
+        <ComboBox Grid.Row="1"
+                  ItemsSource="{Binding LinkModels}"
+                  SelectedItem="{Binding SelectedLinkedModel, Mode=TwoWay}"
+                  DisplayMemberPath="Name"
+                  Margin="0,0,0,10"/>
+        
+        <Border Grid.Row="2"
+                BorderBrush="LightGray" 
+                BorderThickness="1" 
+                Padding="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" 
+                           Text="Select scope boxes to copy:" 
+                           FontWeight="Bold" 
+                           FontSize="15"
+                           Margin="5,5,0,5"/>
+                
+                <ListBox Grid.Row="1" 
+                         ItemsSource="{Binding ScopeBoxes}" 
+                         BorderThickness="0"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding Name}" 
+                                      IsChecked="{Binding IsSelected}" 
+                                      Margin="2"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+        
+        <StackPanel Grid.Row="3" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,10,0,0">
+            <Button Content="Cancel" 
+                    Command="{Binding CloseCommand}" 
+                    Padding="15,5" 
+                    Margin="0,0,10,0"/>
+            <Button Content="Copy Selected" 
+                    Command="{Binding CopyScopeBoxesCommand}" 
+                    Padding="15,5"/>
+        </StackPanel>
+    </Grid>
+</Window>

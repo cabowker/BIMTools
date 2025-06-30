@@ -355,18 +355,33 @@ public class WallSleevesRectangular : IExternalCommand
         }
     }
 
-    public static void CreateButton(RibbonPanel panel)
+    // public static void CreateButton(RibbonPanel panel)
+    // {
+    //     var assembly = Assembly.GetExecutingAssembly();
+    //
+    //     var buttonName = "Rectangular Wall Sleeves";
+    //     var buttonText = "Rectangular" + Environment.NewLine + "Wall Sleeves";
+    //     var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
+    //     panel.AddItem(
+    //         new PushButtonData(buttonName, buttonText, assembly.Location, className)
+    //         {
+    //             ToolTip = "Place Rectangular Wall Sleeves to Ducts, Cable Trays, and Fabrication Ductwork",
+    //             LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
+    //         });
+    // }
+    
+    public static PushButtonData CreatePushButtonData()
     {
         var assembly = Assembly.GetExecutingAssembly();
-
-        var buttonName = "Rectangular Wall Sleeves";
-        var buttonText = "Rectangular" + Environment.NewLine + "Wall Sleeves";
-        var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-        panel.AddItem(
-            new PushButtonData(buttonName, buttonText, assembly.Location, className)
-            {
-                ToolTip = "Place Rectangular Wall Sleeves to Ducts, Cable Trays, and Fabrication Ductwork",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
-            });
+        var buttonName = "Rectangular Sleeves";
+        var buttonText = "Rectangular" + Environment.NewLine + "Sleeves";
+        var className = typeof(WallSleevesRectangular).FullName;
+    
+        return new PushButtonData(buttonName, buttonText, assembly.Location, className)
+        {
+            ToolTip = "Create Rectangular Wall Sleeves",
+            LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
+        };
     }
+
 }

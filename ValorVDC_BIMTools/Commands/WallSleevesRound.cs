@@ -6,6 +6,7 @@ using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
 using ValorVDC_BIMTools.Commands.WallSleeve.Views;
 using ValorVDC_BIMTools.HelperMethods;
+using ValorVDC_BIMTools.ImageUtilities;
 using ValorVDC_BIMTools.Utilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
@@ -278,15 +279,30 @@ public class WallSleevesRound : IExternalCommand
         }
     }
 
-    public static void CreateButton(RibbonPanel panel)
+    // public static void CreateButton(RibbonPanel panel)
+    // {
+    //     PushButtonUtility.CreatePushButton(
+    //         panel,
+    //         "Round Wall Sleeves",
+    //         "Round" + Environment.NewLine + "Wall Sleeves",
+    //         "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
+    //         "deathStar-32.png",
+    //         MethodBase.GetCurrentMethod().DeclaringType
+    //     );
+    // }
+    
+    public static PushButtonData CreatePushButtonData()
     {
-        PushButtonUtility.CreatePushButton(
-            panel,
-            "Round Wall Sleeves",
-            "Round" + Environment.NewLine + "Wall Sleeves",
-            "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
-            "deathStar-32.png",
-            MethodBase.GetCurrentMethod().DeclaringType
-        );
+        var assembly = Assembly.GetExecutingAssembly();
+        var buttonName = "Round Sleeves";
+        var buttonText = "Round" + Environment.NewLine + "Sleeves";
+        var className = typeof(WallSleevesRound).FullName;
+    
+        return new PushButtonData(buttonName, buttonText, assembly.Location, className)
+        {
+            ToolTip = "Create Round Wall Sleeves",
+            LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
+        };
     }
+
 }
