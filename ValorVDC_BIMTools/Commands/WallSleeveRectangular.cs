@@ -354,21 +354,6 @@ public class WallSleevesRectangular : IExternalCommand
             return Result.Failed;
         }
     }
-
-    // public static void CreateButton(RibbonPanel panel)
-    // {
-    //     var assembly = Assembly.GetExecutingAssembly();
-    //
-    //     var buttonName = "Rectangular Wall Sleeves";
-    //     var buttonText = "Rectangular" + Environment.NewLine + "Wall Sleeves";
-    //     var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-    //     panel.AddItem(
-    //         new PushButtonData(buttonName, buttonText, assembly.Location, className)
-    //         {
-    //             ToolTip = "Place Rectangular Wall Sleeves to Ducts, Cable Trays, and Fabrication Ductwork",
-    //             LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
-    //         });
-    // }
     
     public static PushButtonData CreatePushButtonData()
     {

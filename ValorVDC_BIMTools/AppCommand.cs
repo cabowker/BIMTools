@@ -31,8 +31,6 @@ public class AppCommand : IExternalApplication
         DisconnectPipe.CreateButton(mepToolsPanel);
         SpecifyLength.CreateButton(mepToolsPanel);
         FlowArrow.CreateButton(mepToolsPanel);
-        // WallSleevesRound.CreateButton(ribbonPanel);
-        // WallSleevesRectangular.CreateButton(ribbonPanel);
         
         CreateSleevesPulldownButton(mepToolsPanel);
 
