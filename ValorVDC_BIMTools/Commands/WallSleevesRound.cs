@@ -278,18 +278,6 @@ public class WallSleevesRound : IExternalCommand
             }
         }
     }
-
-    // public static void CreateButton(RibbonPanel panel)
-    // {
-    //     PushButtonUtility.CreatePushButton(
-    //         panel,
-    //         "Round Wall Sleeves",
-    //         "Round" + Environment.NewLine + "Wall Sleeves",
-    //         "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
-    //         "deathStar-32.png",
-    //         MethodBase.GetCurrentMethod().DeclaringType
-    //     );
-    // }
     
     public static PushButtonData CreatePushButtonData()
     {
