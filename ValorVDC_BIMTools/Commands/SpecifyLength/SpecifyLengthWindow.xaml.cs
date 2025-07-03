@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
+using ValorVDC_BIMTools.Utilities;
 
 namespace ValorVDC_BIMTools.Commands.SpecifyLength;
 
@@ -13,6 +15,8 @@ public partial class SpecifyLengthWindow : Window
     public double? SpecifiedLength { get; private set; }
 
 
+    
+    
     private void SubmitButton_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -29,37 +33,106 @@ public partial class SpecifyLengthWindow : Window
                     Close();
                     return;
                 }
+                else
+                {
+                    //  Debug - If radio button is selected but has invalid tag, show error
+                    MessageBox.Show($"Invalid preset value for {selectedRadioButton.Name}. Please contact support or use manual input.", 
+                        "Configuration Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
             double feet = 0;
+            double inchesFromFeet = 0;
+
             if (!string.IsNullOrWhiteSpace(InputLengthFeet.Text))
-                if (!double.TryParse(InputLengthFeet.Text.Trim(), out feet) || feet < 0)
+            {
+                try
                 {
-                    MessageBox.Show("Please enter a valid non-negative number for feet.", "Invalid Input",
+                    (feet, inchesFromFeet) = MeasurementParser.ParseArchitecturalLength(InputLengthFeet.Text);
+                    if (feet < 0 || inchesFromFeet < 0)
+                    {
+                        MessageBox.Show(
+                            "Please enter a valid architectural length. Examples: '6'-3 1/2\"', '12'-6\"', '5'",
+                            "Invalid Input",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        InputLengthFeet.Focus();
+                        return;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("Please enter a valid architectural length. Examples: '6'-3 1/2\"', '12'-6\"', '5'",
+                        "Invalid Input",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     InputLengthFeet.Focus();
                     return;
                 }
-
+            }
 
             double inches = 0;
             if (!string.IsNullOrWhiteSpace(InputLengthInches.Text))
-                if (!double.TryParse(InputLengthInches.Text.Trim(), out inches) || inches < 0 || inches >= 12)
+            {
+                try
                 {
-                    MessageBox.Show("Please enter a valid number for inches (0-11.99).", "Invalid Input",
+                    inches = MeasurementParser.ParseFractionalInches(InputLengthInches.Text);
+                    if (inches < 0)
+                    {
+                        MessageBox.Show(
+                            $"Please enter a positive number for inches. {MeasurementParser.GetExampleFormats(false)}",
+                            "Invalid Input",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        InputLengthInches.Focus();
+                        return;
+                    }
+
+                    // Allow values >= 12" but show a warning for very large values
+                    if (inches >= 120) // 10 feet worth of inches
+                    {
+                        var result = MessageBox.Show(
+                            $"The specified inches value ({inches} inches = {inches / 12:F2} feet) seems very large. Continue?",
+                            "Large Value Warning", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (result != MessageBoxResult.Yes)
+                        {
+                            InputLengthInches.Focus();
+                            return;
+                        }
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show(
+                        $"Invalid inches input: {ex.Message}\n\n{MeasurementParser.GetExampleFormats(false)}",
+                        "Invalid Input",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     InputLengthInches.Focus();
                     return;
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Unexpected error parsing inches: {ex.Message}", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    InputLengthInches.Focus();
+                    return;
+                }
+            }
 
-            if (feet == 0 && inches == 0 && selectedRadioButton == null)
+            if (inchesFromFeet > 0 && inches > 0)
+            {
+                MessageBox.Show("Please use either the architectural format (e.g., '6'-3 1/2\"') in the feet field OR separate feet and inches fields, not both.", "Conflicting Input",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var totalInches = inchesFromFeet > 0 ? inchesFromFeet : inches;
+
+            if (feet == 0 && totalInches == 0 && selectedRadioButton == null)
             {
                 MessageBox.Show("Please enter a length or select a preset value.", "No Input",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Calculate total length in feet
-            var totalLengthInFeet = feet + inches / 12.0;
+            var totalLengthInFeet = feet + totalInches / 12.0;
 
             // Validate the total length is reasonable
             if (totalLengthInFeet <= 0)
@@ -91,11 +164,21 @@ public partial class SpecifyLengthWindow : Window
 
     private RadioButton FindSelectedRadioButton()
     {
-        if (Length5Feet.IsChecked == true) return Length5Feet;
-        if (Length10Feet.IsChecked == true) return Length10Feet;
-        if (Length20Feet.IsChecked == true) return Length20Feet;
-        if (Length21Feet.IsChecked == true) return Length21Feet;
-        return null;
+        try
+        {
+            if (Length5Feet?.IsChecked == true) return Length5Feet;
+            if (Length10Feet?.IsChecked == true) return Length10Feet;
+            if (Length20Feet?.IsChecked == true) return Length20Feet;
+            if (Length21Feet?.IsChecked == true) return Length21Feet;
+            return null;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error checking radio buttons: {ex.Message}", "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            return null;
+        }
+
     }
 
     private void InputLengthFeet_TextChanged(object sender, TextChangedEventArgs e)
