@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.WallSleeveRectangular.ViewModels"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewModels:RectangularWallSleeveViewModel}"
         Title="RectangularWallSleeveView"
-        Height="450" Width="350"
+        Height="470" Width="350"
         WindowStartupLocation="CenterScreen"
         Background="LightGray">
 
@@ -14,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -27,6 +30,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0"
@@ -55,6 +59,7 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal">
             <TextBlock Text=" Add to Width: "
                        HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
                        Margin="30, 12, 0,0" />
             <TextBox x:Name="AddToWidth"
                      TextAlignment="Center"
@@ -94,18 +99,32 @@
                   Margin="25,0,25, 15" />
         <TextBlock Grid.Row="6"
                    Text="{Binding StatusMessage}"
+                   TextWrapping="Wrap"
                    Margin="25,0,25, 10" />
         <StackPanel Grid.Row="7"
                     Orientation="Horizontal"
-                    HorizontalAlignment="Right">
+                    HorizontalAlignment="Center"
+                    Margin="0,10"
+                    Visibility="{Binding ShowLoadFamilyButtons, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Button Content="Load Default Family"
+                    Command="{Binding LoadDefaultFamilyCommand}"
+                    Padding="10, 5"
+                    Margin="0,0,10,0" />
+        </StackPanel>
+        <StackPanel Grid.Row="8"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="center"
+                    Margin="15, 0, 10, 10">
+            <Button Content="Browse"
+                    Command="{Binding BrowsePCCommand}"
+                    Padding="10, 5" />
             <Button Content="Place Wall Sleeve"
                     Command="{Binding PlaceWallSleeveCommand}"
                     Padding="10, 5"
-                    Margin="0,0,30,10" />
+                    Margin="30, 0"/>
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Padding="10, 5"
-                    Margin="0,0,10,10" />
+                    Padding="10, 5" />
         </StackPanel>
 
     </Grid>

@@ -35,6 +35,7 @@ public class AppCommand : IExternalApplication
         CreateSleevesPulldownButton(mepToolsPanel);
 
         CopyScopeBoxesCommand.CreateButton(modelToolsPanel);
+        ZoomObject.CreateButton(modelToolsPanel);
         
 
         return Result.Succeeded;
@@ -45,7 +46,7 @@ public class AppCommand : IExternalApplication
         var assembly = Assembly.GetExecutingAssembly();
 
         
-        var pulldownButtonData = new PulldownButtonData("SleevesButton", "Sleeves Tools")
+        var pulldownButtonData = new PulldownButtonData("SleevesButton", "Sleeve Tools")
         {
             ToolTip = "Wall Sleeves Tools",
             LargeImage = ImagineUtilities.LoadImage(assembly, "3peo.png")

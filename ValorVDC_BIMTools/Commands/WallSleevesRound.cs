@@ -3,8 +3,8 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
-using ValorVDC_BIMTools.Commands.WallSleeve.Views;
+using ValorVDC_BIMTools.Commands.WallSleeveRound.ViewModels;
+using ValorVDC_BIMTools.Commands.WallSleeveRound.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
 using ValorVDC_BIMTools.Utilities;
@@ -35,8 +35,8 @@ public class WallSleevesRound : IExternalCommand
                 var viewModel = new WallSleeveViewModel(commandData);
                 var view = new WallSleevesView(viewModel);
 
-                if (view.ShowDialog() != true)
-                    return Result.Succeeded;
+                if (view.ShowDialog() != true) 
+                    return Result.Cancelled;
 
                 var selectedSleeve = viewModel.SelectedWallSleeve;
                 if (selectedSleeve == null)
@@ -274,7 +274,9 @@ public class WallSleevesRound : IExternalCommand
             catch (Exception exception)
             {
                 message = exception.Message;
-                return Result.Succeeded;
+                TaskDialog.Show("Error", $"Exception in Execute: {exception.Message}\n{exception.StackTrace}");
+                return Result.Failed; // Change this from Result.Succeeded
+
             }
         }
     }
@@ -283,7 +285,7 @@ public class WallSleevesRound : IExternalCommand
     {
         var assembly = Assembly.GetExecutingAssembly();
         var buttonName = "Round Sleeves";
-        var buttonText = "Round" + Environment.NewLine + "Sleeves";
+        var buttonText = "Round" + Environment.NewLine + "Wall Sleeves";
         var className = typeof(WallSleevesRound).FullName;
     
         return new PushButtonData(buttonName, buttonText, assembly.Location, className)

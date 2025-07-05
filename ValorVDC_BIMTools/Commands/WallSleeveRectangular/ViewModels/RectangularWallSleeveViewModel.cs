@@ -15,6 +15,10 @@ public class RectangularWallSleeveViewModel : ObservableObject
     private FamilySymbol _selectedWallSleeve;
     private string _statusMeassage = " Ready to Place Rectangular Wall Sleeve.";
     private ObservableCollection<FamilySymbol> _wallSleeveSymbols;
+    private bool _showLoadFamilyButtons = false;
+    private RelayCommand _placeWallSleeveCommand;
+
+    private const string DEFAULT_FAMILY_PATH = @"C:\ProgramData\ValorVDC\Families\Wall Rectangle Sleeve.rfa";
 
     public RectangularWallSleeveViewModel(ExternalCommandData commandData)
     {
@@ -22,21 +26,23 @@ public class RectangularWallSleeveViewModel : ObservableObject
         _uiDocument = _uiApplication.ActiveUIDocument;
         _document = _uiDocument.Document;
 
-        PlaceWallSleeveCommand = new RelayCommand(() =>
+        _placeWallSleeveCommand = new RelayCommand(() =>
         {
             DialogResult = true;
             RequestClose?.Invoke();
-        }, CanPlaceSleeve);
+        }, CanPlaceWallSleeve);
 
         CancelCommand = new RelayCommand(() =>
         {
             DialogResult = false;
             RequestClose?.Invoke();
         });
+        
+        LoadDefaultFamilyCommand = new RelayCommand(LoadDefaultFamily);
+        BrowsePCCommand = new RelayCommand(BrowsePC);
 
         GetElementsByPartTypeAndSubType();
     }
-
 
     public string StatusMessage
     {
@@ -53,7 +59,11 @@ public class RectangularWallSleeveViewModel : ObservableObject
     public FamilySymbol SelectedWallSleeve
     {
         get => _selectedWallSleeve;
-        set => SetProperty(ref _selectedWallSleeve, value);
+        set
+        {
+            if (SetProperty(ref _selectedWallSleeve, value))
+                UpdatePlaceWallSleeve();
+        }
     }
 
     public double AddToHeight
@@ -74,28 +84,118 @@ public class RectangularWallSleeveViewModel : ObservableObject
         set => SetProperty(ref _roundUpValue, value);
     }
 
-    public RelayCommand PlaceWallSleeveCommand { get; }
+    public bool ShowLoadFamilyButtons
+    {
+        get => _showLoadFamilyButtons;
+        set => SetProperty(ref _showLoadFamilyButtons, value);
+    }
+    
+    public RelayCommand PlaceWallSleeveCommand
+    {
+        get => _placeWallSleeveCommand;
+        private set => _placeWallSleeveCommand = value;
+    }
     public RelayCommand CancelCommand { get; }
+    public RelayCommand LoadDefaultFamilyCommand { get; set; }
+    public RelayCommand BrowsePCCommand { get; }
     public bool DialogResult { get; private set; }
 
-    public void GetElementsByPartTypeAndSubType(string partType = "Sleeve",
-        string partSubType = "Wall Sleeve-Rectangular")
+    public void GetElementsByPartTypeAndSubType(string partType = "Sleeve", string partSubType = "Wall Sleeve-Rectangular")
     {
         try
         {
-            StatusMessage = "Loading Rectangular Wall Sleeve Families...";
+            StatusMessage = "Please select a Wall Sleeve Part Type";
 
             var wallSleeves = GetElements.GetElementByPartTypeAndPartSubType(_document, partType, partSubType);
+
             WallSleeveSymbols = new ObservableCollection<FamilySymbol>(wallSleeves);
+
             if (WallSleeveSymbols.Count > 0)
+            {
                 SelectedWallSleeve = WallSleeveSymbols[0];
+                StatusMessage = "Ready to place wall Sleeve.";
+                ShowLoadFamilyButtons = false;
+            }
             else
-                StatusMessage = "No wall sleeve families found. Please load a rectangular wall sleeve family first.";
+            {
+                StatusMessage = "No wall Sleeve types found. Would you like to load a wall sleeve family?";
+                ShowLoadFamilyButtons = true;
+                SelectedWallSleeve = null;
+            }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            StatusMessage = $"Error Loading Wall Sleeve Family: {e.Message}";
+        }
+    }
+    
+    
+    private void UpdatePlaceWallSleeve()
+    {
+        _placeWallSleeveCommand = new RelayCommand(
+            () => { DialogResult = true; RequestClose?.Invoke();}, 
+            CanPlaceWallSleeve);
+        OnPropertyChanged(nameof(PlaceWallSleeveCommand));
+    }
+
+    private void LoadDefaultFamily()
+    {
+        try
+        {
+            StatusMessage = " Loading default Wall Sleeve Family Now...";
+            
+            if (!System.IO.File.Exists(DEFAULT_FAMILY_PATH))
+            {
+                StatusMessage = "Default family file not found at the specified path.";
+                return;
+            }
+
+            var family = LoadFamilies.LoadDefaultFamily(
+                _document,
+                _uiDocument,
+                DEFAULT_FAMILY_PATH,
+                "Load Default Wall Sleeve Family");
+
+            if (family != null)
+            {
+                StatusMessage = "Family loaded successfully!";
+                GetElementsByPartTypeAndSubType();
+            }
+            else 
+                StatusMessage = "Failed to load default family. It may already be loaded or there was an error.";
+        }
+        catch (Exception e)
+        {
+            StatusMessage = $"Error loading default family: {e.Message}";
+        }
+    }
+    
+    private void BrowsePC()
+    {
+        try
+        {
+            StatusMessage = "Browsing for Wall Sleeve family...";
+
+            var family = LoadFamilies.BrowseAndLoadFamily(
+                _document, 
+                _uiDocument, 
+                "Select Wall Sleeve Family", 
+                "Load Wall Sleeve Family");
+
+            if (family != null)
+            {
+                StatusMessage = "Family loaded successfully!";
+                GetElementsByPartTypeAndSubType();
+            }
+            else
+            {
+                StatusMessage = "Family loading was cancelled or failed.";
+            }
+        }
+
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading family: {ex.Message}";
         }
     }
 
@@ -112,7 +212,8 @@ public class RectangularWallSleeveViewModel : ObservableObject
         return null;
     }
 
-    private bool CanPlaceSleeve()
+    private bool CanPlaceWallSleeve()
+
     {
         return SelectedWallSleeve != null;
     }
