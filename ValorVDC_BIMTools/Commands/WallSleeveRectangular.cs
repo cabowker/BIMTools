@@ -28,8 +28,8 @@ public class WallSleevesRectangular : IExternalCommand
             var viewmodel = new RectangularWallSleeveViewModel(commandData);
             var view = new RectangularWallSleeveView(viewmodel);
 
-            if (view.ShowDialog() != true)
-                return Result.Succeeded;
+            if (view.ShowDialog() != true) 
+                return Result.Cancelled;
 
             var selectedSleeve = viewmodel.SelectedWallSleeve;
             if (selectedSleeve == null)
@@ -358,8 +358,8 @@ public class WallSleevesRectangular : IExternalCommand
     public static PushButtonData CreatePushButtonData()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var buttonName = "Rectangular Sleeves";
-        var buttonText = "Rectangular" + Environment.NewLine + "Sleeves";
+        var buttonName = "Rectangular Sleeve";
+        var buttonText = "Rectangular" + Environment.NewLine + "Wall Sleeves";
         var className = typeof(WallSleevesRectangular).FullName;
     
         return new PushButtonData(buttonName, buttonText, assembly.Location, className)

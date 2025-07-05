@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using FlowArrows.ViewModels;
+using ValorVDC_BIMTools.Commands.FlowArrows.ViewModels;
 
 namespace FlowArrows.Views;
 
@@ -12,8 +12,6 @@ public sealed partial class FlowArrowsView : Window
         InitializeComponent();
         _viewModel = viewModel;
         DataContext = viewModel;
-
-        //_viewModel.SelectionComplete += OnSelectionComplete;
 
         _viewModel.RequestClose += () =>
         {
@@ -30,8 +28,6 @@ public sealed partial class FlowArrowsView : Window
 
     protected override void OnClosed(EventArgs e)
     {
-        // Clean up event handlers
-        _viewModel.SelectionComplete -= OnSelectionComplete;
         _viewModel.RequestClose -= () => Close();
 
         base.OnClosed(e);

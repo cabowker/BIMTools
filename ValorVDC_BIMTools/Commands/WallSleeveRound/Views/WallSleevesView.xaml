@@ -1,27 +1,31 @@
-﻿<Window x:Class="ValorVDC_BIMTools.Commands.WallSleeve.Views.WallSleevesView"
+﻿<Window x:Class="ValorVDC_BIMTools.Commands.WallSleeveRound.Views.WallSleevesView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.WallSleeveRound.ViewModels"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewModels:WallSleeveViewModel}"
         Title="WallSleeves" Height="300" Width="300"
         WindowStartupLocation="CenterScreen"
         Background="LightGray">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
-
+        <Window.Resources>
+                <ResourceDictionary>
+                        <ResourceDictionary.MergedDictionaries>
+                                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
+                        </ResourceDictionary.MergedDictionaries>
+                        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+                </ResourceDictionary>
+        </Window.Resources>
+        
     <Grid Margin="10"
           Background="WhiteSmoke">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0"
@@ -33,23 +37,38 @@
 
         <ComboBox Grid.Row="1"
                   ItemsSource="{Binding WallSleeveSymbols}"
-                  SelectedItem="{Binding SelectedWallSleeve}"
+                  SelectedItem="{Binding SelectedWallSleeve,  UpdateSourceTrigger=PropertyChanged}"
                   DisplayMemberPath="Name"
                   Margin="25,0,25, 15" />
         <TextBlock Grid.Row="2"
                    Text="{Binding StatusMessage}"
+                   TextWrapping="Wrap"
                    Margin="25,0,25, 10" />
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
-                    HorizontalAlignment="Right">
+                    HorizontalAlignment="Center"
+                    Margin="0,10"
+                    Visibility="{Binding ShowLoadFamilyButtons, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Button Content="Load Default Family"
+                    Command="{Binding LoadDefaultFamilyCommand}"
+                    Padding="10, 5"
+                    Margin="0,0,10,0" />
+        </StackPanel>
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0, 10">
+            <Button Content="Browse"
+                    Command="{Binding BrowsePCCommand}"
+                    Padding="10, 5" />
             <Button Content="Place Wall Sleeve"
                     Command="{Binding PlaceWallSleeveCommand}"
+                    IsEnabled="{Binding SelectedWallSleeve}"
                     Padding="10, 5"
-                    Margin="0,0,30,10" />
+                    Margin="10,0" />
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Padding="10, 5"
-                    Margin="0,0,10,10" />
+                    Padding="10, 5"/>
         </StackPanel>
 
     </Grid>
