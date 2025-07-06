@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:RectangularWallSleeveViewModel}"
         Title="RectangularWallSleeveView"
-        Height="470" Width="350"
+        Height="500" Width="350"
         WindowStartupLocation="CenterScreen"
         Background="LightGray">
 

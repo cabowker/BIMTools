@@ -16,6 +16,7 @@ namespace ValorVDC_BIMTools.Commands;
 [Regeneration(RegenerationOption.Manual)]
 public class WallSleevesRectangular : IExternalCommand
 {
+    private readonly CurveMethods _curveMethods = new();
     private readonly InsulationMethods _insulationMethods = new();
 
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -223,28 +224,21 @@ public class WallSleevesRectangular : IExternalCommand
 
                     var curve = locationCurve.Curve;
                     var clickPoint = reference.GlobalPoint;
-                    var centerLinePoint = curve.Project(clickPoint).XYZPoint;
-                    XYZ curveDirection;
-
-                    if (curve is Line line)
+                    Line line = null;
+                    if (curve is Line existingLine)
                     {
-                        curveDirection = line.Direction;
+                        line = existingLine;
                     }
                     else
                     {
                         var parameter = curve.Project(clickPoint).Parameter;
-                        curveDirection = curve.ComputeDerivatives(parameter, true).BasisX.Normalize();
+                        var tangent = curve.ComputeDerivatives(parameter, true).BasisX.Normalize();
+                        var pointOnCurve = curve.Project(clickPoint).XYZPoint;
+                        line = Line.CreateBound(pointOnCurve, pointOnCurve.Add(tangent));
                     }
 
-                    var levelId = element.LevelId;
-                    if (levelId == ElementId.InvalidElementId)
-                        levelId = document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
-
-                    if (levelId == ElementId.InvalidElementId)
-                    {
-                        TaskDialog.Show("Error", "Could not determine level for placement.");
-                        continue; // Try again
-                    }
+                    var (hostLevel, placemnentPoint) = _curveMethods.GetLevelAndPlacementPoint(
+                        document, element, line, reference);
 
                     using (var transaction = new Transaction(document, "Place Rectangular Wall Sleeve"))
                     {
@@ -256,12 +250,13 @@ public class WallSleevesRectangular : IExternalCommand
                         }
 
                         var placeSleeve = document.Create.NewFamilyInstance(
-                            centerLinePoint,
+                            placemnentPoint,
                             selectedSleeve,
-                            curveDirection,
-                            document.GetElement(levelId) as Level,
+                            hostLevel,
+                            hostLevel,
                             StructuralType.NonStructural);
 
+                        _curveMethods.AlignElementWithCurve(document, placeSleeve, line, placemnentPoint);
 
                         string[] heightParameterNames = { "Height", "Sleeve Height", "Nominal Height" };
                         var heightSet = false;
@@ -309,8 +304,8 @@ public class WallSleevesRectangular : IExternalCommand
                             }
                         }
 
-                        var rotationDirection = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
-                        ElementTransformUtils.RotateElement(document, placeSleeve.Id, rotationDirection, Math.PI / 2);
+                        //var rotationDirection = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
+                        //ElementTransformUtils.RotateElement(document, placeSleeve.Id, rotationDirection, Math.PI / 2);
 
                         SystemInformation.SetSystemInformation(element, placeSleeve);
 
