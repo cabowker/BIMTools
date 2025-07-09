@@ -78,7 +78,7 @@ public class WallSleevesRound : IExternalCommand
                         var locationCurve = element.Location as LocationCurve;
                         if (locationCurve == null)
                         {
-                            TaskDialog.Show("Error", "Selected Item Does Not Have A Valid Curve.");
+                            TaskDialog.Show("Error", "Selected Item Does Not Have A Valid Curve.");git 
                             continue;
                         }
 
