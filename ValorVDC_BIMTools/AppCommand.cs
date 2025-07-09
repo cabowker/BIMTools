@@ -62,7 +62,8 @@ public class AppCommand : IExternalApplication
         var rectangularButtonData = WallSleevesRectangular.CreatePushButtonData();
         pulldownButton.AddPushButton(rectangularButtonData);
 
-
+        var realignElements = RealignMultiElements.CreatePushButtonData();
+        pulldownButton.AddPushButton(realignElements);
     }
     public Result OnShutdown(UIControlledApplication application)
     {

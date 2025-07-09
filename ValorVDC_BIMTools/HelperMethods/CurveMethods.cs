@@ -39,17 +39,21 @@ public class CurveMethods
     public void AlignElementWithCurve(Document document, FamilyInstance familyInstance, Line line, XYZ placementPoint)
     {
         var pipeDirection = line.Direction.Normalize();
+        
+        var location = familyInstance.Location as LocationPoint;
+        if (location == null) return;
+        var targetAngle = Math.Atan2(pipeDirection.Y, pipeDirection.X);
+        var currentAngle = location.Rotation;
+        var rotationNeeded = targetAngle - currentAngle;
 
-        // Create a transform that aligns with the pipe direction
-        var transform = Transform.Identity;
-        transform.Origin = placementPoint;
-        transform.BasisX = pipeDirection;
-        transform.BasisY = XYZ.BasisZ.CrossProduct(pipeDirection).Normalize();
-        transform.BasisZ = XYZ.BasisZ;
+        while (rotationNeeded > Math.PI) rotationNeeded -= 2 * Math.PI;
+        while (rotationNeeded < -Math.PI) rotationNeeded += 2 * Math.PI;
 
-        // Apply the transform after placement
-        ElementTransformUtils.RotateElement(document, familyInstance.Id,
-            Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ),
-            Math.Atan2(pipeDirection.Y, pipeDirection.X) + Math.PI);
+        if (Math.Abs(rotationNeeded) > 0.001) // Only rotate if there's a significant difference
+        {
+            var rotationAxis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
+            location.Rotate(rotationAxis, rotationNeeded);
+        }
+
     }
 }
