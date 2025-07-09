@@ -22,17 +22,13 @@ public class SelectionFilters
         {
             if (element.Category == null)
                 return false;
-            int categoryId;
-            if (int.TryParse(element.Document.Application.VersionNumber, out int versionNumber) && versionNumber >= 2024)
-                categoryId = (int)element.Category.Id.Value;
-            else
-                categoryId = element.Category.Id.IntegerValue;
-        
+            var categoryId = element.Category.Id.IntegerValue;
+
             return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
                    categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
         }
     }
-    
+
     public class MepCurveAndFabFilterWithOutInsulation : ISelectionFilter
     {
         public bool AllowElement(Element element)
@@ -51,14 +47,33 @@ public class SelectionFilters
         {
             if (element.Category == null)
                 return false;
-            int categoryId;
-            if (int.TryParse(element.Document.Application.VersionNumber, out int versionNumber) && versionNumber >= 2024)
-                categoryId = (int)element.Category.Id.Value;
-            else
-                categoryId = element.Category.Id.IntegerValue;
-        
+            var categoryId = element.Category.Id.IntegerValue;
+
             return categoryId == (int)BuiltInCategory.OST_FabricationPipework ||
                    categoryId == (int)BuiltInCategory.OST_FabricationDuctwork;
+        }
+    }
+
+    public class ElementFilterByCategory : ISelectionFilter
+    {
+        private readonly BuiltInCategory _category;
+
+        public ElementFilterByCategory(BuiltInCategory category)
+        {
+            _category = category;
+        }
+        
+        public bool AllowElement(Element elem)
+        {
+            if (elem.Category == null)
+                return false;
+            return elem.Category.Id.IntegerValue == (int)_category;
+        }
+
+
+        public bool AllowReference(Reference reference, XYZ position)
+        {
+            return false;
         }
     }
 }

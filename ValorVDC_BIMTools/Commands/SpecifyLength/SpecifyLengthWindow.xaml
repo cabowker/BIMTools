@@ -5,6 +5,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         Title="Specify Length" Height="400" Width="300" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <StackPanel Background="WhiteSmoke">
         <TextBlock Text="Specify the New Length of the MEP Element:"
                    Width="260"
@@ -16,25 +25,25 @@
                    TextWrapping="Wrap"
                    HorizontalAlignment="Center"
                    Margin="0, 25 , 0, 10" />
-        
+
         <!-- Common preset lengths -->
         <GroupBox Header="Typical Lengths Include:" Width="230"
                   Padding="10"
                   BorderBrush="Black">
             <StackPanel>
-                
-            <RadioButton x:Name="Length5Feet" Content="5' Length"
-                         Tag="5" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
-            <RadioButton x:Name="Length10Feet" Content="10' Length"
-                         Tag="10" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
-            <RadioButton x:Name="Length20Feet" Content="20' Length"
-                         Tag="20" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
-            <RadioButton x:Name="Length21Feet" Content="21' Length"
-                         Tag="21" GroupName="Lengths"
-                         Checked="PresetLength_Checked"/>
+
+                <RadioButton x:Name="Length5Feet" Content="5' Length"
+                             Tag="5" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length10Feet" Content="10' Length"
+                             Tag="10" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length20Feet" Content="20' Length"
+                             Tag="20" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length21Feet" Content="21' Length"
+                             Tag="21" GroupName="Lengths"
+                             Checked="PresetLength_Checked" />
             </StackPanel>
         </GroupBox>
         <StackPanel Orientation="Horizontal">
@@ -42,10 +51,10 @@
                      TextChanged="InputLengthFeet_TextChanged"
                      TextAlignment="Center"
                      VerticalAlignment="Center"
-                     Width="200"
+                     Width="190"
                      HorizontalAlignment="Center"
                      Padding="0, 3"
-                     Margin="45, 10, 0,0"/>
+                     Margin="45, 10, 0,0" />
             <TextBlock Text="Feet"
                        HorizontalAlignment="Center"
                        Margin="5, 12, 0,0" />
@@ -58,7 +67,7 @@
                      TextChanged="InputLengthInches_OnTextChanged"
                      TextAlignment="Center"
                      VerticalAlignment="Center"
-                     Width="200"
+                     Width="190"
                      HorizontalAlignment="Center"
                      Padding="0, 3"
                      Margin="45, 10, 0,0" />
@@ -66,11 +75,17 @@
                        HorizontalAlignment="Center"
                        Margin="5, 12, 0,0" />
         </StackPanel>
-        <Button Content="Let's Do This"
-                Click="SubmitButton_Click"
-                HorizontalAlignment="Center"
-                Margin="10, 20,10 ,10"
-                Padding="7"
-                Background="LawnGreen" />
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Let's Do This"
+                    Click="SubmitButton_Click"
+                    HorizontalAlignment="Center"
+                    Margin="100, 20,10 ,10"
+                    Padding="7" />
+            <Button Content="Cancel"
+                    Click="CancelButton_Click"
+                    HorizontalAlignment="Center"
+                    Padding="7"
+                    Margin="10,20,10,10" />
+        </StackPanel>
     </StackPanel>
 </Window>

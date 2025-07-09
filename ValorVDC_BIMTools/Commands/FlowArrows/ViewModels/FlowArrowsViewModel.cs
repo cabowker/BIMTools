@@ -1,8 +1,11 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 using Autodesk.Revit.UI;
+using Microsoft.Win32;
+using ValorVDC_BIMTools.HelperMethods;
 
-namespace FlowArrows.ViewModels;
+namespace ValorVDC_BIMTools.Commands.FlowArrows.ViewModels;
 
 public sealed class FlowArrowsViewModel : ObservableObject
 {
@@ -11,8 +14,11 @@ public sealed class FlowArrowsViewModel : ObservableObject
     private readonly UIDocument _uiDocument;
     private ObservableCollection<FamilySymbol> _flowArrowsSymbols;
     private FamilySymbol _selectedFlowArrow;
-
     private string _statusMessage = "Ready to place flow arrow";
+    private bool _showLoadFamilyButtons = false;
+    private RelayCommand _placeFlowArrowCommand;
+
+    private const string DEFAULT_FAMILY_PATH = @"C:\ProgramData\ValorVDC\Families\Flow Arrow.rfa";
 
     public FlowArrowsViewModel(ExternalCommandData commandData)
     {
@@ -20,20 +26,21 @@ public sealed class FlowArrowsViewModel : ObservableObject
         _uiDocument = _uiApplication.ActiveUIDocument;
         _document = _uiDocument.Document;
 
-        PlaceFlowArrowCommand = new RelayCommand(() =>
-        {
-            DialogResult = true;
-            RequestClose?.Invoke();
-        }, CanPlaceFlowArrow);
-        CancelCommand = new RelayCommand(() =>
-        {
-            DialogResult = false;
-            RequestClose?.Invoke();
-        });
+        _placeFlowArrowCommand = new RelayCommand(
+            () => { DialogResult = true; RequestClose?.Invoke(); }, 
+            CanPlaceFlowArrow);
+            
+        CancelCommand = new RelayCommand(
+            () => { DialogResult = false; RequestClose?.Invoke(); });
+
+        LoadDefaultFamilyCommand = new RelayCommand(LoadDefaultFamily);
+        BrowsePCCommand = new RelayCommand(BrowsePC);
 
 
-        LoadFlowArrowSymbols();
+        GetElementsByPartTypeAndSubType();
     }
+
+    #region Public Properties
 
     public string StatusMessage
     {
@@ -50,73 +57,164 @@ public sealed class FlowArrowsViewModel : ObservableObject
     public FamilySymbol SelectedFLowArrow
     {
         get => _selectedFlowArrow;
-        set => SetProperty(ref _selectedFlowArrow, value);
+        set
+        {
+            if (SetProperty(ref _selectedFlowArrow, value))
+            {
+                UpdatePlaceFlowArrowCommand();
+            }
+        }
     }
 
-    public ICommand PlaceFlowArrowCommand { get; }
-    public ICommand CancelCommand { get; }
+    public bool ShowLoadFamilyButtons 
+    { 
+        get => _showLoadFamilyButtons; 
+        set => SetProperty(ref _showLoadFamilyButtons, value);
+    }
+    
+    public RelayCommand PlaceFlowArrowCommand 
+    { 
+        get => _placeFlowArrowCommand;
+        private set => _placeFlowArrowCommand = value;
+    }
+    public RelayCommand CancelCommand { get; }
+    public RelayCommand LoadDefaultFamilyCommand { get; }
+    public RelayCommand BrowsePCCommand { get; }
+
     public bool DialogResult { get; private set; }
-
+    #endregion
+    
     public event Action RequestClose;
-    public event Action SelectionComplete;
 
-    private void LoadFlowArrowSymbols()
+    #region Public Methods
+
+    public void GetElementsByPartTypeAndSubType(string partType = "Annotation", string partSubType = "Flow Arrow")
     {
         try
         {
-            StatusMessage = "Loading flow arrow families...";
+            StatusMessage = "Loading Flow Arrow Families...";
 
-            // Get all flow arrow family symbols (from various categories)
-            var flowArrows = new List<FamilySymbol>();
+            var flowArrows = GetElements.GetElementByPartTypeAndPartSubType(_document, partType, partSubType);
 
-            // Look in pipe accessories
-            var pipeAccessories = new FilteredElementCollector(_document)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_PipeAccessory)
-                .Cast<FamilySymbol>()
-                .Where(fam => fam.Family.Name.Contains("Flow") && fam.Family.Name.Contains("Arrow"))
-                .ToList();
+            if (flowArrows.Count == 0)
+            {
+                flowArrows = GetElements.GetElementByPartTypeAndPartSubType(_document, "Flow Arrow", "Flow Arrow");
+                
+                if (flowArrows.Count == 0)
+                {
+                    flowArrows = GetElements.GetElementByPartTypeAndPartSubType(_document, "Generic Annotation", "Flow Arrow");
+                }
+                
+                if (flowArrows.Count == 0)
+                {
+                    var collector = new FilteredElementCollector(_document)
+                        .OfClass(typeof(FamilySymbol))
+                        .Cast<FamilySymbol>()
+                        .Where(fs => (fs.Family.Name.ToLower().Contains("flow") && fs.Family.Name.ToLower().Contains("arrow")) ||
+                                     fs.Name.ToLower().Contains("flow arrow"))
+                        .ToList();
+                    
+                    flowArrows = collector;
+                }
+            }
 
-            flowArrows.AddRange(pipeAccessories);
-
-            // Look in duct accessories
-            var ductAccessories = new FilteredElementCollector(_document)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_DuctAccessory)
-                .Cast<FamilySymbol>()
-                .Where(fam => fam.Family.Name.Contains("Flow") && fam.Family.Name.Contains("Arrow"))
-                .ToList();
-
-            flowArrows.AddRange(ductAccessories);
-
-            // Look in generic models
-            var genericModels = new FilteredElementCollector(_document)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_GenericModel)
-                .Cast<FamilySymbol>()
-                .Where(fam => fam.Family.Name.Contains("Flow") && fam.Family.Name.Contains("Arrow"))
-                .ToList();
-
-            flowArrows.AddRange(genericModels);
-
-            // Add to the observable collection
             FlowArrowSymbols = new ObservableCollection<FamilySymbol>(flowArrows);
 
-            // Set default selected flow arrow
             if (FlowArrowSymbols.Count > 0)
             {
                 SelectedFLowArrow = FlowArrowSymbols[0];
-                StatusMessage =
-                    $"Found {FlowArrowSymbols.Count} flow arrow families. Select one and click 'Place Flow Arrow'.";
+                StatusMessage = "Ready to place flow arrow";
+                ShowLoadFamilyButtons = false;
             }
             else
             {
-                StatusMessage = "No flow arrow families found. Please load a flow arrow family first.";
+                StatusMessage = "There are no flow arrow families loaded in the project, would you like to load one?";
+                ShowLoadFamilyButtons = true;
+                SelectedFLowArrow = null;
             }
         }
         catch (Exception ex)
         {
             StatusMessage = $"Error loading flow arrow families: {ex.Message}";
+            ShowLoadFamilyButtons = false;
+        }
+    }
+    
+    #endregion
+
+    #region Private Methods
+
+    
+    private void UpdatePlaceFlowArrowCommand()
+    {
+        _placeFlowArrowCommand = new RelayCommand(
+            () => { DialogResult = true; RequestClose?.Invoke(); }, 
+            CanPlaceFlowArrow);
+        
+        OnPropertyChanged(nameof(PlaceFlowArrowCommand));
+    }
+
+    private void LoadDefaultFamily()
+    {
+        try
+        {
+            StatusMessage = "Loading default flow arrow family...";
+
+            // Check if the default family file exists
+            if (!System.IO.File.Exists(DEFAULT_FAMILY_PATH))
+            {
+                StatusMessage = "Default family file not found at the specified path.";
+                return;
+            }
+            var family = LoadFamilies.LoadDefaultFamily(
+                _document, 
+                _uiDocument, 
+                DEFAULT_FAMILY_PATH, 
+                "Load Default Flow Arrow Family");
+
+            if (family != null)
+            {
+                StatusMessage = "Family loaded successfully!";
+                GetElementsByPartTypeAndSubType();
+            }
+            else
+            {
+                StatusMessage = "Failed to load default family. It may already be loaded or there was an error.";
+            }
+        }
+
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading default family: {ex.Message}";
+        }
+    }
+
+    private void BrowsePC()
+    {
+        try
+        {
+            StatusMessage = "Browsing for flow arrow family...";
+
+            var family = LoadFamilies.BrowseAndLoadFamily(
+                _document, 
+                _uiDocument, 
+                "Select Flow Arrow Family", 
+                "Load Flow Arrow Family");
+
+            if (family != null)
+            {
+                StatusMessage = "Family loaded successfully!";
+                GetElementsByPartTypeAndSubType();
+            }
+            else
+            {
+                StatusMessage = "Family loading was cancelled or failed.";
+            }
+        }
+
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error loading family: {ex.Message}";
         }
     }
 
@@ -124,101 +222,5 @@ public sealed class FlowArrowsViewModel : ObservableObject
     {
         return SelectedFLowArrow != null;
     }
-
-// private void PlaceFlowArrow()
-//     {
-//         RequestClose?.Invoke();
-//         try
-//         {
-//             StatusMessage = "Please Select a Pipe or Line Based Element...";
-//
-//             Reference reference = null;
-//             try
-//             {
-//                 reference = _uiDocument.Selection.PickObject(ObjectType.PointOnElement,
-//                     new MEPCurveFilter(), "Select a point a point on Pipe or Duct");
-//             }
-//             catch (OperationCanceledException)
-//             {
-//                 StatusMessage = "Selection cancelled. Ready to try again?";
-//                 return;
-//             }
-//
-//             Element element = _document.GetElement(reference);
-//             Line line = null;
-//
-//             if (element is MEPCurve mepCurve) 
-//             {
-//                 LocationCurve locationCurve = mepCurve.Location as LocationCurve;
-//                 if (locationCurve?.Curve is Line locationLine)
-//                     line = locationLine;
-//             }
-//             else
-//             {
-//                 var locationCurve = element.Location as LocationCurve;
-//                 if (locationCurve?.Curve is Line locationLine)
-//                     line = locationLine;
-//             }
-//
-//             if (line == null)
-//             {
-//                 StatusMessage = "Selected element does not have a valid curve.";
-//                 return;
-//             }
-//
-//             ElementId levelId = element.LevelId;
-//             if (levelId == ElementId.InvalidElementId)
-//                 levelId = _document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
-//
-//             if (levelId == ElementId.InvalidElementId)
-//             {
-//                 StatusMessage = "Could not determine level for placement. Please Try again.";
-//                 return;
-//             }
-//             XYZ pipeDirection = line.Direction;
-//             XYZ point = reference.GlobalPoint;
-//
-//             using (Transaction transaction = new Transaction(_document, "Flow Arrows"))
-//             {
-//                 transaction.Start();
-//
-//                 StatusMessage = "Creating Flow Arrows";
-//                 if (!SelectedFLowArrow.IsActive)
-//                 {
-//                     SelectedFLowArrow.Activate();
-//                     _document.Regenerate();
-//                 }
-//
-//                 var placeArrow = _document.Create.NewFamilyInstance(point,
-//                     _selectedFlowArrow, 
-//                     pipeDirection, 
-//                     _document.GetElement(levelId) as Level, 
-//                     StructuralType.NonStructural);
-//                 
-//                 _document.Regenerate();
-//                 LocationPoint arrowLocationPoint = placeArrow.Location as LocationPoint;
-//                 if (arrowLocationPoint != null)
-//                 {
-//                 XYZ location = arrowLocationPoint.Point;
-//                 XYZ differencePoint = new XYZ(
-//                     point.X - location.X, 
-//                     point.Y - location.Y, 
-//                     point.Z - location.Z);
-//                 placeArrow.Location.Move(differencePoint);
-//                 }
-//
-//                 transaction.Commit();
-//
-//                 StatusMessage = "Flow Arrow Placed Successfully.";
-//             }
-//         }
-//         catch (Autodesk.Revit.Exceptions.OperationCanceledException)
-//         {
-//             StatusMessage = "Operation cancelled.";
-//         }
-//         catch (Exception e)
-//         {
-//             StatusMessage = $"Error: {e.Message}";
-//         }
-//     }
+    #endregion
 }

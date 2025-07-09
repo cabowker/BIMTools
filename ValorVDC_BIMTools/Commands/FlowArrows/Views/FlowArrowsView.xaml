@@ -4,22 +4,31 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:viewModel="clr-namespace:FlowArrows.ViewModels"
+    xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.FlowArrows.ViewModels"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance viewModel:FlowArrowsViewModel}"
+    d:DataContext="{d:DesignInstance viewModels:FlowArrowsViewModel}"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     Topmost="True"
     Title="FlowArrows"
-    Height="200"
-    Width="400">
+    Height="350"
+    Width="300">
 
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </ResourceDictionary>
+    </Window.Resources>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -39,18 +48,31 @@
                    TextWrapping="Wrap"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center" />
-
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    Visibility="{Binding ShowLoadFamilyButtons, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Button Content="Load Default Family"
+                    Command="{Binding LoadDefaultFamilyCommand}"
+                    Padding="10, 5"
+                    Margin="0,0,10,0" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
                     Margin="0,15,0,0">
+            <Button Content="Browse"
+                    Command="{Binding BrowsePCCommand}"
+                    Padding="10, 5" />
             <Button Content="Place Flow Arrow"
                     Command="{Binding PlaceFlowArrowCommand}"
-                    Width="120"
-                    Margin="0,0,10,0" />
+                    Padding="10, 5"
+                    Margin="10,0,10,0" />
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Width="120"
+                    Padding="10, 5"
                     IsCancel="True" />
         </StackPanel>
 

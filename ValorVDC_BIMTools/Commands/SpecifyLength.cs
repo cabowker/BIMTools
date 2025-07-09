@@ -11,26 +11,21 @@ public class SpecifyLength : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-
         try
         {
-            var handler = new SpecifyLengthHandler(commandData);
-            var externalEvent = ExternalEvent.Create(handler);
-
             var specifyLengthWindow = new SpecifyLengthWindow();
-            var showDialog = specifyLengthWindow.ShowDialog();
-            if (showDialog != true)
+            var result = specifyLengthWindow.ShowDialog();
+
+            if (result != true || !specifyLengthWindow.SpecifiedLength.HasValue)
                 return Result.Cancelled;
 
-            if (specifyLengthWindow.SpecifiedLength == null)
+            var specifyLengthHandler = new SpecifyLengthHandler(commandData)
             {
-                TaskDialog.Show("Error", "You must provide a valid length.");
-                return Result.Cancelled;
-            }
+                SelectedLength = specifyLengthWindow.SpecifiedLength.Value,
+                keepRunning = true
+            };
 
-            handler.SelectedLength = specifyLengthWindow.SpecifiedLength.Value;
-
-            handler.KeepRunning = true;
+            var externalEvent = ExternalEvent.Create(specifyLengthHandler);
             externalEvent.Raise();
 
             return Result.Succeeded;
@@ -40,7 +35,6 @@ public class SpecifyLength : IExternalCommand
             message = ex.Message;
             TaskDialog.Show("Error", $"An error occurred: {ex.Message}");
             return Result.Failed;
-
         }
     }
 
@@ -55,7 +49,7 @@ public class SpecifyLength : IExternalCommand
             new PushButtonData(buttonName, buttonText, assembly.Location, className)
             {
                 ToolTip = "Specify Length of Pipe, Duct, or Conduit",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "falcon.png")
+                LargeImage = ImagineUtilities.LoadImage(assembly, "stormTrooper.png")
             });
     }
 }

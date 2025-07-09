@@ -42,7 +42,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
         <PackageReference Include="Nice3point.Revit.Build.Tasks" Version="2.*"/>
         <PackageReference Include="Nice3point.Revit.Toolkit" Version="$(RevitVersion).*"/>
         <PackageReference Include="Nice3point.Revit.Extensions" Version="$(RevitVersion).*"/>
@@ -57,18 +57,26 @@
         <EmbeddedResource Include="Resources\vader-32.png"/>
         <None Remove="Resources\lightSaber.png"/>
         <EmbeddedResource Include="Resources\lightSaber.png"/>
-        <None Remove="Resources\falcon.png" />
-        <EmbeddedResource Include="Resources\falcon.png" />
-        <None Remove="Resources\3peo.png" />
-        <EmbeddedResource Include="Resources\3peo.png" />
-        <None Remove="Resources\r2d2.png" />
-        <EmbeddedResource Include="Resources\r2d2.png" />
-        <None Remove="Resources\stormTrooper.png" />
-        <EmbeddedResource Include="Resources\stormTrooper.png" />
-        <None Remove="Resources\deathStar.png" />
-        <EmbeddedResource Include="Resources\deathStar.png" />
-        <None Remove="Resources\deathStar-32.png" />
-        <EmbeddedResource Include="Resources\deathStar-32.png" />
+        <None Remove="Resources\falcon.png"/>
+        <EmbeddedResource Include="Resources\falcon.png"/>
+        <None Remove="Resources\3peo.png"/>
+        <EmbeddedResource Include="Resources\3peo.png"/>
+        <None Remove="Resources\r2d2.png"/>
+        <EmbeddedResource Include="Resources\r2d2.png"/>
+        <None Remove="Resources\stormTrooper.png"/>
+        <EmbeddedResource Include="Resources\stormTrooper.png"/>
+        <None Remove="Resources\deathStar.png"/>
+        <EmbeddedResource Include="Resources\deathStar.png"/>
+        <None Remove="Resources\deathStar-32.png"/>
+        <EmbeddedResource Include="Resources\deathStar-32.png"/>
+        <None Update="RevitFamilies\Wall Sleeves_R24.rfa">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="RevitFamilies\Wall Sleeves.rfa"/>
+    </ItemGroup>
+
 
 </Project>

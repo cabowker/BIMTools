@@ -1,7 +1,9 @@
-﻿using Autodesk.Revit.UI;
+﻿using System.Reflection;
+using Autodesk.Revit.UI;
 using ValorVDC_BIMTools.Commands;
 using ValorVDC_BIMTools.Commands.FlowArrows;
 using ValorVDC_BIMTools.Commands.SpecifyLength;
+using ValorVDC_BIMTools.ImageUtilities;
 
 namespace ValorVDC_BIMTools;
 
@@ -19,18 +21,50 @@ public class AppCommand : IExternalApplication
             TaskDialog.Show("Error", "Could not load Ribbon tab");
         }
 
-        var ribbonPanel = application.GetRibbonPanels("BIM Tools").FirstOrDefault(x => x.Name == "BIM Tools") ??
+        var mepToolsPanel = application.GetRibbonPanels("BIM Tools").FirstOrDefault(x => x.Name == "BIM Tools") ??
                           application.CreateRibbonPanel("BIM Tools", "MEP Tools");
+        
+        var modelToolsPanel = application.CreateRibbonPanel("BIM Tools", "Model Tools");
 
-        FixSKewPipe.CreateButton(ribbonPanel);
-        DisconnectPipe.CreateButton(ribbonPanel);
-        SpecifyLength.CreateButton(ribbonPanel);
-        FlowArrow.CreateButton(ribbonPanel);
-        WallSleevesRound.CreateButton(ribbonPanel);
+
+        FixSKewPipe.CreateButton(mepToolsPanel);
+        DisconnectPipe.CreateButton(mepToolsPanel);
+        SpecifyLength.CreateButton(mepToolsPanel);
+        FlowArrow.CreateButton(mepToolsPanel);
+        
+        CreateSleevesPulldownButton(mepToolsPanel);
+
+        CopyScopeBoxesCommand.CreateButton(modelToolsPanel);
+        ZoomObject.CreateButton(modelToolsPanel);
+        
 
         return Result.Succeeded;
     }
 
+    private void CreateSleevesPulldownButton(RibbonPanel ribbonPanel)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+
+        
+        var pulldownButtonData = new PulldownButtonData("SleevesButton", "Sleeve Tools")
+        {
+            ToolTip = "Wall Sleeves Tools",
+            LargeImage = ImagineUtilities.LoadImage(assembly, "3peo.png")
+
+        };
+        
+        var pulldownButton = ribbonPanel.AddItem(pulldownButtonData) as PulldownButton;
+
+        
+        var roundButtonData = WallSleevesRound.CreatePushButtonData();
+        pulldownButton.AddPushButton(roundButtonData);
+        
+        var rectangularButtonData = WallSleevesRectangular.CreatePushButtonData();
+        pulldownButton.AddPushButton(rectangularButtonData);
+
+        var realignElements = RealignMultiElements.CreatePushButtonData();
+        pulldownButton.AddPushButton(realignElements);
+    }
     public Result OnShutdown(UIControlledApplication application)
     {
         return Result.Succeeded;

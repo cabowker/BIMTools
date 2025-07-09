@@ -1,20 +1,19 @@
 ﻿using System.Reflection;
 using Autodesk.Revit.Attributes;
-using Autodesk.Revit.DB.Mechanical;
-using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using ValorVDC_BIMTools.Commands.WallSleeve.ViewModels;
-using ValorVDC_BIMTools.Commands.WallSleeve.Views;
+using ValorVDC_BIMTools.Commands.WallSleeveRound.ViewModels;
+using ValorVDC_BIMTools.Commands.WallSleeveRound.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
+using ValorVDC_BIMTools.Utilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 
 namespace ValorVDC_BIMTools.Commands;
 
-public partial class PipeInsulationMethods
+public partial class InsulationMethods
 {
 }
 
@@ -22,7 +21,8 @@ public partial class PipeInsulationMethods
 [Regeneration(RegenerationOption.Manual)]
 public class WallSleevesRound : IExternalCommand
 {
-    private readonly PipeInsulationMethods _pipeInsulationMethods = new PipeInsulationMethods();
+    private readonly CurveMethods _curveMethods = new();
+    private readonly InsulationMethods _insulationMethods = new();
 
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
@@ -35,14 +35,31 @@ public class WallSleevesRound : IExternalCommand
                 var viewModel = new WallSleeveViewModel(commandData);
                 var view = new WallSleevesView(viewModel);
 
-                if (view.ShowDialog() != true)
-                    return Result.Succeeded;
+                if (view.ShowDialog() != true) 
+                    return Result.Cancelled;
 
                 var selectedSleeve = viewModel.SelectedWallSleeve;
                 if (selectedSleeve == null)
                 {
                     TaskDialog.Show("Error", "No Wall Sleeve Type Selected");
                     return Result.Failed;
+                }
+
+                double[] sleeveSize;
+                try
+                {
+                    sleeveSize = GetElements.GetAvailableSizes(selectedSleeve);
+                }
+                catch (ArgumentException ex)
+                {
+                    TaskDialog.Show("Error", $"Could not get available sleeve size: ex.Message /newline" +
+                                             $"Using these sizes: 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48)");
+                    sleeveSize = new[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
+                }
+                catch (FormatException ex)
+                {
+                    TaskDialog.Show("Error", $"Could not get available sleeve size: {ex.Message}");
+                    sleeveSize = new[] { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
                 }
 
                 var continueSelecting = true;
@@ -52,10 +69,11 @@ public class WallSleevesRound : IExternalCommand
                     {
                         var wallSleeves =
                             GetElements.GetElementByPartTypeAndPartSubType(document, "Sleeve", "Wall Sleeve");
-                        var sleeve = wallSleeves.FirstOrDefault();
+                        var sleeve = selectedSleeve;
 
                         var reference = uiDocument.Selection.PickObject(ObjectType.Element,
-                            new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a pipe or duct");
+                            new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(),
+                            "Please Select a pipe or duct");
                         var element = document.GetElement(reference);
                         var locationCurve = element.Location as LocationCurve;
                         if (locationCurve == null)
@@ -64,144 +82,8 @@ public class WallSleevesRound : IExternalCommand
                             continue;
                         }
 
-                        double nominalDiameter = 0;
-                        double insulationThickness = 0;
-                        bool hasInsulation = false;
-                        string debugInfo = "";
-                        if (element is Pipe pipe)
-                        {
-                            var diameterParameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
-                            if (diameterParameter != null && diameterParameter.HasValue)
-                            {
-                                nominalDiameter = diameterParameter.AsDouble();
-                                // debugInfo += $"Pipe outer diameter: {nominalDiameter * 12:F2} inches\n";
-
-                            }
-                            else
-                            {
-                                diameterParameter = pipe.get_Parameter(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER);
-                                if (diameterParameter != null && diameterParameter.HasValue)
-                                {
-                                    nominalDiameter = diameterParameter.AsDouble();
-                                    // debugInfo += $"Pipe parameter 'Diameter': {nominalDiameter * 12:F2} inches\n";
-
-                                }
-                                else
-                                {
-                                    diameterParameter = pipe.LookupParameter("Diameter");
-                                    if (diameterParameter != null && diameterParameter.HasValue)
-                                        nominalDiameter = diameterParameter.AsDouble();
-                                     // debugInfo += $"Pipe diameter from parameter: {nominalDiameter * 12:F2} inches\n";
-
-                                }
-                            }
-
-                            PipeInsulation pipeInsulation = _pipeInsulationMethods.FindPipeInsulation(document, pipe);
-                            if (pipeInsulation != null)
-                            {
-                                Parameter thicknessParameter =
-                                    pipeInsulation.get_Parameter(BuiltInParameter.RBS_PIPE_INSULATION_THICKNESS);
-
-                                if (thicknessParameter == null || !thicknessParameter.HasValue)
-                                {
-                                    string[] possibleParamNames = { "Thickness", "Insulation Thickness", "Pipe Insulation Thickness" };
-                                    foreach (string paramName in possibleParamNames)
-                                    {
-                                        thicknessParameter = pipeInsulation.LookupParameter(paramName);
-                                        if (thicknessParameter != null && thicknessParameter.HasValue && thicknessParameter.AsDouble() > 0)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (thicknessParameter != null && thicknessParameter.HasValue && thicknessParameter.AsDouble() > 0)
-                                {
-                                    insulationThickness = thicknessParameter.AsDouble();
-                                    hasInsulation = true;
-                                    // debugInfo += $"Pipe insulation found. Thickness: {insulationThickness * 12:F2} inches\n";
-                                    // debugInfo += $"Parameter name: {thicknessParameter.Definition.Name}\n";
-                                }
-                                else
-                                {
-                                    // debugInfo += "Pipe insulation found but couldn't get thickness parameter.\n";
-                                    // debugInfo += "Available parameters on insulation:\n";
-                                    foreach (Parameter param in pipeInsulation.Parameters)
-                                    {
-                                        if (param.HasValue && param.StorageType == StorageType.Double)
-                                        {
-                                            // debugInfo += $"- {param.Definition.Name}: {param.AsDouble() * 12:F2} inches\n";
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // debugInfo += "No pipe insulation found for this element.\n";
-                            }
-                        }
-
-                        else if (element is Duct duct)
-                        {
-                            var diameterParameter = duct.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM);
-                            if (diameterParameter != null && diameterParameter.HasValue)
-                            {
-                                nominalDiameter = diameterParameter.AsDouble();
-                            }
-
-                            else
-                            {
-                                // Try to get by parameter name
-                                diameterParameter = duct.LookupParameter("Diameter");
-                                if (diameterParameter != null && diameterParameter.HasValue)
-                                {
-                                    nominalDiameter = diameterParameter.AsDouble();
-                                    // debugInfo += $"Duct diameter: {nominalDiameter * 12:F2} inches\n";
-
-                                }
-                                // debugInfo += "This appears to be a rectangular duct, which is not supported.\n";
-
-                            }
-
-                            DuctInsulation ductInsulation = _pipeInsulationMethods.FindDuctInsulation(document, duct);
-                            if (ductInsulation != null )
-                            {
-                                Parameter thicknessParameter = ductInsulation.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM);
-            
-                                if (thicknessParameter == null || !thicknessParameter.HasValue)
-                                {
-                                    // Try alternative parameter names if the built-in parameter doesn't work
-                                    string[] possibleParamNames = { "Thickness", "Insulation Thickness", "Duct Insulation Thickness" };
-                                    foreach (string paramName in possibleParamNames)
-                                    {
-                                        thicknessParameter = ductInsulation.LookupParameter(paramName);
-                                        if (thicknessParameter != null && thicknessParameter.HasValue && thicknessParameter.AsDouble() > 0)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (thicknessParameter != null && thicknessParameter.HasValue && thicknessParameter.AsDouble() > 0)
-                                {
-                                    insulationThickness = thicknessParameter.AsDouble();
-                                    hasInsulation = true;
-                                    // debugInfo += $"Duct insulation found. Thickness: {insulationThickness * 12:F2} inches\n";
-                                    // debugInfo += $"Parameter name: {thicknessParameter.Definition.Name}\n";
-                                }
-                                else
-                                {
-                                    // debugInfo += "Duct insulation found but couldn't get thickness parameter.\n";
-                                    // debugInfo += "Available parameters on insulation:\n";
-                                    foreach (Parameter param in ductInsulation.Parameters)
-                                    {
-                                        if (param.HasValue && param.StorageType == StorageType.Double)
-                                        {
-                                            debugInfo += $"- {param.Definition.Name}: {param.AsDouble() * 12:F2} inches\n";
-                                        }
-                                    }
-                                }
-
-                            }
-                        }
+                        var (nominalDiameter, insulationThickness, hasInsulation) =
+                            GetElements.GetElementDiameterAndInsulation(document, element);
 
                         if (nominalDiameter == 0)
                         {
@@ -214,87 +96,81 @@ public class WallSleevesRound : IExternalCommand
 
                         double? totalDiameter = nominalDiameter;
                         if (hasInsulation)
-                        {
-                            totalDiameter += (insulationThickness * 2);
-                            // debugInfo += $"Total diameter with insulation: {totalDiameter:F2} inches\n";
-                        }
-                        else
-                        {
-                            // debugInfo += $"Total diameter (no insulation): {totalDiameter:F2} inches\n";
+                            totalDiameter += insulationThickness * 2;
 
-                        }
-                        
-                        double[] sleeveSize = { 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 24, 30, 36, 42, 48 };
-                        
                         int finalSizeIndex;
+                        var requiresLargerSize = false;
+
                         if (hasInsulation)
                         {
                             finalSizeIndex = sleeveSize.Length - 1;
-                            for (int i = 0; i < sleeveSize.Length; i++)
-                            {
+                            for (var i = 0; i < sleeveSize.Length; i++)
                                 if (sleeveSize[i] > totalDiameter)
                                 {
                                     finalSizeIndex = i;
                                     break;
                                 }
-                            }
-                            // debugInfo += $"For insulated element, initial sleeve size: {sleeveSize[finalSizeIndex]} inches\n";
+
+                            if (finalSizeIndex == sleeveSize.Length - 1 && sleeveSize[finalSizeIndex] <= totalDiameter)
+                                requiresLargerSize = true;
                         }
                         else
                         {
-                            // For non-insulated elements:
-                            // 1. Find the first sleeve size larger than nominal diameter
-                            int baseSizeIndex = sleeveSize.Length - 1;
-                            for (int i = 0; i < sleeveSize.Length; i++)
-                            {
+                            var baseSizeIndex = sleeveSize.Length - 1;
+                            for (var i = 0; i < sleeveSize.Length; i++)
                                 if (sleeveSize[i] > nominalDiameter)
                                 {
                                     baseSizeIndex = i;
                                     break;
                                 }
-                            }
-    
-                            // 2. Go up one size
+
                             finalSizeIndex = Math.Min(baseSizeIndex + 1, sleeveSize.Length - 1);
-                            // debugInfo += $"Base sleeve size: {sleeveSize[baseSizeIndex]} inches\n";
-                            // debugInfo += $"After going up one size: {sleeveSize[finalSizeIndex]} inches\n";
 
-
+                            var requiredSize = nominalDiameter;
+                            if (finalSizeIndex == sleeveSize.Length - 1 && baseSizeIndex == sleeveSize.Length - 1)
+                                requiresLargerSize = true;
                         }
-                        // TaskDialog.Show("Sleeve Size Calculation", debugInfo);
 
-                        
+                        if (requiresLargerSize)
+                        {
+                            var largestAvailableSize = sleeveSize[sleeveSize.Length - 1];
+                            var userChoice = TaskDialog.Show(
+                                "Sleeve Size Warning",
+                                $"The sleeve required is larger than what the family has available!\n\n" +
+                                $"Required diameter: {(hasInsulation ? totalDiameter : nominalDiameter):F2}\"\n" +
+                                $"Largest size available: {largestAvailableSize}\"\n\n" +
+                                $"Would you like to use the largest available size ({largestAvailableSize}\") instead?",
+                                TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No);
+
+                            if (userChoice == TaskDialogResult.No)
+                            {
+                                continueSelecting = false;
+                                continue;
+                            }
+
+                            finalSizeIndex = sleeveSize.Length - 1;
+                        }
+
                         var sleeveDiameterInches = sleeveSize[finalSizeIndex];
                         var sleeveDiameterFeet = sleeveDiameterInches / 12.0;
 
                         var curve = locationCurve.Curve;
                         var clickPoint = reference.GlobalPoint;
-                        var centerLinePoint = curve.Project(clickPoint).XYZPoint;
-                        XYZ curveDirection;
-
-                        if (curve is Line line)
+                        Line line = null;
+                        if (curve is Line existingLine)
                         {
-                            curveDirection = line.Direction;
+                            line = existingLine;
                         }
                         else
                         {
                             var parameter = curve.Project(clickPoint).Parameter;
-                            curveDirection = curve.ComputeDerivatives(parameter, true).BasisX.Normalize();
+                            var tangent = curve.ComputeDerivatives(parameter, true).BasisX.Normalize();
+                            var pointOnCurve = curve.Project(clickPoint).XYZPoint;
+                            line = Line.CreateBound(pointOnCurve, pointOnCurve.Add(tangent));
                         }
 
-                        var startPoint = curve.GetEndPoint(0);
-                        var endPoint = curve.GetEndPoint(1);
-                        var geometricDirection = (endPoint - startPoint).Normalize();
-
-                        var levelId = element.LevelId;
-                        if (levelId == ElementId.InvalidElementId)
-                            levelId = document.ActiveView.GenLevel?.Id ?? ElementId.InvalidElementId;
-
-                        if (levelId == ElementId.InvalidElementId)
-                        {
-                            TaskDialog.Show("Error", "Could not determine level for placement.");
-                            continue; // Try again
-                        }
+                        var (hostLevel, placemnentPoint) = _curveMethods.GetLevelAndPlacementPoint(
+                            document, element, line, reference);
 
                         using (var transaction = new Transaction(document, "Place Sleeves"))
                         {
@@ -310,44 +186,44 @@ public class WallSleevesRound : IExternalCommand
                             {
                                 "Nominal Diameter",
                                 "Diameter",
-                                "Size",
-                                "Sleeve Diameter",
-                                "Nominal Size"
+                                "NominalDiameter"
                             };
-                            foreach (var paramName in possibleParameterNames)
+                            foreach (var parameterame in possibleParameterNames)
                             {
-                                var diameterParam = sleeve.LookupParameter(paramName);
-                                if (diameterParam != null && !diameterParam.IsReadOnly)
+                                var diameterParameter = sleeve.LookupParameter(parameterame);
+                                if (diameterParameter != null && !diameterParameter.IsReadOnly)
                                 {
-                                    if (diameterParam.StorageType == StorageType.Double)
+                                    if (diameterParameter.StorageType == StorageType.Double)
                                     {
-                                        diameterParam.Set(sleeveDiameterFeet);
+                                        diameterParameter.Set(sleeveDiameterFeet);
                                         parameterNameSet = true;
                                         break;
                                     }
 
-                                    if (diameterParam.StorageType == StorageType.String)
+                                    if (diameterParameter.StorageType == StorageType.String)
                                     {
-                                        diameterParam.Set(sleeveDiameterInches + "\"");
+                                        diameterParameter.Set(sleeveDiameterInches + "\"");
                                         parameterNameSet = true;
                                         break;
                                     }
                                 }
                             }
 
+                            var placeSleeve = document.Create.NewFamilyInstance(
+                                placemnentPoint,
+                                sleeve,
+                                hostLevel,
+                                hostLevel,
+                                StructuralType.NonStructural);
+
+                            _curveMethods.AlignElementWithCurve(document, placeSleeve, line, placemnentPoint);
+
+                            // Set system information and pipe/duct size
+                            SystemInformation.SetSystemInformation(element, placeSleeve);
+                            SystemInformation.SetPipeSizeDuctDiameter(element, placeSleeve);
+
                             if (!parameterNameSet)
                             {
-                                var placeSleeve = document.Create.NewFamilyInstance(
-                                    centerLinePoint,
-                                    sleeve,
-                                    curveDirection,
-                                    document.GetElement(levelId) as Level,
-                                    StructuralType.NonStructural);
-                                var rotationLine = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
-                                ElementTransformUtils.RotateElement(
-                                    document, placeSleeve.Id, rotationLine, Math.PI / 2);
-
-
                                 foreach (var paramName in possibleParameterNames)
                                 {
                                     var instanceDiamParam = placeSleeve.LookupParameter(paramName);
@@ -371,9 +247,6 @@ public class WallSleevesRound : IExternalCommand
 
                                 if (parameterNameSet)
                                 {
-                                    // If we set a parameter on the instance, return that instance
-                                    // Don't return here, let the transaction complete
-                                    // We'll return Result.Succeeded at the end of the method
                                 }
                                 else
                                 {
@@ -401,23 +274,25 @@ public class WallSleevesRound : IExternalCommand
             catch (Exception exception)
             {
                 message = exception.Message;
-                return Result.Succeeded;
+                TaskDialog.Show("Error", $"Exception in Execute: {exception.Message}\n{exception.StackTrace}");
+                return Result.Failed; // Change this from Result.Succeeded
+
             }
         }
     }
-
-    public static void CreateButton(RibbonPanel panel)
+    
+    public static PushButtonData CreatePushButtonData()
     {
         var assembly = Assembly.GetExecutingAssembly();
-
-        var buttonName = "Round Wall Sleeves";
-        var buttonText = "Round"  + Environment.NewLine + "Wall Sleeves";
-        var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-        panel.AddItem(
-            new PushButtonData(buttonName, buttonText, assembly.Location, className)
-            {
-                ToolTip = "Place Wall Sleeves to any Pipe, Duct, or other MEP Curves",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
-            });
+        var buttonName = "Round Sleeves";
+        var buttonText = "Round" + Environment.NewLine + "Wall Sleeves";
+        var className = typeof(WallSleevesRound).FullName;
+    
+        return new PushButtonData(buttonName, buttonText, assembly.Location, className)
+        {
+            ToolTip = "Create Round Wall Sleeves",
+            LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
+        };
     }
+
 }
