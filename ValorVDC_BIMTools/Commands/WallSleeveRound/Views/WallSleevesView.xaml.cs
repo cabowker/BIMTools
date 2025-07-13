@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Input;
 using ValorVDC_BIMTools.Commands.WallSleeveRound.ViewModels;
 
 namespace ValorVDC_BIMTools.Commands.WallSleeveRound.Views;
@@ -23,9 +22,8 @@ public partial class WallSleevesView : Window
         };
 
         _viewModel.RequestClose += _closeHandler;
-
     }
-    
+
     private void OnSelectionComplete()
     {
         Hide();
@@ -43,5 +41,4 @@ public partial class WallSleevesView : Window
 
         base.OnClosed(e);
     }
-
 }

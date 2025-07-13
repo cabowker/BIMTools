@@ -10,15 +10,15 @@
         WindowStartupLocation="CenterScreen"
         Background="LightGray">
 
-        <Window.Resources>
-                <ResourceDictionary>
-                        <ResourceDictionary.MergedDictionaries>
-                                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
-                        </ResourceDictionary.MergedDictionaries>
-                        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-                </ResourceDictionary>
-        </Window.Resources>
-        
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="10"
           Background="WhiteSmoke">
         <Grid.RowDefinitions>
@@ -68,7 +68,7 @@
                     Margin="10,0" />
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
-                    Padding="10, 5"/>
+                    Padding="10, 5" />
         </StackPanel>
 
     </Grid>

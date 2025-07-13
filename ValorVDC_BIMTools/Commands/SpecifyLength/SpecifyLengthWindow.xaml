@@ -31,19 +31,14 @@
                   Padding="10"
                   BorderBrush="Black">
             <StackPanel>
-
-                <RadioButton x:Name="Length5Feet" Content="5' Length"
-                             Tag="5" GroupName="Lengths"
-                             Checked="PresetLength_Checked" />
-                <RadioButton x:Name="Length10Feet" Content="10' Length"
-                             Tag="10" GroupName="Lengths"
-                             Checked="PresetLength_Checked" />
-                <RadioButton x:Name="Length20Feet" Content="20' Length"
-                             Tag="20" GroupName="Lengths"
-                             Checked="PresetLength_Checked" />
-                <RadioButton x:Name="Length21Feet" Content="21' Length"
-                             Tag="21" GroupName="Lengths"
-                             Checked="PresetLength_Checked" />
+                <RadioButton x:Name="Length5Feet" Content="5' Length" Tag="5"
+                             Checked="PresetLength_Checked" GroupName="LengthPresets" />
+                <RadioButton x:Name="Length10Feet" Content="10' Length" Tag="10"
+                             Checked="PresetLength_Checked" GroupName="LengthPresets" />
+                <RadioButton x:Name="Length20Feet" Content="20' Length" Tag="20"
+                             Checked="PresetLength_Checked" GroupName="LengthPresets" />
+                <RadioButton x:Name="Length21Feet" Content="21' Length" Tag="21"
+                             Checked="PresetLength_Checked" GroupName="LengthPresets" />
             </StackPanel>
         </GroupBox>
         <StackPanel Orientation="Horizontal">

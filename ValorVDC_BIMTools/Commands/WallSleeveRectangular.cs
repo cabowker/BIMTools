@@ -29,7 +29,7 @@ public class WallSleevesRectangular : IExternalCommand
             var viewmodel = new RectangularWallSleeveViewModel(commandData);
             var view = new RectangularWallSleeveView(viewmodel);
 
-            if (view.ShowDialog() != true) 
+            if (view.ShowDialog() != true)
                 return Result.Cancelled;
 
             var selectedSleeve = viewmodel.SelectedWallSleeve;
@@ -304,9 +304,6 @@ public class WallSleevesRectangular : IExternalCommand
                             }
                         }
 
-                        //var rotationDirection = Line.CreateBound(centerLinePoint, centerLinePoint.Add(XYZ.BasisZ));
-                        //ElementTransformUtils.RotateElement(document, placeSleeve.Id, rotationDirection, Math.PI / 2);
-
                         SystemInformation.SetSystemInformation(element, placeSleeve);
 
                         if (!heightSet || !widthSet)
@@ -349,19 +346,18 @@ public class WallSleevesRectangular : IExternalCommand
             return Result.Failed;
         }
     }
-    
+
     public static PushButtonData CreatePushButtonData()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var buttonName = "Rectangular Sleeve";
         var buttonText = "Rectangular" + Environment.NewLine + "Wall Sleeves";
         var className = typeof(WallSleevesRectangular).FullName;
-    
+
         return new PushButtonData(buttonName, buttonText, assembly.Location, className)
         {
             ToolTip = "Create Rectangular Wall Sleeves",
             LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
         };
     }
-
 }

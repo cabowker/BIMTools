@@ -11,5 +11,3 @@ public partial class CopyScopeBoxesView : Window
         DataContext = new ScopeBoxManagerViewModel(document, this);
     }
 }
-
-
