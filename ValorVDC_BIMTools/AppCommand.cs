@@ -22,8 +22,8 @@ public class AppCommand : IExternalApplication
         }
 
         var mepToolsPanel = application.GetRibbonPanels("BIM Tools").FirstOrDefault(x => x.Name == "BIM Tools") ??
-                          application.CreateRibbonPanel("BIM Tools", "MEP Tools");
-        
+                            application.CreateRibbonPanel("BIM Tools", "MEP Tools");
+
         var modelToolsPanel = application.CreateRibbonPanel("BIM Tools", "Model Tools");
 
 
@@ -31,13 +31,18 @@ public class AppCommand : IExternalApplication
         DisconnectPipe.CreateButton(mepToolsPanel);
         SpecifyLength.CreateButton(mepToolsPanel);
         FlowArrow.CreateButton(mepToolsPanel);
-        
+
         CreateSleevesPulldownButton(mepToolsPanel);
 
         CopyScopeBoxesCommand.CreateButton(modelToolsPanel);
         ZoomObject.CreateButton(modelToolsPanel);
-        
 
+
+        return Result.Succeeded;
+    }
+
+    public Result OnShutdown(UIControlledApplication application)
+    {
         return Result.Succeeded;
     }
 
@@ -45,28 +50,26 @@ public class AppCommand : IExternalApplication
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        
+
         var pulldownButtonData = new PulldownButtonData("SleevesButton", "Sleeve Tools")
         {
             ToolTip = "Wall Sleeves Tools",
             LargeImage = ImagineUtilities.LoadImage(assembly, "3peo.png")
-
         };
-        
+
         var pulldownButton = ribbonPanel.AddItem(pulldownButtonData) as PulldownButton;
 
-        
+
         var roundButtonData = WallSleevesRound.CreatePushButtonData();
         pulldownButton.AddPushButton(roundButtonData);
-        
+
         var rectangularButtonData = WallSleevesRectangular.CreatePushButtonData();
         pulldownButton.AddPushButton(rectangularButtonData);
 
+        var realignElement = RealignElement.CreatePushButtonData();
+        pulldownButton.AddPushButton(realignElement);
+
         var realignElements = RealignMultiElements.CreatePushButtonData();
         pulldownButton.AddPushButton(realignElements);
-    }
-    public Result OnShutdown(UIControlledApplication application)
-    {
-        return Result.Succeeded;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
 using Autodesk.Revit.UI;
 using ValorVDC_BIMTools.HelperMethods;
 
@@ -6,6 +7,7 @@ namespace ValorVDC_BIMTools.Commands.WallSleeveRectangular.ViewModels;
 
 public class RectangularWallSleeveViewModel : ObservableObject
 {
+    private const string DEFAULT_FAMILY_PATH = @"C:\ProgramData\ValorVDC\Families\Wall Rectangle Sleeve.rfa";
     private readonly Document _document;
     private readonly UIApplication _uiApplication;
     private readonly UIDocument _uiDocument;
@@ -13,12 +15,9 @@ public class RectangularWallSleeveViewModel : ObservableObject
     private double _addToWidth = 2.0;
     private double _roundUpValue = .25;
     private FamilySymbol _selectedWallSleeve;
+    private bool _showLoadFamilyButtons;
     private string _statusMeassage = " Ready to Place Rectangular Wall Sleeve.";
     private ObservableCollection<FamilySymbol> _wallSleeveSymbols;
-    private bool _showLoadFamilyButtons = false;
-    private RelayCommand _placeWallSleeveCommand;
-
-    private const string DEFAULT_FAMILY_PATH = @"C:\ProgramData\ValorVDC\Families\Wall Rectangle Sleeve.rfa";
 
     public RectangularWallSleeveViewModel(ExternalCommandData commandData)
     {
@@ -26,7 +25,7 @@ public class RectangularWallSleeveViewModel : ObservableObject
         _uiDocument = _uiApplication.ActiveUIDocument;
         _document = _uiDocument.Document;
 
-        _placeWallSleeveCommand = new RelayCommand(() =>
+        PlaceWallSleeveCommand = new RelayCommand(() =>
         {
             DialogResult = true;
             RequestClose?.Invoke();
@@ -37,7 +36,7 @@ public class RectangularWallSleeveViewModel : ObservableObject
             DialogResult = false;
             RequestClose?.Invoke();
         });
-        
+
         LoadDefaultFamilyCommand = new RelayCommand(LoadDefaultFamily);
         BrowsePCCommand = new RelayCommand(BrowsePC);
 
@@ -89,18 +88,16 @@ public class RectangularWallSleeveViewModel : ObservableObject
         get => _showLoadFamilyButtons;
         set => SetProperty(ref _showLoadFamilyButtons, value);
     }
-    
-    public RelayCommand PlaceWallSleeveCommand
-    {
-        get => _placeWallSleeveCommand;
-        private set => _placeWallSleeveCommand = value;
-    }
+
+    public RelayCommand PlaceWallSleeveCommand { get; private set; }
+
     public RelayCommand CancelCommand { get; }
     public RelayCommand LoadDefaultFamilyCommand { get; set; }
     public RelayCommand BrowsePCCommand { get; }
     public bool DialogResult { get; private set; }
 
-    public void GetElementsByPartTypeAndSubType(string partType = "Sleeve", string partSubType = "Wall Sleeve-Rectangular")
+    public void GetElementsByPartTypeAndSubType(string partType = "Sleeve",
+        string partSubType = "Wall Sleeve-Rectangular")
     {
         try
         {
@@ -128,12 +125,16 @@ public class RectangularWallSleeveViewModel : ObservableObject
             StatusMessage = $"Error Loading Wall Sleeve Family: {e.Message}";
         }
     }
-    
-    
+
+
     private void UpdatePlaceWallSleeve()
     {
-        _placeWallSleeveCommand = new RelayCommand(
-            () => { DialogResult = true; RequestClose?.Invoke();}, 
+        PlaceWallSleeveCommand = new RelayCommand(
+            () =>
+            {
+                DialogResult = true;
+                RequestClose?.Invoke();
+            },
             CanPlaceWallSleeve);
         OnPropertyChanged(nameof(PlaceWallSleeveCommand));
     }
@@ -143,8 +144,8 @@ public class RectangularWallSleeveViewModel : ObservableObject
         try
         {
             StatusMessage = " Loading default Wall Sleeve Family Now...";
-            
-            if (!System.IO.File.Exists(DEFAULT_FAMILY_PATH))
+
+            if (!File.Exists(DEFAULT_FAMILY_PATH))
             {
                 StatusMessage = "Default family file not found at the specified path.";
                 return;
@@ -161,15 +162,17 @@ public class RectangularWallSleeveViewModel : ObservableObject
                 StatusMessage = "Family loaded successfully!";
                 GetElementsByPartTypeAndSubType();
             }
-            else 
+            else
+            {
                 StatusMessage = "Failed to load default family. It may already be loaded or there was an error.";
+            }
         }
         catch (Exception e)
         {
             StatusMessage = $"Error loading default family: {e.Message}";
         }
     }
-    
+
     private void BrowsePC()
     {
         try
@@ -177,9 +180,9 @@ public class RectangularWallSleeveViewModel : ObservableObject
             StatusMessage = "Browsing for Wall Sleeve family...";
 
             var family = LoadFamilies.BrowseAndLoadFamily(
-                _document, 
-                _uiDocument, 
-                "Select Wall Sleeve Family", 
+                _document,
+                _uiDocument,
+                "Select Wall Sleeve Family",
                 "Load Wall Sleeve Family");
 
             if (family != null)

@@ -12,7 +12,7 @@ public class ZoomObject : IExternalCommand
     {
         var uiDocument = commandData.Application.ActiveUIDocument;
         var document = uiDocument.Document;
-        View activeView = uiDocument.ActiveView;
+        var activeView = uiDocument.ActiveView;
 
         try
         {
@@ -24,14 +24,14 @@ public class ZoomObject : IExternalCommand
             }
 
             BoundingBoxXYZ combinedBox = null;
-            foreach (ElementId id in selectedIds)
+            foreach (var id in selectedIds)
             {
-                Element element = document.GetElement(id);
-                BoundingBoxXYZ bbox = element.get_BoundingBox(activeView);
+                var element = document.GetElement(id);
+                var bbox = element.get_BoundingBox(activeView);
                 if (bbox == null)
                 {
                     TaskDialog.Show("Warning", $"Element with ID {id} is not visible in the current view.");
-                        continue;
+                    continue;
                 }
 
                 if (combinedBox == null)
@@ -56,18 +56,16 @@ public class ZoomObject : IExternalCommand
             }
 
             if (combinedBox == null)
-            {
                 TaskDialog.Show("Error", "None of the selected objects are visible in the current view.");
-            }
 
-            double paddingFactor = 3.0;
-            XYZ boxSize = combinedBox.Max - combinedBox.Min;
-            XYZ padding = new XYZ(
-                boxSize.X * (paddingFactor - 1) /2,
-                boxSize.Y * (paddingFactor - 1) /2,
-                boxSize.Z * (paddingFactor - 1) /2);
-            
-            BoundingBoxXYZ paddedBox = new BoundingBoxXYZ()
+            var paddingFactor = 3.0;
+            var boxSize = combinedBox.Max - combinedBox.Min;
+            var padding = new XYZ(
+                boxSize.X * (paddingFactor - 1) / 2,
+                boxSize.Y * (paddingFactor - 1) / 2,
+                boxSize.Z * (paddingFactor - 1) / 2);
+
+            var paddedBox = new BoundingBoxXYZ
             {
                 Min = new XYZ(
                     combinedBox.Min.X - padding.X,
@@ -78,17 +76,19 @@ public class ZoomObject : IExternalCommand
                     combinedBox.Max.Y + padding.Y,
                     combinedBox.Max.Z + padding.Z)
             };
-            
-            UIView uiView = uiDocument.GetOpenUIViews()
+
+            var uiView = uiDocument.GetOpenUIViews()
                 .FirstOrDefault(v => v.ViewId == activeView.Id);
             if (uiView != null)
+            {
                 uiView.ZoomAndCenterRectangle(paddedBox.Min, paddedBox.Max);
+            }
             else
             {
                 TaskDialog.Show("Error", "Unable to access the current view for zooming.");
                 return Result.Failed;
             }
-            
+
             uiDocument.Selection.SetElementIds(selectedIds);
             return Result.Succeeded;
         }
@@ -98,7 +98,7 @@ public class ZoomObject : IExternalCommand
             return Result.Failed;
         }
     }
-    
+
     public static void CreateButton(RibbonPanel panel)
     {
         var assembly = Assembly.GetExecutingAssembly();

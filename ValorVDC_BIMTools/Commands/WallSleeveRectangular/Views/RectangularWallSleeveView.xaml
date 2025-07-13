@@ -121,7 +121,7 @@
             <Button Content="Place Wall Sleeve"
                     Command="{Binding PlaceWallSleeveCommand}"
                     Padding="10, 5"
-                    Margin="30, 0"/>
+                    Margin="30, 0" />
             <Button Content="Cancel"
                     Command="{Binding CancelCommand}"
                     Padding="10, 5" />
