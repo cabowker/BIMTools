@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 
-
 namespace ValorVDC_BIMTools.Commands.CopyScopeBoxes.ViewModels;
 
 public class LinkedModel : ObservableObject
@@ -12,11 +11,10 @@ public class LinkedModel : ObservableObject
 
 public class ScopeBoxItem : ObservableObject
 {
+    private readonly ScopeBoxManagerViewModel _parentViewModel;
+    private Element _element;
     private bool _isSelected;
     private string _name;
-    private Element _element;
-
-    private readonly ScopeBoxManagerViewModel _parentViewModel;
 
     public ScopeBoxItem(ScopeBoxManagerViewModel parentViewModel = null)
     {
@@ -26,7 +24,7 @@ public class ScopeBoxItem : ObservableObject
     public bool IsSelected
     {
         get => _isSelected;
-        set 
+        set
         {
             SetProperty(ref _isSelected, value);
             // Notify parent view model that selection changed
@@ -45,24 +43,38 @@ public class ScopeBoxItem : ObservableObject
         get => _element;
         set => SetProperty(ref _element, value);
     }
-    
+
     public override string ToString()
     {
         return $"ScopeBoxItem: {Name}, Selected: {IsSelected}";
     }
-
 }
 
 public class ScopeBoxManagerViewModel : ObservableObject
 {
     private readonly Document _document;
     private readonly Window _parentWindow;
+    private bool _disposed;
     private LinkedModel _selectedLinkedModel;
-    private bool _disposed = false;
+
+
+    public ScopeBoxManagerViewModel(Document document, Window parentWindow = null)
+    {
+        _document = document;
+        _parentWindow = parentWindow;
+        LinkModels = new ObservableCollection<LinkedModel>();
+        ScopeBoxes = new ObservableCollection<ScopeBoxItem>();
+
+        CopyScopeBoxesCommand = new RelayCommand(CopyScopeBoxes, CanCopyScopeBoxes);
+        CloseCommand = new RelayCommand(() => _parentWindow?.Close());
+
+
+        LoadLinkedModels();
+    }
 
     public ObservableCollection<LinkedModel> LinkModels { get; }
     public ObservableCollection<ScopeBoxItem> ScopeBoxes { get; }
-    
+
     public LinkedModel SelectedLinkedModel
     {
         get => _selectedLinkedModel;
@@ -76,22 +88,6 @@ public class ScopeBoxManagerViewModel : ObservableObject
     public IRelayCommand CopyScopeBoxesCommand { get; }
     public IRelayCommand CloseCommand { get; }
 
-
-    
-    public ScopeBoxManagerViewModel(Document document, Window parentWindow = null)
-    {
-        _document = document;
-        _parentWindow = parentWindow;
-        LinkModels = new ObservableCollection<LinkedModel>();
-        ScopeBoxes = new ObservableCollection<ScopeBoxItem>();
-        
-        CopyScopeBoxesCommand = new RelayCommand(CopyScopeBoxes, CanCopyScopeBoxes);
-        CloseCommand = new RelayCommand(() => _parentWindow?.Close());
-
-
-        LoadLinkedModels();
-    }
-    
     private void LoadLinkedModels()
     {
         using var collector = new FilteredElementCollector(_document);
@@ -102,13 +98,11 @@ public class ScopeBoxManagerViewModel : ObservableObject
 
 
         foreach (var linkInstance in linkInstances)
-        {
             LinkModels.Add(new LinkedModel
             {
                 Name = linkInstance.Name,
                 LinkInstance = linkInstance
             });
-        }
     }
 
     private void UpdateScopeBoxes()
@@ -116,10 +110,7 @@ public class ScopeBoxManagerViewModel : ObservableObject
         try
         {
             ScopeBoxes.Clear();
-            if (SelectedLinkedModel?.LinkInstance == null)
-            {
-                return;
-            }
+            if (SelectedLinkedModel?.LinkInstance == null) return;
 
             var linkedDocument = SelectedLinkedModel.LinkInstance.GetLinkDocument();
             if (linkedDocument == null)
@@ -127,27 +118,22 @@ public class ScopeBoxManagerViewModel : ObservableObject
                 MessageBox.Show("Failed to get linked document. The link might be unloaded.", "Debug Info");
                 return;
             }
-            
+
             using var collector = new FilteredElementCollector(linkedDocument);
             var scopeBoxElements = collector
                 .OfCategory(BuiltInCategory.OST_VolumeOfInterest)
                 .WhereElementIsNotElementType()
                 .ToElements();
-            
+
             foreach (var element in scopeBoxElements)
-            {
-                ScopeBoxes.Add(new ScopeBoxItem(this) 
+                ScopeBoxes.Add(new ScopeBoxItem(this)
                 {
                     Name = element.Name,
                     Element = element,
                     IsSelected = false
                 });
-            }
-            
-            if (!scopeBoxElements.Any())
-            {
-                MessageBox.Show("No scope boxes found in the selected model.", "Information");
-            }
+
+            if (!scopeBoxElements.Any()) MessageBox.Show("No scope boxes found in the selected model.", "Information");
         }
         catch (Exception e)
         {
@@ -179,7 +165,7 @@ public class ScopeBoxManagerViewModel : ObservableObject
             return;
         }
 
-        using (Transaction transaction = new Transaction(_document, "Copy Scope Boxes"))
+        using (var transaction = new Transaction(_document, "Copy Scope Boxes"))
         {
             transaction.Start();
             try
@@ -187,7 +173,7 @@ public class ScopeBoxManagerViewModel : ObservableObject
                 var transform = SelectedLinkedModel.LinkInstance.GetTotalTransform();
                 var copiedCount = 0;
                 var copiedNames = new List<string>();
-                
+
                 using var existingCollector = new FilteredElementCollector(_document);
                 var existingScopeBoxNames = existingCollector
                     .OfCategory(BuiltInCategory.OST_VolumeOfInterest)
@@ -210,25 +196,22 @@ public class ScopeBoxManagerViewModel : ObservableObject
 
                     if (copiedElementIds != null && copiedElementIds.Count > 0)
                     {
-                        ElementId firstId = copiedElementIds.Cast<ElementId>().FirstOrDefault();
+                        var firstId = copiedElementIds.FirstOrDefault();
                         if (firstId != null)
                         {
                             var copiedElement = _document.GetElement(firstId);
                             if (copiedElement != null)
                             {
-                                string newName = copiedElement.Name;
-                                
+                                var newName = copiedElement.Name;
+
                                 if (existingScopeBoxNames.Contains(scopeBoxItem.Name))
-                                {
                                     newName = $"{scopeBoxItem.Name}_{SelectedLinkedModel.Name}";
-                                }
-                                
+
                                 copiedElement.Name = newName;
                                 existingScopeBoxNames.Add(newName);
 
                                 copiedCount++;
                                 copiedNames.Add(newName);
-
                             }
                             else
                             {
@@ -243,17 +226,14 @@ public class ScopeBoxManagerViewModel : ObservableObject
                 transaction.Commit();
                 var message = $"{copiedCount} Scope Box(es) copied successfully:\n\n";
                 message += string.Join("\n", copiedNames.Select(name => $"• {name}"));
-            
+
                 MessageBox.Show(message, "Success");
 
                 _parentWindow?.Close();
             }
             catch (Exception e)
             {
-                if (transaction.GetStatus() == TransactionStatus.Started)
-                {
-                    transaction.RollBack();
-                }
+                if (transaction.GetStatus() == TransactionStatus.Started) transaction.RollBack();
 
                 MessageBox.Show($"Error copying scope boxes: {e.Message}", "Error");
             }
@@ -269,7 +249,7 @@ public class ScopeBoxManagerViewModel : ObservableObject
     {
         CopyScopeBoxesCommand?.NotifyCanExecuteChanged();
     }
-    
+
     public void Dispose()
     {
         Dispose(true);
@@ -283,9 +263,8 @@ public class ScopeBoxManagerViewModel : ObservableObject
             // Clear collections to help GC
             LinkModels?.Clear();
             ScopeBoxes?.Clear();
-            
+
             _disposed = true;
         }
     }
-
 }

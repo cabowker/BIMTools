@@ -62,7 +62,7 @@ public class SelectionFilters
         {
             _category = category;
         }
-        
+
         public bool AllowElement(Element elem)
         {
             if (elem.Category == null)

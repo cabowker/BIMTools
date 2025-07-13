@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.Utilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
@@ -9,10 +10,14 @@ namespace ValorVDC_BIMTools.Commands.SpecifyLength;
 public class SpecifyLengthHandler : IExternalEventHandler
 {
     private readonly ExternalCommandData _commandData;
+    private readonly ExternalEvent _externalEvent;
+
 
     public SpecifyLengthHandler(ExternalCommandData commandData)
     {
         _commandData = commandData;
+        keepRunning = true;
+        _externalEvent = ExternalEvent.Create(this);
     }
 
     public double SelectedLength { get; set; }
@@ -32,7 +37,8 @@ public class SpecifyLengthHandler : IExternalEventHandler
             var uiDocument = _commandData.Application.ActiveUIDocument;
             var document = uiDocument.Document;
 
-            var pickedReference = uiDocument.Selection.PickObject(ObjectType.Element, "Select an MEP Curve");
+            var pickedReference = uiDocument.Selection.PickObject(ObjectType.Element,
+                new SelectionFilters.MepCurveAndFabFilterWithOutInsulation(), "Please Select a Pipe");
 
             if (pickedReference == null)
             {
@@ -74,7 +80,7 @@ public class SpecifyLengthHandler : IExternalEventHandler
         }
 
         if (keepRunning)
-            ExternalEvent.Create(this).Raise();
+            _externalEvent.Raise();
     }
 
     public string GetName()
@@ -87,6 +93,11 @@ public class SpecifyLengthHandler : IExternalEventHandler
     {
         keepRunning = false;
         TaskDialog.Show("Stopped", "Command has been stopped.");
+    }
+
+    public void RaiseEvent()
+    {
+        _externalEvent.Raise();
     }
 
     private void StopOnEscape()

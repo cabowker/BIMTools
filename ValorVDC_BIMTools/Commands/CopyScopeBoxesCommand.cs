@@ -17,7 +17,6 @@ public class CopyScopeBoxesCommand : IExternalCommand
             var window = new CopyScopeBoxesView(document);
             window.ShowDialog();
             return Result.Succeeded;
-
         }
         catch (Exception e)
         {
@@ -25,7 +24,7 @@ public class CopyScopeBoxesCommand : IExternalCommand
             return Result.Failed;
         }
     }
-    
+
     public static void CreateButton(RibbonPanel panel)
     {
         var assembly = Assembly.GetExecutingAssembly();

@@ -7,6 +7,7 @@ public partial class RectangularWallSleeveView : Window
 {
     private readonly RectangularWallSleeveViewModel _viewModel;
     private Action _closeHandler;
+
     public RectangularWallSleeveView(RectangularWallSleeveViewModel viewModel)
     {
         InitializeComponent();
@@ -41,6 +42,7 @@ public partial class RectangularWallSleeveView : Window
         };
         _viewModel.RequestClose += _closeHandler;
     }
+
     private void OnSelectionComplete()
     {
         Hide();
