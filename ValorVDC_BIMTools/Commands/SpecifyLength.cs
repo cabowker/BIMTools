@@ -49,7 +49,7 @@ public class SpecifyLength : IExternalCommand
             new PushButtonData(buttonName, buttonText, assembly.Location, className)
             {
                 ToolTip = "Specify Length of Pipe, Duct, or Conduit",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "stormTrooper.png")
+                LargeImage = ImagineUtilities.LoadImage(assembly, "SpecifyLengthButton_32x32.png")
             });
     }
 }

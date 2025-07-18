@@ -106,11 +106,15 @@ public class ZoomObject : IExternalCommand
         var buttonName = "Zoom Object";
         var buttonText = "Zoom" + Environment.NewLine + "Object";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-        panel.AddItem(
-            new PushButtonData(buttonName, buttonText, assembly.Location, className)
-            {
-                ToolTip = "Zooms to a pre-selected Object or Element",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "falcon.png")
-            });
+        AppCommand.CreateThemeAwareButton(
+            panel,
+            assembly,
+            buttonName,
+            buttonText,
+            className,
+            "ZoomToButton_32x32.png",
+            "DarkZoomToDarkButton_32x32.png",
+            "Zooms to Selected Object from another view."
+        );
     }
 }

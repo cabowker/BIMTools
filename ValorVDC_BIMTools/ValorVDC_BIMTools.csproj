@@ -52,6 +52,15 @@
 
     <ItemGroup>
         <None Remove="Resources\mando-32.png"/>
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\CopyScopeBoxesButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\DarkVerticalPipeButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\Dark_CopyScopeBoxesButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\FixSkewPipeButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\FlowArrowButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\RectanglurSleeveButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\RoundSleeveButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\SpecifyLengthButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\ZoomToButton_32x32.png" />
         <EmbeddedResource Include="Resources\mando-32.png"/>
         <None Remove="Resources\vader-32.png"/>
         <EmbeddedResource Include="Resources\vader-32.png"/>
@@ -72,6 +81,18 @@
         <None Update="RevitFamilies\Wall Sleeves_R24.rfa">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Remove="Resources\FlowArrowButton_32x32.png" />
+        <None Remove="Resources\FixSkewPipeButton_32x32.png" />
+        <None Remove="Resources\SpecifyLengthButton_32x32.png" />
+        <None Remove="Resources\RectanglurSleeveButton_32x32.png" />
+        <None Remove="Resources\RoundSleeveButton_32x32.png" />
+        <None Remove="Resources\CopyScopeBoxsButton_32x32.png" />
+        <None Remove="Resources\ZoomToButton_32x32.png" />
+        <None Remove="Resources\Dark_CopyScopeBoxesButton_32x32.png" />
+        <None Remove="Resources\Dark_CopyScopeBoxes.png" />
+        <None Remove="Resources\DarkVerticalPipeButton_32x32.png" />
+        <None Remove="Resources\ButtonImages_32x32\DarkZoomToDarkButton_32x32.png" />
+        <EmbeddedResource Include="Resources\ButtonImages_32x32\DarkZoomToDarkButton_32x32.png" />
     </ItemGroup>
 
     <ItemGroup>

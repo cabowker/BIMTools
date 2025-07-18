@@ -357,7 +357,7 @@ public class WallSleevesRectangular : IExternalCommand
         return new PushButtonData(buttonName, buttonText, assembly.Location, className)
         {
             ToolTip = "Create Rectangular Wall Sleeves",
-            LargeImage = ImagineUtilities.LoadImage(assembly, "r2d2.png")
+            LargeImage = ImagineUtilities.LoadImage(assembly, "RectanglurSleeveButton_32x32.png")
         };
     }
 }

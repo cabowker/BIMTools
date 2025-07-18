@@ -158,13 +158,13 @@ public class FlowArrow : IExternalCommand
         var assembly = Assembly.GetExecutingAssembly();
 
         var buttonName = "Flow Arrow";
-        var buttonText = "FLow Arrow";
+        var buttonText = "FLow Arrows";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
         panel.AddItem(
             new PushButtonData(buttonName, buttonText, assembly.Location, className)
             {
                 ToolTip = "Add Flow Arrows to any Pipe, Duct, or other MEP Curves",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "lightSaber.png")
+                LargeImage = ImagineUtilities.LoadImage(assembly, "FlowArrowButton_32x32.png")
             });
     }
 }
