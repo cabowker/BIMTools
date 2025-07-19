@@ -63,18 +63,18 @@ public sealed class FlowArrowsViewModel : ObservableObject
                     flowArrows =
                         GetElements.GetElementByPartTypeAndPartSubType(_document, "Generic Annotation", "Flow Arrow");
 
-                if (flowArrows.Count == 0)
-                {
-                    var collector = new FilteredElementCollector(_document)
-                        .OfClass(typeof(FamilySymbol))
-                        .Cast<FamilySymbol>()
-                        .Where(fs =>
-                            (fs.Family.Name.ToLower().Contains("flow") && fs.Family.Name.ToLower().Contains("arrow")) ||
-                            fs.Name.ToLower().Contains("flow arrow"))
-                        .ToList();
-
-                    flowArrows = collector;
-                }
+                // if (flowArrows.Count == 0)
+                // {
+                //     var collector = new FilteredElementCollector(_document)
+                //         .OfClass(typeof(FamilySymbol))
+                //         .Cast<FamilySymbol>()
+                //         .Where(fs =>
+                //             (fs.Family.Name.ToLower().Contains("flow") && fs.Family.Name.ToLower().Contains("arrow")) ||
+                //             fs.Name.ToLower().Contains("flow arrow"))
+                //         .ToList();
+                //
+                //     flowArrows = collector;
+                // }
             }
 
             FlowArrowSymbols = new ObservableCollection<FamilySymbol>(flowArrows);

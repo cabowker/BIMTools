@@ -83,12 +83,14 @@ public class AppCommand : IExternalApplication
 
         var pulldownButton = ribbonPanel.AddItem(pulldownButtonData) as PulldownButton;
 
+        var floorSleeveButtonData = FloorSleeveRound.CreatePushButtonData();
+        pulldownButton.AddPushButton(floorSleeveButtonData);
+        
+        var roundSleeveButtonData = WallSleevesRound.CreatePushButtonData();
+        pulldownButton.AddPushButton(roundSleeveButtonData);
 
-        var roundButtonData = WallSleevesRound.CreatePushButtonData();
-        pulldownButton.AddPushButton(roundButtonData);
-
-        var rectangularButtonData = WallSleevesRectangular.CreatePushButtonData();
-        pulldownButton.AddPushButton(rectangularButtonData);
+        var rectangularSleeveButtonData = WallSleevesRectangular.CreatePushButtonData();
+        pulldownButton.AddPushButton(rectangularSleeveButtonData);
 
         var realignElement = RealignElement.CreatePushButtonData();
         pulldownButton.AddPushButton(realignElement);
