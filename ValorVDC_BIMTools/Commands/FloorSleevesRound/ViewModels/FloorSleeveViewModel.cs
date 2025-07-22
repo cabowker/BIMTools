@@ -15,6 +15,16 @@ public partial class FloorSleeveViewModel : ObservableObject
     private bool _showLoadFamilyButtons;
     private string _statusMessage = "Ready to place floor sleeves.";
     private ObservableCollection<FamilySymbol> _floorSleeveSymbols;
+    private bool _useMultipleSleeveTypes;
+    private double _selectedPipeSize;
+    private FamilySymbol _selectedSleeveForSmaller;
+    private FamilySymbol _selectedSleeveForLarger;
+    private ObservableCollection<PipeSize> _availablePipeSizes;
+    public class PipeSize
+    {
+        public double Size { get; set; }
+        public string DisplayText => $"{Size}\"";
+    }
 
     public FloorSleeveViewModel(ExternalCommandData commandData)
     {
@@ -23,6 +33,9 @@ public partial class FloorSleeveViewModel : ObservableObject
             _commandData = commandData;
             _document = commandData.Application.ActiveUIDocument.Document;
             _uiDocument = commandData.Application.ActiveUIDocument;
+
+            AvailablePipeSizes = new ObservableCollection<PipeSize>(Enumerable.Range(1, 42)
+                .Select(i => new PipeSize { Size = i }));
         
             PlaceFloorSleeveCommand = new RelayCommand(() =>
             {
@@ -45,7 +58,6 @@ public partial class FloorSleeveViewModel : ObservableObject
         {
             // Log the exception
             StatusMessage = $"Error initializing ViewModel: {e.Message}";
-            // Don't rethrow - let the window show with the error message
         }
     }
 
@@ -77,6 +89,55 @@ public partial class FloorSleeveViewModel : ObservableObject
         set => SetProperty(ref _showLoadFamilyButtons, value);
     }
     
+    public bool UseMultipleSleeveTypes
+    {
+        get => _useMultipleSleeveTypes;
+        set
+        {
+            if (SetProperty(ref _useMultipleSleeveTypes, value))
+            {
+                UpdatePlaceFloorSleeveCommand();
+                OnPropertyChanged(nameof(CanPlaceFloorSleeve));
+            }
+        }
+    }
+    
+    public ObservableCollection<PipeSize> AvailablePipeSizes
+    {
+        get => _availablePipeSizes;
+        set => SetProperty(ref _availablePipeSizes, value);
+    }
+    
+    public double SelectedPipeSize
+    {
+        get => _selectedPipeSize;
+        set
+        {
+            if (SetProperty(ref _selectedPipeSize, value))
+                UpdatePlaceFloorSleeveCommand();
+        }
+    }
+    
+    public FamilySymbol SelectedSleeveForSmaller
+    {
+        get => _selectedSleeveForSmaller;
+        set
+        {
+            if (SetProperty(ref _selectedSleeveForSmaller, value))
+                UpdatePlaceFloorSleeveCommand();
+        }
+    }
+    
+    public FamilySymbol SelectedSleeveForLarger
+    {
+        get => _selectedSleeveForLarger;
+        set
+        {
+            if (SetProperty(ref _selectedSleeveForLarger, value))
+                UpdatePlaceFloorSleeveCommand();
+        }
+    }
+    
     public RelayCommand PlaceFloorSleeveCommand { get; private set; }
 
     public RelayCommand CancelCommand { get; }
@@ -98,6 +159,9 @@ public partial class FloorSleeveViewModel : ObservableObject
             if (FloorSleeveSymbols.Count > 0)
             {
                 SelectedFloorSleeve = FloorSleeveSymbols[0];
+                SelectedSleeveForSmaller = FloorSleeveSymbols[0];
+                SelectedSleeveForLarger = FloorSleeveSymbols[0];
+                SelectedPipeSize = 12; // Default to 12"
                 StatusMessage = "Ready to place floor sleeve.";
                 ShowLoadFamilyButtons = false;
             }
@@ -106,6 +170,8 @@ public partial class FloorSleeveViewModel : ObservableObject
                 StatusMessage = "No floor sleeve types found. Would you like to load a floor sleeve family?";
                 ShowLoadFamilyButtons = true;
                 SelectedFloorSleeve = null;
+                SelectedSleeveForSmaller = null;
+                SelectedSleeveForLarger = null;
             }
         }
         catch (Exception e)
@@ -206,6 +272,8 @@ public partial class FloorSleeveViewModel : ObservableObject
 
     private bool CanPlaceFloorSleeve()
     {
+        if (UseMultipleSleeveTypes)
+            return SelectedSleeveForSmaller != null && SelectedSleeveForLarger != null && SelectedPipeSize > 0;
         return SelectedFloorSleeve != null;
     }
 

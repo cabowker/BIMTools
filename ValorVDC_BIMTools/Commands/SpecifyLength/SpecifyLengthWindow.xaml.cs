@@ -181,6 +181,7 @@ public partial class SpecifyLengthWindow : Window
         {
             MessageBox.Show($"An error occurred while processing the input: {ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
+            DialogResult = false;
         }
     }
 

@@ -25,6 +25,7 @@ public class SpecifyLength : IExternalCommand
                 keepRunning = true
             };
 
+            SpecifyLengthHandlerManager.SetHandler(specifyLengthHandler);
             var externalEvent = ExternalEvent.Create(specifyLengthHandler);
             externalEvent.Raise();
 
@@ -36,6 +37,20 @@ public class SpecifyLength : IExternalCommand
             TaskDialog.Show("Error", $"An error occurred: {ex.Message}");
             return Result.Failed;
         }
+    }
+
+    public static class SpecifyLengthHandlerManager
+    {
+    private static SpecifyLengthHandler _currentHandler;
+    public static void SetHandler(SpecifyLengthHandler handler)
+    {
+        _currentHandler = handler;
+    }
+
+    public static void SignalCompletion()
+    {
+        _currentHandler = null;
+    }
     }
 
     public static void CreateButton(RibbonPanel panel)
