@@ -33,13 +33,24 @@ public class FloorSleeveRound : IExternalCommand
             if (view.ShowDialog() != true)
                 return Result.Cancelled;
 
+            var useMultipleSleeveTypes = viewModel.UseMultipleSleeveTypes;
             var selectedSleeve = viewModel.SelectedFloorSleeve;
+            var selectedSleeveForLarger = viewModel.SelectedSleeveForLarger;
+            var selectedPipeSize = viewModel.SelectedPipeSize;
+
             if (selectedSleeve == null)
             {
                 TaskDialog.Show("Error", "No Floor Sleeve Type Selected");
                 return Result.Failed;
             }
 
+            if (useMultipleSleeveTypes && (selectedSleeveForLarger == null))
+            {
+                TaskDialog.Show("Error", "Both sleeve types must be selected for multiple sleeve types");
+                return Result.Failed;
+            }
+
+            
             double[] sleeveSize;
             try
             {
@@ -105,6 +116,9 @@ public class FloorSleeveRound : IExternalCommand
                     double? totalDiameter = nominalDiameter;
                     if (hasInsulation)
                         totalDiameter += insulationThickness * 2;
+                    var currentSleeve = useMultipleSleeveTypes && totalDiameter > selectedPipeSize 
+                        ? selectedSleeveForLarger 
+                        : selectedSleeve;
 
                     int finalSizeIndex;
                     var requiresLargerSize = false;
@@ -165,9 +179,9 @@ public class FloorSleeveRound : IExternalCommand
                     {
                         transaction.Start();
 
-                        if (!selectedSleeve.IsActive)
+                        if (!currentSleeve.IsActive)
                         {
-                            selectedSleeve.Activate();
+                            currentSleeve.Activate();
                             document.Regenerate();
                         }
 
@@ -178,12 +192,12 @@ public class FloorSleeveRound : IExternalCommand
                             {
                                 var placeSleeve = document.Create.NewFamilyInstance(
                                     intersectionPoint,
-                                    selectedSleeve,
+                                    currentSleeve,
                                     floor,
                                     StructuralType.NonStructural);
 
                                 // Set diameter parameter
-                                SetSleeveParameters(selectedSleeve, placeSleeve, sleeveDiameterFeet,
+                                SetSleeveParameters(currentSleeve, placeSleeve, sleeveDiameterFeet,
                                     sleeveDiameterInches);
 
                                 // Set system information and pipe/duct size

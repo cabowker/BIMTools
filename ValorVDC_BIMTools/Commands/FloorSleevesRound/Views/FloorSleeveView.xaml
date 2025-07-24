@@ -6,7 +6,7 @@
         xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:FloorSleeveViewModel}"
-        Title="Floor Sleeves" Height="300" Width="350"
+        Title="Floor Sleeves" Height="300" Width="400"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         Background="LightGray">
@@ -28,8 +28,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -47,8 +45,7 @@
                   ItemsSource="{Binding FloorSleeveSymbols}"
                   SelectedItem="{Binding SelectedFloorSleeve, UpdateSourceTrigger=PropertyChanged}"
                   DisplayMemberPath="Name"
-                  Margin="25,0,25, 15"
-                  Visibility="{Binding UseMultipleSleeveTypes, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverted}"/>
+                  Margin="25,0,25, 15"/>
 
         <!-- Multiple Sleeve Types Checkbox -->
         <CheckBox Grid.Row="2"
@@ -65,44 +62,38 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <ComboBox Grid.Row="0"
                       Grid.Column="0"
                       ItemsSource="{Binding AvailablePipeSizes}"
-                      SelectedItem="{Binding SelectedPipeSize, UpdateSourceTrigger=PropertyChanged}"
+                      SelectedItem="{Binding SelectedPipeSizeItem, UpdateSourceTrigger=PropertyChanged}"
                       Margin="0,0,5,5"
                       DisplayMemberPath="DisplayText" />
-            <ComboBox Grid.Row="0"
-                      Grid.Column="1"
-                      ItemsSource="{Binding FloorSleeveSymbols}"
-                      SelectedItem="{Binding SelectedSleeveForSmaller, UpdateSourceTrigger=PropertyChanged}"
-                      DisplayMemberPath="Name"
-                      Margin="5,0,0,5" />
+            <TextBlock Grid.Row="0"
+                       Grid.Column="1"
+                       Text="For pipes larger than selected size"
+                       Margin="5,5,0,0" />
 
             <ComboBox Grid.Row="1"
                       Grid.Column="0"
+                      Grid.ColumnSpan="2"
                       ItemsSource="{Binding FloorSleeveSymbols}"
                       SelectedItem="{Binding SelectedSleeveForLarger, UpdateSourceTrigger=PropertyChanged}"
                       DisplayMemberPath="Name"
                       Margin="0,5,5,0" />
-            <TextBlock Grid.Row="1"
-                       Grid.Column="1"
-                       Text="For pipes larger than selected size"
-                       VerticalAlignment="Center"
-                       Margin="5,5,0,0" />
         </Grid>
         
         <!-- Status Message -->
-        <TextBlock Grid.Row="5"
+        <TextBlock Grid.Row="4"
                    Text="{Binding StatusMessage}"
                    TextWrapping="Wrap"
                    Margin="25,0,25, 10" />
 
         <!-- Buttons -->
-        <StackPanel Grid.Row="6"
+        <StackPanel Grid.Row="5"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Margin="0,10"
@@ -112,7 +103,7 @@
                     Padding="10, 5"
                     Margin="0,0,10,0" />
         </StackPanel>
-        <StackPanel Grid.Row="7"
+        <StackPanel Grid.Row="6"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Margin="0,0,0, 10">

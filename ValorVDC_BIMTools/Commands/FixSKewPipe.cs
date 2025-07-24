@@ -148,7 +148,7 @@ public class FixSKewPipe : IExternalCommand
             buttonText,
             className,
             "FixSkewPipeButton_32x32.png",
-            "DarkVerticalPipeButton_32x32.png",
+            "DarkFixSkewPipeButton_32x32.png",
             "Fixes Skewed Pipes and Ducts"
         );
     }
