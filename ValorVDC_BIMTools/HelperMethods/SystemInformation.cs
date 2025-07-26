@@ -7,6 +7,11 @@ namespace ValorVDC_BIMTools.HelperMethods;
 
 public class SystemInformation
 {
+    /// <summary>
+    ///     Get the system information from the host element
+    /// </summary>
+    /// <param name="mepElement"></param>
+    /// <param name="sleeveInstance"></param>
     public static void SetSystemInformation(Element mepElement, FamilyInstance sleeveInstance)
     {
         var systemName = "";
@@ -167,10 +172,10 @@ public class SystemInformation
                 var sizeParameter = familyInstance.LookupParameter(parameterName);
                 if (sizeParameter != null && !sizeParameter.IsReadOnly)
                     sizeParameter.Set(sizeValue);
-                else
-                    TaskDialog.Show("Info",
-                        $"Parameter '{parameterName}' not found or is read-only on the sleeve family. " +
-                        $"Please ensure the family has this parameter defined as an instance parameter.");
+                // else
+                //     TaskDialog.Show("Info",
+                //         $"Parameter '{parameterName}' not found or is read-only on the sleeve family. " +
+                //         $"Please ensure the family has this parameter defined as an instance parameter.");
             }
         }
         catch (Exception e)

@@ -1,4 +1,5 @@
-﻿using Autodesk.Revit.UI;
+﻿using System.IO;
+using Autodesk.Revit.UI;
 using Microsoft.Win32;
 
 namespace ValorVDC_BIMTools.HelperMethods;
@@ -6,7 +7,7 @@ namespace ValorVDC_BIMTools.HelperMethods;
 public class LoadFamilies
 {
     /// <summary>
-    /// Load a family from a specific file path
+    ///     Load a family from a specific file path
     /// </summary>
     /// <param name="document">The active Revit document</param>
     /// <param name="uiDocument">The active UI document (optional, for view refresh)</param>
@@ -27,7 +28,7 @@ public class LoadFamilies
         if (string.IsNullOrEmpty(familyPath))
             throw new ArgumentNullException(nameof(familyPath));
 
-        if (!System.IO.File.Exists(familyPath))
+        if (!File.Exists(familyPath))
             return null;
 
         Family loadedFamily = null;
@@ -39,23 +40,18 @@ public class LoadFamilies
             try
             {
                 // Try to load the family
-                bool success = document.LoadFamily(familyPath, out loadedFamily);
+                var success = document.LoadFamily(familyPath, out loadedFamily);
 
                 if (success && loadedFamily != null)
                 {
                     var symbolIds = loadedFamily.GetFamilySymbolIds();
 
                     if (symbolIds.Count > 0 && activateSymbols)
-                    {
                         foreach (var symbolId in symbolIds)
                         {
                             var symbol = document.GetElement(symbolId) as FamilySymbol;
-                            if (symbol != null && !symbol.IsActive)
-                            {
-                                symbol.Activate();
-                            }
+                            if (symbol != null && !symbol.IsActive) symbol.Activate();
                         }
-                    }
 
                     document.Regenerate();
                     transaction.Commit();
@@ -82,7 +78,7 @@ public class LoadFamilies
     }
 
     /// <summary>
-    /// Load a family from the default location
+    ///     Load a family from the default location
     /// </summary>
     /// <param name="document">The active Revit document</param>
     /// <param name="uiDocument">The active UI document (optional, for view refresh)</param>
@@ -95,14 +91,14 @@ public class LoadFamilies
         string defaultPath,
         string transactionName = "Load Default Family")
     {
-        if (!System.IO.File.Exists(defaultPath))
+        if (!File.Exists(defaultPath))
             return null;
 
         return LoadFamilyFromPath(document, uiDocument, defaultPath, transactionName);
     }
 
     /// <summary>
-    /// Show a dialog to browse for a family file and load it
+    ///     Show a dialog to browse for a family file and load it
     /// </summary>
     /// <param name="document">The active Revit document</param>
     /// <param name="uiDocument">The active UI document (optional, for view refresh)</param>
@@ -124,15 +120,13 @@ public class LoadFamilies
         };
 
         if (openFileDialog.ShowDialog() == true)
-        {
             return LoadFamilyFromPath(document, uiDocument, openFileDialog.FileName, transactionName);
-        }
 
         return null;
     }
 
     /// <summary>
-    /// Find a family in the document by name
+    ///     Find a family in the document by name
     /// </summary>
     /// <param name="document">The active Revit document</param>
     /// <param name="familyName">Name of the family to find</param>
@@ -150,7 +144,7 @@ public class LoadFamilies
     }
 
     /// <summary>
-    /// Get the symbols for a specific family
+    ///     Get the symbols for a specific family
     /// </summary>
     /// <param name="document">The active Revit document</param>
     /// <param name="family">The family to get symbols from</param>
@@ -166,13 +160,63 @@ public class LoadFamilies
         foreach (var symbolId in symbolIds)
         {
             var symbol = document.GetElement(symbolId) as FamilySymbol;
-            if (symbol != null)
-            {
-                symbols.Add(symbol);
-            }
+            if (symbol != null) symbols.Add(symbol);
         }
-    
+
         return symbols.ToArray();
     }
 
+    public static bool LoadDefaultFloorSleeveFamily(Document document)
+    {
+        try
+        {
+            var defaultPath = @"C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa";
+
+            var directory = Path.GetDirectoryName(defaultPath);
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+
+            if (!File.Exists(defaultPath))
+            {
+                TaskDialog.Show("Default Family Not Found",
+                    $"The default floor sleeve family was not found at:\n{defaultPath}\n\nPlease use the Browse button to locate it manually.");
+                return false;
+            }
+
+            var uiDocument = new UIDocument(document);
+            var family = LoadFamilyFromPath(document, uiDocument, defaultPath, "Load Default Floor Sleeve Family");
+
+            if (family != null)
+            {
+                TaskDialog.Show("Success", "Default floor sleeve family loaded successfully.");
+                return true;
+            }
+
+            TaskDialog.Show("Error", "Failed to load the default floor sleeve family.");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            TaskDialog.Show("Error", $"Error loading default floor sleeve family: {ex.Message}");
+            return false;
+        }
+    }
+
+    public static bool LoadFloorSleeveFamily(Document document)
+    {
+        try
+        {
+            var uiDocument = new UIDocument(document);
+            var family = BrowseAndLoadFamily(document, uiDocument, "Select Floor Sleeve Family",
+                "Load Floor Sleeve Family");
+
+            if (family != null) return true;
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            TaskDialog.Show("Error", $"Error loading floor sleeve family: {ex.Message}");
+            return false;
+        }
+    }
 }

@@ -7,7 +7,6 @@ using ValorVDC_BIMTools.Commands.WallSleeveRound.ViewModels;
 using ValorVDC_BIMTools.Commands.WallSleeveRound.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
-using ValorVDC_BIMTools.Utilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 
@@ -35,7 +34,7 @@ public class WallSleevesRound : IExternalCommand
                 var viewModel = new WallSleeveViewModel(commandData);
                 var view = new WallSleevesView(viewModel);
 
-                if (view.ShowDialog() != true) 
+                if (view.ShowDialog() != true)
                     return Result.Cancelled;
 
                 var selectedSleeve = viewModel.SelectedWallSleeve;
@@ -276,23 +275,21 @@ public class WallSleevesRound : IExternalCommand
                 message = exception.Message;
                 TaskDialog.Show("Error", $"Exception in Execute: {exception.Message}\n{exception.StackTrace}");
                 return Result.Failed; // Change this from Result.Succeeded
-
             }
         }
     }
-    
+
     public static PushButtonData CreatePushButtonData()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var buttonName = "Round Sleeves";
         var buttonText = "Round" + Environment.NewLine + "Wall Sleeves";
         var className = typeof(WallSleevesRound).FullName;
-    
+
         return new PushButtonData(buttonName, buttonText, assembly.Location, className)
         {
             ToolTip = "Create Round Wall Sleeves",
-            LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
+            LargeImage = ImagineUtilities.LoadImage(assembly, "RoundSleeveButton_32x32.png")
         };
     }
-
 }

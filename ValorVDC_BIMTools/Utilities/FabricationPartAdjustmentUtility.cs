@@ -200,8 +200,14 @@ public class FabricationPartAdjustmentUtility
 
     private static bool IsFabricationDuctOrPipe(ElementId categoryId)
     {
+#if REVIT2024_OR_GREATER
         return categoryId.Value == (int)BuiltInCategory.OST_FabricationDuctwork ||
                categoryId.Value == (int)BuiltInCategory.OST_FabricationPipework ||
                categoryId.Value == (int)BuiltInCategory.OST_FabricationHangers;
+#else
+        return categoryId.IntegerValue == (int)BuiltInCategory.OST_FabricationDuctwork ||
+               categoryId.IntegerValue == (int)BuiltInCategory.OST_FabricationPipework ||
+               categoryId.IntegerValue == (int)BuiltInCategory.OST_FabricationHangers;
+#endif
     }
 }

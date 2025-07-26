@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Input;
 using ValorVDC_BIMTools.Commands.WallSleeveRound.ViewModels;
 
 namespace ValorVDC_BIMTools.Commands.WallSleeveRound.Views;
@@ -7,7 +6,7 @@ namespace ValorVDC_BIMTools.Commands.WallSleeveRound.Views;
 public partial class WallSleevesView : Window
 {
     private readonly WallSleeveViewModel _viewModel;
-    private Action _closeHandler;
+    private readonly Action _closeHandler;
 
 
     public WallSleevesView(WallSleeveViewModel viewModel)
@@ -23,25 +22,12 @@ public partial class WallSleevesView : Window
         };
 
         _viewModel.RequestClose += _closeHandler;
-
-    }
-    
-    private void OnSelectionComplete()
-    {
-        Hide();
-        Show();
     }
 
     protected override void OnClosed(EventArgs e)
     {
-        // Properly unsubscribe using the stored reference
-        if (_closeHandler != null)
-        {
-            _viewModel.RequestClose -= _closeHandler;
-            _closeHandler = null;
-        }
 
+        _viewModel.RequestClose -= _closeHandler;
         base.OnClosed(e);
     }
-
 }

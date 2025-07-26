@@ -3,7 +3,6 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.HelperMethods;
-using ValorVDC_BIMTools.ImageUtilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools;
@@ -140,11 +139,16 @@ public class FixSKewPipe : IExternalCommand
         var buttonName = "Fix Skew";
         var buttonText = "Fix Skew" + Environment.NewLine + "Element";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-        panel.AddItem(
-            new PushButtonData(buttonName, buttonText, assembly.Location, className)
-            {
-                ToolTip = "Fix Skewed MEP Element",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "mando-32.png")
-            });
+
+        AppCommand.CreateThemeAwareButton(
+            panel,
+            assembly,
+            buttonName,
+            buttonText,
+            className,
+            "FixSkewPipeButton_32x32.png",
+            "DarkFixSkewPipeButton_32x32.png",
+            "Fixes Skewed Pipes and Ducts"
+        );
     }
 }

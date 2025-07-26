@@ -39,7 +39,7 @@ public class CurveMethods
     public void AlignElementWithCurve(Document document, FamilyInstance familyInstance, Line line, XYZ placementPoint)
     {
         var pipeDirection = line.Direction.Normalize();
-        
+
         var location = familyInstance.Location as LocationPoint;
         if (location == null) return;
         var targetAngle = Math.Atan2(pipeDirection.Y, pipeDirection.X);
@@ -54,6 +54,5 @@ public class CurveMethods
             var rotationAxis = Line.CreateBound(placementPoint, placementPoint + XYZ.BasisZ);
             location.Rotate(rotationAxis, rotationNeeded);
         }
-
     }
 }
