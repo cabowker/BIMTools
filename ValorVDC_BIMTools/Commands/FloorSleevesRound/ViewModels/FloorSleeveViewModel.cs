@@ -7,7 +7,7 @@ using ValorVDC_BIMTools.HelperMethods;
 
 namespace ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels;
 
-public class FloorSleeveViewModel : ObservableObject
+public partial class FloorSleeveViewModel : ObservableObject
 {
     //                                          "C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa"
     private const string DEFAULT_FAMILY_PATH = @"C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa";
@@ -40,7 +40,6 @@ public class FloorSleeveViewModel : ObservableObject
 
             PlaceFloorSleeveCommand = new RelayCommand(() =>
             {
-                TaskDialog.Show("Debug", "PlaceFloorSleeveCommand is being executed!");
                 DialogResult = true;
                 RequestClose?.Invoke();
             }, GetCanPlaceFloorSleeve);
@@ -160,7 +159,6 @@ public class FloorSleeveViewModel : ObservableObject
             }
         }
     }
-
 
     public RelayCommand PlaceFloorSleeveCommand { get; }
 
@@ -289,8 +287,7 @@ public class FloorSleeveViewModel : ObservableObject
 
             entity.Set("UseMultipleSleeveTypes", UseMultipleSleeveTypes);
             entity.Set("SelectedPipeSize", SelectedPipeSize, UnitTypeId.Inches);
-
-            // Explicitly save the ID, or an invalid ID if the selection is null
+        
             var floorSleeveId = SelectedFloorSleeve?.Id ?? ElementId.InvalidElementId;
             entity.Set("SelectedFloorSleeveId", floorSleeveId);
         
@@ -303,11 +300,8 @@ public class FloorSleeveViewModel : ObservableObject
         {
             StatusMessage = $"Failed to save preferences: {ex.Message}";
         }
-
-
     }
-
-
+    
     private Schema CreateSchema()
     {
         try
@@ -321,9 +315,6 @@ public class FloorSleeveViewModel : ObservableObject
             schemaBuilder.AddSimpleField("UseMultipleSleeveTypes", typeof(bool));
         
             var pipeSizeField = schemaBuilder.AddSimpleField("SelectedPipeSize", typeof(double));
-        
-            // Change from the generic 'Length' spec to the more specific 'PipeSize' spec.
-            // This is more compatible with the units you are saving.
             pipeSizeField.SetSpec(SpecTypeId.PipeSize); 
         
             schemaBuilder.AddSimpleField("SelectedFloorSleeveId", typeof(ElementId));
@@ -336,9 +327,6 @@ public class FloorSleeveViewModel : ObservableObject
             StatusMessage = $"Failed to create schema: {ex.Message}";
             throw;
         }
-
-
-
     }
 
     private void LoadPreferences()
@@ -396,17 +384,6 @@ public class FloorSleeveViewModel : ObservableObject
 
 
     public event Action RequestClose;
-
-    private Parameter GetParameterCaseInsenitive(Element element, string parameterName)
-    {
-        var parameters = element.Parameters;
-
-        foreach (Parameter parameter in parameters)
-            if (string.Equals(parameter.Definition.Name, parameterName, StringComparison.OrdinalIgnoreCase))
-                return parameter;
-
-        return null;
-    }
 
     private bool GetCanPlaceFloorSleeve()
     {
