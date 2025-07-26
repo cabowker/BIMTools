@@ -3,16 +3,16 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using ValorVDC_BIMTools.Commands.FloorSleevesRound;
 using ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels;
+using ValorVDC_BIMTools.Commands.FloorSleevesRound.Views;
 using ValorVDC_BIMTools.HelperMethods;
 using ValorVDC_BIMTools.ImageUtilities;
+using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools.Commands;
 
 [Transaction(TransactionMode.Manual)]
 [Regeneration(RegenerationOption.Manual)]
-
 public class FloorSleeveRound : IExternalCommand
 {
     private readonly CurveMethods _curveMethods = new();
@@ -30,8 +30,16 @@ public class FloorSleeveRound : IExternalCommand
             var viewModel = new FloorSleeveViewModel(commandData);
             var view = new FloorSleeveView(viewModel);
 
+
             if (view.ShowDialog() != true)
                 return Result.Cancelled;
+
+            using (var trans = new Transaction(document, "Save Floor Sleeve Preferences"))
+            {
+                trans.Start();
+                viewModel.SavePreferences();
+                trans.Commit();
+            }
 
             var useMultipleSleeveTypes = viewModel.UseMultipleSleeveTypes;
             var selectedSleeve = viewModel.SelectedFloorSleeve;
@@ -44,13 +52,13 @@ public class FloorSleeveRound : IExternalCommand
                 return Result.Failed;
             }
 
-            if (useMultipleSleeveTypes && (selectedSleeveForLarger == null))
+            if (useMultipleSleeveTypes && selectedSleeveForLarger == null)
             {
                 TaskDialog.Show("Error", "Both sleeve types must be selected for multiple sleeve types");
                 return Result.Failed;
             }
 
-            
+
             double[] sleeveSize;
             try
             {
@@ -71,7 +79,6 @@ public class FloorSleeveRound : IExternalCommand
 
             var continueSelecting = true;
             while (continueSelecting)
-            {
                 try
                 {
                     var reference = uiDocument.Selection.PickObject(ObjectType.Element,
@@ -116,8 +123,8 @@ public class FloorSleeveRound : IExternalCommand
                     double? totalDiameter = nominalDiameter;
                     if (hasInsulation)
                         totalDiameter += insulationThickness * 2;
-                    var currentSleeve = useMultipleSleeveTypes && totalDiameter > selectedPipeSize 
-                        ? selectedSleeveForLarger 
+                    var currentSleeve = useMultipleSleeveTypes && totalDiameter > selectedPipeSize
+                        ? selectedSleeveForLarger
                         : selectedSleeve;
 
                     int finalSizeIndex;
@@ -209,7 +216,7 @@ public class FloorSleeveRound : IExternalCommand
                         transaction.Commit();
                     }
                 }
-                catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+                catch (OperationCanceledException)
                 {
                     continueSelecting = false;
                 }
@@ -217,7 +224,6 @@ public class FloorSleeveRound : IExternalCommand
                 {
                     TaskDialog.Show("Error", ex.Message);
                 }
-            }
 
             return Result.Succeeded;
         }
@@ -225,7 +231,6 @@ public class FloorSleeveRound : IExternalCommand
         {
             message = e.Message;
             return Result.Failed;
-
         }
     }
 
@@ -246,12 +251,8 @@ public class FloorSleeveRound : IExternalCommand
             .Cast<Floor>();
 
         foreach (var floor in floorCollector)
-        {
             if (DoesCurveIntersectFloor(floor, curve))
-            {
                 floors.Add(floor);
-            }
-        }
 
         return floors;
     }
@@ -262,16 +263,11 @@ public class FloorSleeveRound : IExternalCommand
         {
             var floorGeometry = floor.get_Geometry(new Options());
             foreach (var geometryObject in floorGeometry)
-            {
                 if (geometryObject is Solid solid)
                 {
                     var intersection = solid.IntersectWithCurve(curve, new SolidCurveIntersectionOptions());
-                    if (intersection.SegmentCount > 0)
-                    {
-                        return true;
-                    }
+                    if (intersection.SegmentCount > 0) return true;
                 }
-            }
         }
         catch (Exception)
         {
@@ -298,17 +294,11 @@ public class FloorSleeveRound : IExternalCommand
         {
             var floorGeometry = floor.get_Geometry(new Options());
             foreach (var geometryObject in floorGeometry)
-            {
                 if (geometryObject is Solid solid)
                 {
                     var intersection = solid.IntersectWithCurve(curve, new SolidCurveIntersectionOptions());
-                    if (intersection.SegmentCount > 0)
-                    {
-                        return intersection.GetCurveSegment(0).GetEndPoint(0);
-                    }
+                    if (intersection.SegmentCount > 0) return intersection.GetCurveSegment(0).GetEndPoint(0);
                 }
-            }
-
         }
         catch (Exception e)
         {
@@ -319,7 +309,6 @@ public class FloorSleeveRound : IExternalCommand
                 var curveMidPoint = curve.Evaluate(0.5, true);
                 return new XYZ(curveMidPoint.X, curveMidPoint.Y, level.Elevation);
             }
-
         }
 
         return null;
@@ -358,7 +347,6 @@ public class FloorSleeveRound : IExternalCommand
         }
 
         if (!parameterNameSet)
-        {
             foreach (var paramName in possibleParameterNames)
             {
                 var instanceDiamParam = placeSleeve.LookupParameter(paramName);
@@ -379,15 +367,11 @@ public class FloorSleeveRound : IExternalCommand
                     }
                 }
             }
-        }
 
         if (!parameterNameSet)
-        {
             TaskDialog.Show("Warning", "Could not set sleeve diameter parameter. Using default sleeve size.");
-        }
-
     }
-    
+
     public static PushButtonData CreatePushButtonData()
     {
         var assembly = Assembly.GetExecutingAssembly();

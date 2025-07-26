@@ -39,20 +39,6 @@ public class SpecifyLength : IExternalCommand
         }
     }
 
-    public static class SpecifyLengthHandlerManager
-    {
-    private static SpecifyLengthHandler _currentHandler;
-    public static void SetHandler(SpecifyLengthHandler handler)
-    {
-        _currentHandler = handler;
-    }
-
-    public static void SignalCompletion()
-    {
-        _currentHandler = null;
-    }
-    }
-
     public static void CreateButton(RibbonPanel panel)
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -66,5 +52,20 @@ public class SpecifyLength : IExternalCommand
                 ToolTip = "Specify Length of Pipe, Duct, or Conduit",
                 LargeImage = ImagineUtilities.LoadImage(assembly, "SpecifyLengthButton_32x32.png")
             });
+    }
+
+    public static class SpecifyLengthHandlerManager
+    {
+        private static SpecifyLengthHandler _currentHandler;
+
+        public static void SetHandler(SpecifyLengthHandler handler)
+        {
+            _currentHandler = handler;
+        }
+
+        public static void SignalCompletion()
+        {
+            _currentHandler = null;
+        }
     }
 }

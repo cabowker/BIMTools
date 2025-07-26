@@ -8,7 +8,7 @@ namespace ValorVDC_BIMTools.HelperMethods;
 public class SystemInformation
 {
     /// <summary>
-    /// Get the system information from the host element
+    ///     Get the system information from the host element
     /// </summary>
     /// <param name="mepElement"></param>
     /// <param name="sleeveInstance"></param>

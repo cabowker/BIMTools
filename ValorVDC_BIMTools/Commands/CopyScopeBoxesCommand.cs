@@ -2,7 +2,6 @@
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using ValorVDC_BIMTools.Commands.CopyScopeBoxes.Views;
-using ValorVDC_BIMTools.ImageUtilities;
 
 namespace ValorVDC_BIMTools.Commands;
 

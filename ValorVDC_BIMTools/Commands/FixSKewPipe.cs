@@ -3,7 +3,6 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using ValorVDC_BIMTools.HelperMethods;
-using ValorVDC_BIMTools.ImageUtilities;
 using OperationCanceledException = Autodesk.Revit.Exceptions.OperationCanceledException;
 
 namespace ValorVDC_BIMTools;

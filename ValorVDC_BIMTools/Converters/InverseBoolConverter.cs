@@ -2,7 +2,7 @@
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace FlowArrows.Views.Converters;
+namespace ValorVDC_BIMTools.Converters;
 
 public class InverseBoolConverter : MarkupExtension, IValueConverter
 {

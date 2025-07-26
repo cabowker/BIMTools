@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Windows.Media.Imaging;
 using Autodesk.Revit.UI;
+using Microsoft.Win32;
 
 namespace ValorVDC_BIMTools.ImageUtilities;
 
@@ -36,11 +37,11 @@ public class ImagineUtilities
     {
         try
         {
-            bool isDarkMode = isRevitInDarkMode();
-            string imageName = isDarkMode ? darkImageName : lightImageName;
+            var isDarkMode = isRevitInDarkMode();
+            var imageName = isDarkMode ? darkImageName : lightImageName;
             var resourceName = assembly.GetManifestResourceNames().FirstOrDefault(x => x.Contains(imageName));
-            
-            if(resourceName == null && isDarkMode)
+
+            if (resourceName == null && isDarkMode)
                 resourceName = assembly.GetManifestResourceNames().FirstOrDefault(x => x.Contains(lightImageName));
             if (resourceName != null)
             {
@@ -75,7 +76,6 @@ public class ImagineUtilities
             {
                 var currentTheme = UIThemeManager.CurrentTheme;
                 return currentTheme.ToString().Contains("Dark", StringComparison.OrdinalIgnoreCase);
-
             }
             catch (Exception)
             {
@@ -90,18 +90,18 @@ public class ImagineUtilities
         try
         {
             // Check Windows registry for system theme
-            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+            using (var key = Registry.CurrentUser.OpenSubKey(
+                       @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
             {
                 if (key?.GetValue("AppsUseLightTheme") is int useLightTheme)
-                {
                     return useLightTheme == 0; // 0 = dark mode, 1 = light mode
-                }
             }
         }
         catch (Exception)
         {
             // If registry check fails, assume light mode
         }
+
         return false;
     }
 

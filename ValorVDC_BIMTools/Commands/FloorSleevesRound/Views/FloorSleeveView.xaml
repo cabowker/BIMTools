@@ -1,4 +1,4 @@
-﻿<Window x:Class="ValorVDC_BIMTools.Commands.FloorSleevesRound.FloorSleeveView"
+﻿<Window x:Class="ValorVDC_BIMTools.Commands.FloorSleevesRound.Views.FloorSleeveView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,12 +6,12 @@
         xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:FloorSleeveViewModel}"
-        Title="Floor Sleeves" Height="300" Width="400"
+        Title="Floor Sleeves" Height="325" Width="400"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         Background="LightGray">
 
-    
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -45,15 +45,15 @@
                   ItemsSource="{Binding FloorSleeveSymbols}"
                   SelectedItem="{Binding SelectedFloorSleeve, UpdateSourceTrigger=PropertyChanged}"
                   DisplayMemberPath="Name"
-                  Margin="25,0,25, 15"/>
+                  Margin="25,0,25, 15" />
 
         <!-- Multiple Sleeve Types Checkbox -->
         <CheckBox Grid.Row="2"
                   Content="Use Multiple Sleeve Types"
                   IsChecked="{Binding UseMultipleSleeveTypes}"
                   Margin="25,0,25,10" />
-        
-        <!-- Multiple Sleeve Types Selection -->
+
+        <!-- Larger Sleeve Types Selection -->
         <Grid Grid.Row="3"
               Margin="25,0,25,10"
               Visibility="{Binding UseMultipleSleeveTypes, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -85,7 +85,7 @@
                       DisplayMemberPath="Name"
                       Margin="0,5,5,0" />
         </Grid>
-        
+
         <!-- Status Message -->
         <TextBlock Grid.Row="4"
                    Text="{Binding StatusMessage}"

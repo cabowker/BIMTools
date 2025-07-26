@@ -10,7 +10,9 @@ namespace ValorVDC_BIMTools;
 // All tools built for Revit 2024
 public class AppCommand : IExternalApplication
 {
-    private static List<(PushButton button, Assembly assembly, string lightImage, string darkImage)> _themeAwareButtons = new();
+    private static readonly List<(PushButton button, Assembly assembly, string lightImage, string darkImage)>
+        _themeAwareButtons = new();
+
     public Result OnStartup(UIControlledApplication application)
     {
         try
@@ -41,16 +43,21 @@ public class AppCommand : IExternalApplication
         application.ThemeChanged += (s, e) =>
         {
             foreach (var (button, assembly, lightImage, darkImage) in _themeAwareButtons)
-            {
                 ImagineUtilities.UpdateButtonIcon(button, assembly, lightImage, darkImage);
-            }
         };
 
 
         return Result.Succeeded;
     }
-    
-    public static void CreateThemeAwareButton(RibbonPanel panel, Assembly assembly, string buttonName, string buttonText, string className, string lightImageName, string darkImageName, string toolTip)
+
+
+    public Result OnShutdown(UIControlledApplication application)
+    {
+        return Result.Succeeded;
+    }
+
+    public static void CreateThemeAwareButton(RibbonPanel panel, Assembly assembly, string buttonName,
+        string buttonText, string className, string lightImageName, string darkImageName, string toolTip)
     {
         var buttonData = new PushButtonData(buttonName, buttonText, assembly.Location, className)
         {
@@ -59,15 +66,9 @@ public class AppCommand : IExternalApplication
         };
 
         var button = panel.AddItem(buttonData) as PushButton;
-        
+
         // Register this button for theme updates
         _themeAwareButtons.Add((button, assembly, lightImageName, darkImageName));
-    }
-
-
-    public Result OnShutdown(UIControlledApplication application)
-    {
-        return Result.Succeeded;
     }
 
     private void CreateSleevesPulldownButton(RibbonPanel ribbonPanel)
@@ -85,7 +86,7 @@ public class AppCommand : IExternalApplication
 
         var floorSleeveButtonData = FloorSleeveRound.CreatePushButtonData();
         pulldownButton.AddPushButton(floorSleeveButtonData);
-        
+
         var roundSleeveButtonData = WallSleevesRound.CreatePushButtonData();
         pulldownButton.AddPushButton(roundSleeveButtonData);
 

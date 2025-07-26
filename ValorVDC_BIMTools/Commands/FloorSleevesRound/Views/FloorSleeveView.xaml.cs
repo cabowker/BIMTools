@@ -1,14 +1,13 @@
-﻿using System.ComponentModel;
-using System.Windows;
+﻿using System.Windows;
 using ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels;
 
-namespace ValorVDC_BIMTools.Commands.FloorSleevesRound;
+namespace ValorVDC_BIMTools.Commands.FloorSleevesRound.Views;
 
 public partial class FloorSleeveView : Window
 {
     private readonly FloorSleeveViewModel _viewModel;
     private Action _closeHandler;
-    
+
     public FloorSleeveView(FloorSleeveViewModel viewModel)
     {
         InitializeComponent();
@@ -23,6 +22,7 @@ public partial class FloorSleeveView : Window
 
         _viewModel.RequestClose += _closeHandler;
     }
+
     private void OnSelectionComplete()
     {
         Hide();

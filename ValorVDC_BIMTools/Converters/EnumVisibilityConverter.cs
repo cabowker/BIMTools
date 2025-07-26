@@ -3,7 +3,7 @@ using System.Windows.Data;
 using System.Windows.Markup;
 using Visibility = System.Windows.Visibility;
 
-namespace FlowArrows.Views.Converters;
+namespace ValorVDC_BIMTools.Converters;
 
 public class EnumVisibilityConverter<TEnum> : MarkupExtension, IValueConverter where TEnum : Enum
 {

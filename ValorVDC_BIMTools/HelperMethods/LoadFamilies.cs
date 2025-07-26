@@ -165,35 +165,32 @@ public class LoadFamilies
 
         return symbols.ToArray();
     }
-    
+
     public static bool LoadDefaultFloorSleeveFamily(Document document)
     {
         try
         {
-            string defaultPath = @"C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa";
+            var defaultPath = @"C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa";
 
-            string directory = Path.GetDirectoryName(defaultPath);
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+            var directory = Path.GetDirectoryName(defaultPath);
+            if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
             if (!File.Exists(defaultPath))
             {
-                TaskDialog.Show("Default Family Not Found", 
+                TaskDialog.Show("Default Family Not Found",
                     $"The default floor sleeve family was not found at:\n{defaultPath}\n\nPlease use the Browse button to locate it manually.");
                 return false;
             }
 
             var uiDocument = new UIDocument(document);
             var family = LoadFamilyFromPath(document, uiDocument, defaultPath, "Load Default Floor Sleeve Family");
-        
+
             if (family != null)
             {
                 TaskDialog.Show("Success", "Default floor sleeve family loaded successfully.");
                 return true;
             }
-        
+
             TaskDialog.Show("Error", "Failed to load the default floor sleeve family.");
             return false;
         }
@@ -202,7 +199,6 @@ public class LoadFamilies
             TaskDialog.Show("Error", $"Error loading default floor sleeve family: {ex.Message}");
             return false;
         }
-
     }
 
     public static bool LoadFloorSleeveFamily(Document document)
@@ -210,13 +206,11 @@ public class LoadFamilies
         try
         {
             var uiDocument = new UIDocument(document);
-            var family = BrowseAndLoadFamily(document, uiDocument, "Select Floor Sleeve Family", "Load Floor Sleeve Family");
-        
-            if (family != null)
-            {
-                return true;
-            }
-        
+            var family = BrowseAndLoadFamily(document, uiDocument, "Select Floor Sleeve Family",
+                "Load Floor Sleeve Family");
+
+            if (family != null) return true;
+
             return false;
         }
         catch (Exception ex)
@@ -225,5 +219,4 @@ public class LoadFamilies
             return false;
         }
     }
-
 }

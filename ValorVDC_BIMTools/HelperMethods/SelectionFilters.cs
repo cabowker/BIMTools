@@ -76,7 +76,7 @@ public class SelectionFilters
             return false;
         }
     }
-    
+
     public class VerticalMepCurveFilter : ISelectionFilter
     {
         public bool AllowElement(Element elem)
@@ -86,14 +86,16 @@ public class SelectionFilters
                 var curve = (Pipe.Location as LocationCurve)?.Curve;
                 return IsVertical(curve);
             }
+
             if (elem is Duct duct)
             {
                 var curve = (duct.Location as LocationCurve)?.Curve;
                 return IsVertical(curve);
             }
+
             return false;
         }
-        
+
         public bool AllowReference(Reference reference, XYZ position)
         {
             return false;
@@ -101,9 +103,9 @@ public class SelectionFilters
 
         private bool IsVertical(Curve curve)
         {
-            if (curve == null) 
+            if (curve == null)
                 return false;
-            
+
             var direction = curve.GetEndPoint(1) - curve.GetEndPoint(0);
             var normaledDirection = direction.Normalize();
 
