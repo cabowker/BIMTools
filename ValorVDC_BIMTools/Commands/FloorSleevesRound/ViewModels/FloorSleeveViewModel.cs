@@ -9,7 +9,6 @@ namespace ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels;
 
 public partial class FloorSleeveViewModel : ObservableObject
 {
-    //                                          "C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa"
     private const string DEFAULT_FAMILY_PATH = @"C:\ProgramData\ValorVDC\Families\SLEEVE - Pipe Floor Sleeve.rfa";
 
     //Remember the user last selection
