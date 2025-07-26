@@ -61,9 +61,7 @@ public class RealignElement : IExternalCommand
                                                FillPatternTarget.Model, "<Solid fill>");
 
                     if (solidFillPattern != null)
-                    {
                         overrideGraphicSettings.SetSurfaceForegroundPatternId(solidFillPattern.Id);
-                    }
 
                     using (var tempTransaction = new Transaction(document, "Temporary Color Override"))
                     {
@@ -83,7 +81,6 @@ public class RealignElement : IExternalCommand
                         {
                             TaskDialog.Show("Warning", "Selected element is not a valid family instance.");
                             continue;
-
                         }
 
                         var elementLocation = (element.Location as LocationPoint)?.Point;
@@ -91,7 +88,6 @@ public class RealignElement : IExternalCommand
                         {
                             TaskDialog.Show("Warning", $"Element {element.Id} has no valid location point.");
                             continue;
-
                         }
 
                         using (var transaction = new Transaction(document, "RealignElement"))
@@ -130,17 +126,15 @@ public class RealignElement : IExternalCommand
                     {
                         // Always remove the temporary color override
                         if (mepElement != null)
-                        {
                             using (var cleanupTransaction = new Transaction(document, "Remove Color Override"))
                             {
                                 cleanupTransaction.Start();
                                 view.SetElementOverrides(mepElement.Id, new OverrideGraphicSettings());
                                 cleanupTransaction.Commit();
                             }
-                        }
                     }
                 }
-                catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+                catch (OperationCanceledException)
                 {
                     // User cancelled curve selection, exit command
                     continueCommand = false;
@@ -159,10 +153,7 @@ public class RealignElement : IExternalCommand
                         "An error occurred. Do you want to continue with the command?",
                         TaskDialogCommonButtons.Yes | TaskDialogCommonButtons.No);
 
-                    if (result == TaskDialogResult.No)
-                    {
-                        continueCommand = false;
-                    }
+                    if (result == TaskDialogResult.No) continueCommand = false;
                 }
             }
 

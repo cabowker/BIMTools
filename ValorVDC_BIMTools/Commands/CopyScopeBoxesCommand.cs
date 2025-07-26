@@ -2,7 +2,6 @@
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.UI;
 using ValorVDC_BIMTools.Commands.CopyScopeBoxes.Views;
-using ValorVDC_BIMTools.ImageUtilities;
 
 namespace ValorVDC_BIMTools.Commands;
 
@@ -32,11 +31,16 @@ public class CopyScopeBoxesCommand : IExternalCommand
         var buttonName = "Copy Scope Boxes";
         var buttonText = "Copy" + Environment.NewLine + "Scope Boxes";
         var className = MethodBase.GetCurrentMethod().DeclaringType.FullName;
-        panel.AddItem(
-            new PushButtonData(buttonName, buttonText, assembly.Location, className)
-            {
-                ToolTip = "Copies Selected Scope Boxes",
-                LargeImage = ImagineUtilities.LoadImage(assembly, "stormTrooper.png")
-            });
+
+        AppCommand.CreateThemeAwareButton(
+            panel,
+            assembly,
+            buttonName,
+            buttonText,
+            className,
+            "CopyScopeBoxesButton_32x32.png",
+            "Dark_CopyScopeBoxesButton_32x32.png",
+            "Copies Selected Scope Boxes"
+        );
     }
 }

@@ -10,6 +10,9 @@ namespace ValorVDC_BIMTools;
 // All tools built for Revit 2024
 public class AppCommand : IExternalApplication
 {
+    private static readonly List<(PushButton button, Assembly assembly, string lightImage, string darkImage)>
+        _themeAwareButtons = new();
+
     public Result OnStartup(UIControlledApplication application)
     {
         try
@@ -37,13 +40,35 @@ public class AppCommand : IExternalApplication
         CopyScopeBoxesCommand.CreateButton(modelToolsPanel);
         ZoomObject.CreateButton(modelToolsPanel);
 
+        application.ThemeChanged += (s, e) =>
+        {
+            foreach (var (button, assembly, lightImage, darkImage) in _themeAwareButtons)
+                ImagineUtilities.UpdateButtonIcon(button, assembly, lightImage, darkImage);
+        };
+
 
         return Result.Succeeded;
     }
 
+
     public Result OnShutdown(UIControlledApplication application)
     {
         return Result.Succeeded;
+    }
+
+    public static void CreateThemeAwareButton(RibbonPanel panel, Assembly assembly, string buttonName,
+        string buttonText, string className, string lightImageName, string darkImageName, string toolTip)
+    {
+        var buttonData = new PushButtonData(buttonName, buttonText, assembly.Location, className)
+        {
+            ToolTip = toolTip,
+            LargeImage = ImagineUtilities.LoadThemeImage(assembly, lightImageName, darkImageName)
+        };
+
+        var button = panel.AddItem(buttonData) as PushButton;
+
+        // Register this button for theme updates
+        _themeAwareButtons.Add((button, assembly, lightImageName, darkImageName));
     }
 
     private void CreateSleevesPulldownButton(RibbonPanel ribbonPanel)
@@ -59,12 +84,14 @@ public class AppCommand : IExternalApplication
 
         var pulldownButton = ribbonPanel.AddItem(pulldownButtonData) as PulldownButton;
 
+        var floorSleeveButtonData = FloorSleeveRound.CreatePushButtonData();
+        pulldownButton.AddPushButton(floorSleeveButtonData);
 
-        var roundButtonData = WallSleevesRound.CreatePushButtonData();
-        pulldownButton.AddPushButton(roundButtonData);
+        var roundSleeveButtonData = WallSleevesRound.CreatePushButtonData();
+        pulldownButton.AddPushButton(roundSleeveButtonData);
 
-        var rectangularButtonData = WallSleevesRectangular.CreatePushButtonData();
-        pulldownButton.AddPushButton(rectangularButtonData);
+        var rectangularSleeveButtonData = WallSleevesRectangular.CreatePushButtonData();
+        pulldownButton.AddPushButton(rectangularSleeveButtonData);
 
         var realignElement = RealignElement.CreatePushButtonData();
         pulldownButton.AddPushButton(realignElement);

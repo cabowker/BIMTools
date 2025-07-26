@@ -1,0 +1,124 @@
+﻿<Window x:Class="ValorVDC_BIMTools.Commands.FloorSleevesRound.Views.FloorSleeveView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:viewModels="clr-namespace:ValorVDC_BIMTools.Commands.FloorSleevesRound.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance viewModels:FloorSleeveViewModel}"
+        Title="Floor Sleeves" Height="325" Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="LightGray">
+
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ValorVDC_BIMTools;component/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="10"
+          Background="WhiteSmoke">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Title and Sleeve Selection -->
+        <TextBlock Grid.Row="0"
+                   Text="Select A Floor Sleeve Type"
+                   HorizontalAlignment="Center"
+                   FontWeight="Bold"
+                   FontSize="18"
+                   Margin="0,10,0, 10" />
+
+        <ComboBox Grid.Row="1"
+                  ItemsSource="{Binding FloorSleeveSymbols}"
+                  SelectedItem="{Binding SelectedFloorSleeve, UpdateSourceTrigger=PropertyChanged}"
+                  DisplayMemberPath="Name"
+                  Margin="25,0,25, 15" />
+
+        <!-- Multiple Sleeve Types Checkbox -->
+        <CheckBox Grid.Row="2"
+                  Content="Use Multiple Sleeve Types"
+                  IsChecked="{Binding UseMultipleSleeveTypes}"
+                  Margin="25,0,25,10" />
+
+        <!-- Larger Sleeve Types Selection -->
+        <Grid Grid.Row="3"
+              Margin="25,0,25,10"
+              Visibility="{Binding UseMultipleSleeveTypes, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ComboBox Grid.Row="0"
+                      Grid.Column="0"
+                      ItemsSource="{Binding AvailablePipeSizes}"
+                      SelectedItem="{Binding SelectedPipeSizeItem, UpdateSourceTrigger=PropertyChanged}"
+                      Margin="0,0,5,5"
+                      DisplayMemberPath="DisplayText" />
+            <TextBlock Grid.Row="0"
+                       Grid.Column="1"
+                       Text="For pipes larger than selected size"
+                       Margin="5,5,0,0" />
+
+            <ComboBox Grid.Row="1"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="2"
+                      ItemsSource="{Binding FloorSleeveSymbols}"
+                      SelectedItem="{Binding SelectedSleeveForLarger, UpdateSourceTrigger=PropertyChanged}"
+                      DisplayMemberPath="Name"
+                      Margin="0,5,5,0" />
+        </Grid>
+
+        <!-- Status Message -->
+        <TextBlock Grid.Row="4"
+                   Text="{Binding StatusMessage}"
+                   TextWrapping="Wrap"
+                   Margin="25,0,25, 10" />
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,10"
+                    Visibility="{Binding ShowLoadFamilyButtons, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Button Content="Load Default Family"
+                    Command="{Binding LoadDefaultFamilyCommand}"
+                    Padding="10, 5"
+                    Margin="0,0,10,0" />
+        </StackPanel>
+        <StackPanel Grid.Row="6"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0, 10">
+            <Button Content="Browse"
+                    Command="{Binding BrowsePCCommand}"
+                    Padding="10, 5" />
+            <Button Content="Place Floor Sleeve"
+                    Command="{Binding PlaceFloorSleeveCommand}"
+                    IsEnabled="{Binding CanPlaceFloorSleeve}"
+                    Padding="10,5"
+                    Margin="10,0" />
+            <Button Content="Cancel"
+                    Command="{Binding CancelCommand}"
+                    Padding="10, 5" />
+        </StackPanel>
+
+    </Grid>
+</Window>

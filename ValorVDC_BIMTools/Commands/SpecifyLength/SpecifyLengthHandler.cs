@@ -92,6 +92,7 @@ public class SpecifyLengthHandler : IExternalEventHandler
     public void Stop()
     {
         keepRunning = false;
+        SpecifyLength.SpecifyLengthHandlerManager.SignalCompletion();
         TaskDialog.Show("Stopped", "Command has been stopped.");
     }
 
@@ -103,6 +104,9 @@ public class SpecifyLengthHandler : IExternalEventHandler
     private void StopOnEscape()
     {
         if (Keyboard.IsKeyDown(Key.Escape))
+        {
             keepRunning = false;
+            TaskDialog.Show("Stopped", "Command has been stopped. Via Escape key.");
+        }
     }
 }

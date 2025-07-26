@@ -289,7 +289,7 @@ public class WallSleevesRound : IExternalCommand
         return new PushButtonData(buttonName, buttonText, assembly.Location, className)
         {
             ToolTip = "Create Round Wall Sleeves",
-            LargeImage = ImagineUtilities.LoadImage(assembly, "deathStar-32.png")
+            LargeImage = ImagineUtilities.LoadImage(assembly, "RoundSleeveButton_32x32.png")
         };
     }
 }
